@@ -1,43 +1,46 @@
+
+
 \documentclass[a4paper,twoside,11pt]{report} %openright
-\input{Setup/Statics.tex}
-\input{Setup/Preamble.tex}
-\input{Setup/Settings.tex}
+\input{Setup/Statics}
+\input{Setup/Preamble}
+\input{Setup/Settings}
 
 \begin{document}
 
 \pagenumbering{roman}
-\input{Frontmatter/Frontpage.tex}
+\include{Frontmatter/Frontpage}
 \pagecolor{white}
 \newgeometry{top=2.81cm, bottom=2.75cm, outer=2.5cm, inner=3.5cm}
 \pagestyle{empty}
 \cleardoublepage 
-\input{Frontmatter/Copyright.tex}
+\include{Frontmatter/Copyright}
 \clearpage 
 \pagestyle{main}
-\input{Frontmatter/Approval.tex}
+\include{Frontmatter/Approval}
 \clearpage 
-\input{Frontmatter/Abstract.tex}
+\include{Frontmatter/Abstract}
 \clearpage 
-\input{Frontmatter/Acknowledgements.tex}
+\include{Frontmatter/Acknowledgements}
 \cleardoublepage 
 \tableofcontents
 \cleardoublepage 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pagenumbering{arabic}
-\input{Chapters/01_Introduction.tex}
+\include{Chapters/01_Introduction}
 \cleardoublepage 
-\input{Chapters/02_Colours.tex}
+\include{Chapters/02_Colours}
 \cleardoublepage 
-\input{Chapters/03_Examples.tex}
+\include{Chapters/03_Examples}
 \cleardoublepage 
+\include{Chapters/coordinate_systems}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \printbibliography[heading=bibintoc,title={Bibliography}]
 \cleardoublepage 
 \appendix
-\input{Backmatter/Appendix.tex}
+\include{Backmatter/Appendix}
 \cleartoleftpage
-\input{Backmatter/Backpage.tex}
+\include{Backmatter/Backpage}
 
 \end{document}
