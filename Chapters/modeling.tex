@@ -1,0 +1,146 @@
+\chapter{Modeling}
+This sections is devoted to:
+
+\begin{enumerate}
+	\item Different state-space representations of a tracked target.
+	\item Different motion models for a tracked target.
+	\item Different sensors and their models	
+\end{enumerate}
+
+\section{State-space}
+Assuming the target's motion on a \emph{two-dimensional tracking plane}, then two different state-space descriptions can be used depending on the expression of the target's \emph{velocity vector}:
+
+\begin{enumerate}
+	\item Cartesian velocity model 
+	
+	$$\mathbf{x} = \left[x,y,\dot{x}, \dot{y},\omega\right]^{T} $$
+		
+	\item Polar velocity model 
+	
+	$$\mathbf{x} = \left[x,y,\upsilon, \psi,\omega\right]^{T} $$
+		
+\end{enumerate}
+
+where
+
+\begin{subequations}
+	\begin{align}
+		\upsilon &= \sqrt{\dot{x}^2 + \dot{y}^2}  \\
+		\psi &= \arctan\left(\frac{\dot{y}}{\dot{x}}\right) \\
+		\omega &= \dot{\psi}
+	\end{align}
+\end{subequations}
+
+\begin{description}
+	\item $(x,y)$ : the displacement relative to the local tracking coordinate system
+	\item $\upsilon$ : is the target's linear velocity magnitude.
+	\item $\psi$ : is the target's velocity vector heading angle w.r.t the tracking system's x-axis.
+	\item $\omega$ : the target's turn rate.
+\end{description}
+
+
+
+
+
+
+\section{Motion models}
+
+
+As discussed in a previous section, when choosing a coordinate system for the target motion model, it is very convenient to assume the target's state on a the own-ship's two dimensional tracking plane.
+
+
+
+In order to improve the quality the stability and the accuracy of the estimations, the ships are assumed to comply with dynamic motion models. The tracking problem therefore is that of estimating the model's parameters for a target, taking into consideration all available observations from various sensors.
+
+
+The physical constraints and dynamics of the problem of tracking floating targets at sea, justify the use of a 2-D kinematic model. Such a model can capture with sufficient accuracy the configuration space of a remote vessel's maneuvering behavior. In the context of tracking, targets are assumed to be point objects with negligible dimensions corresponding to the mean vessel position. Maneuvering ships exhibit very characteristic trajectories and as such their  motion can be sufficiently expressed for the purpose of tracking by second-order dynamical models.
+
+While the motion models proposed in literature are numerous, most of them are maintaining a relatively low level of complexity. \emph{Linear motion} models assume a constant linear velocity(CV) or constant linear acceleration (CA) \cite{Schubert2008}. These models have the advantage that the state transition equations are linear, and thus Gaussian probability densities can be efficiently and optimally propagated as matrix multiplications. Unfortunately linear models are restricted to straight-line motions and are thus unable to model rotations, especially the yaw rate, into account. In general, a vessel follows slow parabolic-type maneuvers. If one introduces the angular speed of the target around its z-axis as well, the resulting models are referred to as \emph{curvilinear} models. These models can be further distinguished by the selected state variables which are assumed to be constant.
+
+\subsection{Continuous constant turn rate and velocity (CTRV) model}
+
+
+Starting with a time continuous model:
+
+\begin{equation}
+\begin{aligned}\dot{\mathbf{x}}(t) = f(\mathbf{x}(t)) + w(t) &&,\mathbf{x} = \left[x,y,\upsilon, \psi,\omega\right]^{T}  \end{aligned}
+\end{equation}
+
+
+then assuming that the linear velocity $\upsilon$ and the turn rate $\omega$ remain constant  --- which is a fair assumption for a moving vessel --- then the non-linear differential equations describing the motion are according to \cite{Schubert2008}
+
+\begin{equation}\label{eq:CTRV_continuous}
+f =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\upsilon} \\ \dot{\psi} \\ \dot{\omega}  \end{bmatrix}=  \begin{bmatrix}\upsilon cos(\psi) \\ \upsilon sin(\psi) \\ 0 \\ \omega \\ 0  \end{bmatrix}
+\end{equation}
+
+which is describing  \emph{constant turn rate and velocity} (\textbf{CTRV}) model since the linear and angular velocities accelerations are zero.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/2d_track_state.png}
+	\caption{Tracked target state vector top view, in the own-ship's tracking coordinate system}.
+	\label{fig:state_vector}
+\end{figure}
+
+\subsection{Discretisation of the CTRV motion model}
+
+Since the system is simulated in discrete time, one can integrate the motion model differential equations in \cref{eq:CTRV_continuous} within a sample time $T$ and obtain the state transition function vector
+
+
+\begin{equation}
+\begin{aligned}
+\mathbf{x}(t+T) = \mathbf{x}(t) + \int_{t}^{t+T}(f(\mathbf{x}(\tau)+w(\tau) )d\tau &&\text{and}&& f(\mathbf{x(\tau)})=  \begin{bmatrix}\upsilon cos(\psi) \\ \upsilon sin(\psi) \\ 0 \\ \omega \\ 0  \end{bmatrix}
+\end{aligned}
+\end{equation}
+
+where 
+
+\begin{equation}
+\mathbf{x(\tau)} = \left[x,y,\upsilon, \psi,\omega\right]^{T}
+\end{equation}
+
+is the state-space vector, and
+
+\begin{equation}
+w(\tau ) 
+\end{equation}
+
+is the process noise vector
+
+and hence , after ignoring noise,  the discrete state transition vector $g$ is
+
+
+\begin{equation}
+\mathbf{x}(t+T) = g\left(\mathbf{x}(t)\right)
+\end{equation}
+
+where $g(\mathbf{x}(t))$ by direct integration, for $\mathbf{x}(t) =\left[x,y,\upsilon, \psi,\omega\right]^{T} $ is
+
+
+
+\begin{equation}
+g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
+\frac{2\upsilon}{\omega}sin(\omega T)cos(\psi + \frac{\omega T}{2})\\
+-\frac{2\upsilon}{\omega}sin(\omega T)cos(\psi + \frac{\omega T}{2})\\
+0 \\
+\omega T \\
+0
+\end{bmatrix} , \omega \neq 0
+\end{equation}
+
+or
+
+
+\begin{equation}
+g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
+\upsilon T cos(\psi)\\
+\upsilon T sin(\psi)\\
+0 \\
+0 \\
+0
+\end{bmatrix} ,  \omega = 0
+\end{equation}
+
+\todo{Finish up with process noise input function as well!}
+
