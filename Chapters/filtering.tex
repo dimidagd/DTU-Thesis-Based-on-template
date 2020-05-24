@@ -1,0 +1,145 @@
+\chapter{Filtering}
+
+To obtain kinematic components of a moving target such as position, velocity and acceleration, the predominant method in target tracking is using stochastic estimation approaches. A moving target is described by a state-space dynamic model driven by white process noise, and mean-square estimates are calculated using noisy measurements. Models of this kind constitute the basis of Kalman Filters, which are the basic algorithms in target tracking, either as single filters or used as modules of a more complex algorithm. Many algorithms have also been developed trying to tackle nonlinearities, multiple target tracking or measurement association\cite{Ekstrand2012}.
+
+For the case of a linear system with a known state transition matrix and additive white Gaussian process noise, the classic Kalman Filter provides an optimal estimate in terms of minimum means square error (\emph{MMSE}). However, for non-linear systems, state-estimation remains a challenging problem attracting intense research interest. Optimal nonlinear filters are often infinite dimensional and thus difficult to implement and computationally intractable. In a deterministic framework, optimal nonlinear observers are available when the systems exhibit a special structure \cite{Krener1985} , however in general nonlinear filtering cases, approximate and computationally tractable solutions are used in practice\cite{Daum2005}.
+
+Approximate nonlinear filters can be subdivided into two classes depending on the representation form of the probability distributions. Filters in the first class are based on analytically or numerically linearizing the motion and observation models. The standard Kalman filter is then applied to the linearized state and measurement equations evaluated at an operating point. The operating point is chosen as the best current estimate based on the linearized system with the expectancy of being close to the true state\cite{Shalom2001}. The Extended Kalman Filter (EKF) belongs to this class of filters, and is a computationally effective algorithm finding applications in many areas such as motor control\cite{Terzic2001}, power system analysis\cite{Khazraj2016}, weather forecasting\cite{Rosnay2012}, and target tracking which is the main focus of this writing\cite{Shalom1995}. The alternative class of nonlinear filters use Monte Carlo Sampling to approximate the actual state's probability distribution.  A particle filter (PF) is propagating the sampled distribution through the nonlinear motion model and then re-samples the distribution based on the likelihood of measurement models. 
+
+Both approaches do not tackle directly a fundamental issue in target tracking, that of data-association. In most tracking situations, sensors provide measurements both for the target of interest as well as for different targets/noise present in the environment. Filtering frameworks need to be able to handle this additional lack of information. Probabilistic Data Association  \todo{cite} variants of the EKF and PF effectively tackle this problem by leveraging systematic knowledge of a \emph{clutter-model} and making intelligent decisions between the uncertainty levels of the estimated states and the observation's inherent noise models.
+
+This section is thus devoted to:
+
+\begin{description}
+	\item[Linear filters] namely, Kalman Filters.
+	\item [Non-linear filters] filtering methods such as
+	\begin{itemize}
+		\item[EKF] Extended Kalman Filters
+		\item[PF]Particle Filters
+		\item[PDAF] Probabilistic Data Association Filters 
+	\end{itemize}
+	\item Performance analysis and suitability of the different filters
+\end{description}
+
+\todo{Write general introduction to filtering}
+
+\section{Kalman Filters}
+
+\begin{description}
+	\item System's state evolution $\mathbf{x}\_{k+1} = f(\mathbf{x}\_k,u_k) + w_{\textit{x}}$ is linear and driven by
+	\begin{description}
+		\item Known input $u_k$
+		\item Additive process noise $w_{\textit{x}}$ which is assumed to be a zero-mean, white and uncorrelated with known covariance matrix $Q(k)$
+	\end{description}
+	\item The measurements $ z_k = h(x_k,u_k) + w_z $  are linear function of the state vector and the input vector with
+	\begin{description}
+		\item Additive zero-mean white noise with known covariance $R(k)$
+	\end{description}
+	\item The \emph{initial state} vector is a random variable with known mean $\mathbf{x}\_0$ and covariance $P_0$ (initial uncertainty)
+\end{description}
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/KF2.png}
+	\caption{Block diagram of a discrete Kalman filtering algorithm}.
+	\label{fig:state_vector}
+\end{figure}
+\todo{cite}
+
+
+Under the above assumptions the Kalman Filter is the minimum mean square error (MMSE) state estimator. If the random variables are \emph{not Gaussian}, but one can still obtain their first two moments, then the KF is still the \emph{best linear MMSE estimator} \cite{Shalom1995}.
+
+\subsection{Kalman Filter limitations}
+
+For all its powerful characteristics, such as optimality and robustness, the Kalman Filter algorithm is not flexible enough to accommodate target tracking\cite{Shalom1995}.
+
+\begin{itemize}
+	\item Trigonometric functions lead to
+		\begin{itemize}
+			\item Nonlinear motion models
+			\item Nonlinear observation models
+		\end{itemize}
+	\item It is unable to capture mode changes(target maneuvers)
+	\item Can't handle cross-correlated noise
+	\item It is a single target & unimodal method
+\end{itemize}
+
+\section{Extending the Kalman Filter}
+
+The EKF is a suboptimal state estimation algorithm for nonlinear systems.
+
+\subsection{Modeling assumptions}
+
+\begin{itemize}
+	\item Same as the KF except that the state transition function $f$ and/or the measurement function $h$ are nonlinear, note that the noises are still assumed to enter additive into the state update/measurement equations.
+	\item \emph{First order Taylor expansion} of the nonlinear functions around the current state is a reasonable approximation of the original nonlinear functions.
+\end{itemize}
+
+\subsection{Taylor approximation of the CTRV model}
+
+The Constant Turn Rate and Velocity model can be approximated using a 1st order Taylor approximation around an operating point. This process involves the analytical \emph{Jacobian} calculation of a vector function, a usually trivial process in reasonably compact low-order systems.
+
+
+A discrete nonlinear motion model $x_{k} = f({x}_{k-1})$ can be linearized around a known state $x_{k-1}$
+
+
+
+
+\begin{equation}
+f_{k-1} \approx F_{k-1} =
+\begin{bmatrix}
+\nabla_{x_{k-1}} f_{k-1}^{T}(x_{k-1})
+\end{bmatrix}_{x_{k-1} \rightarrow\text{latest estimate}}^{T}
+\end{equation}
+
+
+and for the \emph{CTRV} motion   model this leads to
+
+
+
+
+\begin{equation}
+F_{{CTRV}_{k-1}} =
+\begin{bmatrix}1 &0 &\frac{sin(h+T\omega) - \sinh}{\omega} & \upsilon \frac{cos(h+T\omega)-cosh}{\omega} & \upsilon\frac{sinh -sin(h+T\omega) + T\omega cos(h+T\omega)}{\omega^{2}}\\\\
+0 &1 &-\frac{cos(h+T\omega) - cos(\omega)}{\omega} &\upsilon \frac{sin(h+T\omega)-sinh}{\omega} & \upsilon\frac{cos(h + T\omega) -cosh + T\omega sin(h+T\omega)}{\omega^{2}}\\\\
+0 &0 &1 &0 &0 \\\\
+0 &0 &0 &0 &1\end{bmatrix}
+\end{equation}
+
+
+\subsection{Taylor approximation of the observation models}
+
+
+Similarly, a measurement model $z_k=h(\mathbf{x_k})$ can be linearized around the latest motion propagated estimate $x_{k}$ as
+
+
+\begin{equation}
+h_{k} \approx H_{k} =
+\begin{bmatrix}
+\nabla_{x_{k}} h_{k}^{T}(x_{k})
+\end{bmatrix}_{x_{k} \rightarrow\text{motion updated estimate}}^{T}
+\end{equation}
+
+For example, the \emph{radar model} that measures distance and bearing  to a target with known state vector $\mathbf{x}_k = [x,y,\upsilon,h,\omega]^T$, can be linearized as:
+
+
+\begin{equation}
+H_k =
+\begin{bmatrix}
+\frac{x}{\sqrt{x^2+y^2}} &\frac{y}{\sqrt{x^2+y^2}} &0 &0 &0 \\\\
+-\frac{y}{x^2+y^2} &\frac{x}{x^2+y^2} &0 &0 &0
+\end{bmatrix}
+\end{equation}
+
+\subsection{Limitations}
+
+The quality of approximating the state transitions and measurement using Taylor expansions depends on two main factors. At first, the degree of nonlinearity of the functions that are being approximated. If the manifold is generally smooth and close to being linear, then the Taylor approximation is fair enough, and an Extended Kalman Filter can approximate the posterior probability distributions with sufficient accuracy. However, the functions can besides non-linear be multi-modal, in which case a Taylor expansion might be a poor approximation. The accuracy of the approximation at a second level depends on the compactness of the probability distributions. The less certain one is about the state-estimate, the wider the Gaussian belief, and the more the nonlinearities or the multiple modalities affect the state transition and measurement functions \cref{fig:taylor_approximation}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/EKF_lineariation_error.png}
+	\caption{Gaussian PDF propagation through a nonlinear model and Taylor-approximations\cite{Thrun2005}.}.
+	\label{fig:taylor_approximation}
+\end{figure}
+

@@ -1,0 +1,95 @@
+
+\chapter{Testing environment }
+
+A simulation environment was developed with the purpose of testing the various filtering algorithms in this thesis. Specific effort was devoted in developing the codebase in a modular way, so that most of the software code can be reused in between different simulation setups. Implementing new methods should be a matter of designing a new class, which can be readily tested on the core simulator code. While software development in this thesis is focused mostly on providing a workable test environment, the author was looking into forward integration of the code in a broader software stack. In that sense specific effort had to be devoted into following good development practices, by documenting code where necessary, following naming conventions and maintaining a code quality that will assist in possible future integration of the code.
+
+
+\section{Simulator characteristics}
+
+An environment is defined by:
+\begin{itemize}
+	\item State space definition 
+	\item Sample time $T_s$ that defines the state transition calculations.
+	\item Simulated objects list
+	\item Tracked targets list
+	\item Sensor modules
+	\item Environment visualization plots
+	\item Tracking performance metrics
+\end{itemize}
+
+
+\begin{description}
+	\item[State-space] Defines the motion and observation models
+	\begin{itemize}
+		\item Cartesian position and cartesian velocity
+		\item Cartesian position and polar velocity
+	\end{itemize}
+\end{description}
+
+\begin{description}
+	\item[Moving objects] A list of simulated point objects in the environment defined by:
+	\begin{itemize}
+		\item Initial state
+		\item Selected simulation motion model
+		\item Selected input noise intensities
+	\end{itemize}
+\end{description}
+
+\begin{description}
+	\item[Tracked targets] Maintain a list of tracked targets. Each target is created given:
+	\begin{itemize}
+		\item Initial target state
+		\item Initial tracked target uncertainty
+		\item A filter which can be based on
+			\begin{description}
+				\item[Continuous methods]:
+					\begin{itemize}
+						\item Kalman Filter
+						\item Extended Kalman Filter
+						\item Probabilistic Data Association Extended Kalman Filter
+					\end{itemize}		
+			\end{description}
+			\begin{description}
+				\item[Sampled methods]:
+					\begin{itemize}
+						\item Particle Filter
+						\item Probabilistic Data Association Particle Filter
+					\end{itemize}
+			\end{description}			
+	\end{itemize}
+\end{description}
+
+
+\begin{description}
+	\item[Sensor modules] Each type of sensor defines a different class and each modeled sensor in the environment is defined by a different object. During the environment updates, the sensor modules are providing observations to the filtering module either as virtual sensors, or from real data logs.
+	\begin{description}
+		\item[Virtual sensors]
+		\begin{itemize}
+			\item[]
+			\item Virtual measurements are being calculated for the simulated \emph{moving objects} based on the inverse observation models, at a defined update frequency.
+			\item Variable noise intensities
+			\item Variable number of outliers
+			\item Measurement association is known and can be included or not in the problem.
+		\end{itemize}
+		\item[Real data sensors]
+				\begin{itemize}
+					\item[]
+					\item Data logs are being aggregated and sampled into an indexing data-structure based on their timestamps and the environment sample time $T_s$.
+					\item Observations are being "fetched" by the sensor module whenever a new measurement is available based on the current steps.
+				\end{itemize}
+		
+	\end{description}
+\end{description}
+
+	
+	
+\section{Differences between simulated and real targets}
+
+The general environment structure allows for little to no changes in the test scripts, between simulating a target or using the actual recorded data. Most of the changes concern the lack of actual ground truth for the targets to compare against filtering performance, and re-tuning of filtering parameters.
+\begin{itemize}
+	\item  The origin of an observation is not associated with a tracked target, hence the data association problem arises.
+	\item No ground truth is available for the real targets.
+	\item Possible mismatch in the modeled motion noise 
+	\item Possible mismatch in the modeled observation noise.
+	\item Possible mismatch in the observation association process.
+\end{itemize}

@@ -144,3 +144,379 @@ g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
 
 \todo{Finish up with process noise input function as well!}
 
+\section{Observation models}
+
+An \emph{observation model} or \emph{sensor model} $z_k = h(\mathbf{x_k}) + w_k$ expresses a sensor's observations $z_k$ at time instances $t_k$ given the state vector $\mathbf{x}$ . $w_k$ is assumed to be white gaussian noise with covariance matrix that depends on the specific sensor. The selection of the state vector $\mathbf{x}$ can lead to linear or nonlinear observation models.
+
+The author is using the term \emph{observations} in the tracking context to refer to the post processed information derived from raw-sensor \emph{measurements}. In most cases the observations are a byproduct of multiple raw sensor measurements. For instance line of sight sensors such as a laser distance sensor, a radar, create dense point representations around the sensor's origin. These points can be grouped into geometric entities by various feature extraction algorithms, in order to create target \emph{observations}.  Likewise, a camera in the tracking context, instead of an imaging device, can be modeled as a relative bearing sensor, by pre-processing the raw image data through an ANN that extracts detected targets pixel locations within the frames. This abstraction level greatly simplifies the measurement models, since one can directly focus on the data-fusion and bypass the observation acquisition process, which at a certain level constitutes a separate and independent task. It is worth mentioning that the author in this thesis chose to focus on a \emph{medium level fusion approach}\cite{Luo2002}, which means that features(target's position) are fused to obtain features of better quality that can be employed by different tasks.
+\todo{Disambiguate different sensor fusion levels, provide a whole section?}
+
+
+
+\todo{insert radar pre and post processing clustering section, as well as ANN detection images}
+
+
+\subsection{Radar model}
+
+The output of the radar observation model is assumed to be the relative range and bearing measurements of the centroids of clustered raw radar measurements. The model is thus derived by calculating the relative position of a target to the sensor in polar form $z_{radar} = \begin{bmatrix}
+\rho,
+\theta
+\end{bmatrix}^{T}$ , given the target's position $\begin{bmatrix}x_t, y_t\end{bmatrix}^{T}$ w.r.t the sensor's coordinate system.
+\todo{rewrite based on known target and own-ship?}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/radar.png}
+	\caption{Radar observation model and different coordinate systems}.
+	\label{fig:radar_observation_model}
+\end{figure}
+
+
+If the radar's coordinate system, is for simplicity  chosen to coincide with a \emph{tracking coordinate system},  attached to the own-ships sea-keeping coordinate system. Then the information about the own-ship is not necessary in the calculations and as such
+
+\begin{equation}
+z_{radar}(\mathbf{x}) = \begin{bmatrix}
+\rho \\
+\theta
+\end{bmatrix} = \begin{bmatrix}
+\sqrt{x^2 + y^2} \\
+arctan(\frac{y}{x})
+\end{bmatrix} + w_{radar}
+\end{equation}
+
+
+where the observation noise $w$ is commonly assumed to be white, zero-mean Gaussian with covariance $R_{radar} = \text{diag}\left[\sigma^2_{\rho}, \sigma^2_{\theta}\right] $
+
+
+
+A reasonable sizing of the noise variances can be
+\todo{write part on actual values selection}
+\begin{description}
+	\item $\sigma^2_\rho = \SI{10}{\meter}$
+	\item $\sigma^2_\theta = \SI[parse-numbers=false]{3\frac{\pi}{180}}{\radian}  $
+\end{description}
+
+\subsection{Converted measurements GPS model}
+
+
+The relative GPS observation model calculates the target's relative position $\begin{bmatrix}x, y\end{bmatrix}^{T} $ w.r.t the own-ship's tracking coordinate system, which is directly a part of the target's state vector$\mathbf{x}$
+\todo{needs rewriting}. 
+
+\begin{enumerate}
+\item The own-ship's geodetic coordinates $\begin{bmatrix}\phi_{0}, \lambda_{0} \end{bmatrix}^{T}$
+\item The own-ships sea-keeping heading angle from true north $\psi_{\textit{0}}$
+\item The target's measured geodetic coordinates $\begin{bmatrix}\phi, \lambda\end{bmatrix}^{T}$ which is usually available at sea through the Automatic Identification System.
+\end{enumerate}
+
+
+
+
+\begin{equation}
+z_{GPS}(\mathbf{x},\begin{bmatrix}\phi_{0}, \lambda_{0}, \psi_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+x \\
+y
+\end{bmatrix}_{GPS} = \begin{bmatrix}
+x \\
+y
+\end{bmatrix} + w_{GPS}
+\end{equation}
+
+The fact that the geodetic coordinates origin and the heading angle of the own-ship is not included in the state-space representation leads to a \emph{linear observation model}.
+
+The observations are pre-converted to \emph{tracking coordinates}, and the noise is added on the the post-converted observations.
+
+The AIS observations $[\phi, \lambda]^{T}$ can be transformed into tracking coordinates $[x,y]^{T}$ by using the transformations from the relative chapter.
+
+
+\begin{equation}
+\begin{bmatrix}
+x \\
+y
+\end{bmatrix} = R_z(\frac{\pi}{2}-\psi_{\textit{0}}) \cdot F_1\left(F_2(\begin{bmatrix}
+\phi \\
+\lambda
+\end{bmatrix}),\begin{bmatrix}
+\phi_0 \\ \lambda_0
+\end{bmatrix}\right)
+\end{equation}
+
+Where
+
+\begin{description}
+	\item $F_2\left(\begin{bmatrix}
+	\phi \\
+	\lambda
+	\end{bmatrix}\right)$ is the transformation from geodetic to ECEF coordinates
+	\item $F_2\left(\begin{bmatrix}
+	\phi \\
+	\lambda
+	\end{bmatrix}\right)$ is the transformation from geodetic to ECEF coordinates
+	\item $F_1\left( \begin{bmatrix}
+	X \\
+	Y \\
+	Z
+	\end{bmatrix}_{ECEF},\begin{bmatrix}
+	\phi_0 \\
+	\lambda_0
+	\end{bmatrix}\right)$ is the transformation from ECEF to ENU, given the geodetic coordinates of the own-ship $\begin{bmatrix}
+	\phi_0,
+	\lambda_0
+	\end{bmatrix}^T$ as a reference point.
+	\item $R_z(\theta)$ is the transformation from ENU to \emph{sea-keeping/tracking }coordinate system.
+\end{description}
+
+\subsection{AIS observation model}
+
+An alternative method to using the aforementioned GPS model is to leverage the fact that the tracked targets are in the vicinity of the own-ship, and thus small differences in geodetic coordinates can be linearly mapped to ENU differences and the other way around\cite{Wellenhof1997}.
+
+
+
+\begin{equation}
+	\begin{bmatrix}
+		\phi\\ \lambda
+		\end{bmatrix}_{\text{target}}=
+		\begin{bmatrix}
+		\phi_{0}\\ \lambda_{0}
+	\end{bmatrix}_{\text{own-ship}} + \begin{bmatrix}
+	\delta\phi \\ \delta\lambda
+	\end{bmatrix} + w_{\textit{AIS}}
+\end{equation}
+
+
+By differentiating the model mentioned in the Coordinate systems section, one can confirm that for given own-ship geodetic coordinates $(\phi_0,\lambda_0, h_0)_{\textit{own-ship}}$
+
+
+
+\begin{equation}
+\begin{bmatrix}
+dE\\dN\\dU
+\end{bmatrix}=
+\begin{bmatrix}
+(N(\phi_0)+h_0)\cos\phi_0 &0 &0\\
+0 &M(\phi_0) + h_0 &0\\
+0 &0 &1
+\end{bmatrix}
+\begin{bmatrix}
+d\lambda\\d\phi\\dh
+\end{bmatrix}
+\end{equation}
+
+
+Tracking is performed \emph{at sea level}, thus $h=0$, leading to
+
+
+\begin{equation}
+\begin{bmatrix}
+d\lambda\\ d\phi
+\end{bmatrix}=
+\mathbf{T}(\phi)^{-1}
+\begin{bmatrix}
+dE\\ dN
+\end{bmatrix}
+\end{equation}
+
+
+
+Since the target's state is in the \emph{tracking/seakeeping} coordinate system, one needs to transform it to ENU.
+
+If $\mathbf{R}_z(\psi)$ is the Euler's angle transformation for a rotation $\psi$ around the z-axis, then the transformation from \emph{sea-keeping/tracking to ENU}
+
+$$\mathbf{R}^{\textit{ENU}}_{\textit{sea-keeping}} $$
+
+given the own-ship's *heading from true-north* $\psi_{\textit{0}}$
+is ,
+
+
+\begin{equation}
+R_{\textit{sea-keeping}}^{\textit{ENU}} = R_{z}(\frac{\pi}{2}-\psi_{\textit{0}})
+\end{equation}
+
+
+\begin{equation}
+\begin{bmatrix}
+dE\\ dN
+\end{bmatrix}=
+R_{\textit{sea-keeping}}^{\textit{ENU}}
+\begin{bmatrix}
+x\\ y
+\end{bmatrix}_{\textit{\{t\}}}
+\end{equation}
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/coords.png}
+	\caption{Tracking frame and own-ship sensor frame}.
+	\label{fig:track_vs_own_ship}
+\end{figure}
+
+
+
+and thus, by combining the above equations, one can solve for the observed $[\phi, \lambda]^{T}$,
+
+\begin{equation}
+\begin{aligned}
+\begin{bmatrix}
+\phi\\ \lambda
+\end{bmatrix}&=
+\begin{bmatrix}
+\phi_{0}\\ \lambda_{0}
+\end{bmatrix} + {\mathbf{T}(\phi_{0})}^{-1}\begin{bmatrix}
+dE\\ dN
+\end{bmatrix} + w_{\textit{AIS}}=  \\
+&\begin{bmatrix}
+\phi_{0}\\ \lambda_{0}
+\end{bmatrix}_{\textit{own-ship}} + \mathbf{T}(\phi_{0})^{-1}
+\mathbf{R}^{\textit{ENU}}_{\textit{sea-keeping}}(\psi_{\textit{0}})
+\begin{bmatrix}
+X_{\textit{target}}\\ Y_{\textit{target}}
+\end{bmatrix}_{\textit{wrt}_{{\textit{sea-keeping}}}}+w_{\textit{AIS}}
+\end{aligned}
+\end{equation}
+
+
+Where
+
+\begin{description}
+	\item $\mathbf{T}(\phi)=
+	\begin{bmatrix}
+	N(\phi)\cos\phi &0\\
+	0 &M(\phi)
+	\end{bmatrix}
+	$ is the transformation matrix from \emph{geodetic differences} to \emph{ENU differences}.
+	\item $N(\phi) = \frac{\alpha}{\sqrt{1-e^2\sin^2\phi}}$ is the \emph{prime vertical radius of curvature}
+	\item $M(\phi) = \frac{\alpha(1-e^2)}{(1-e^2\sin^2\phi)^\frac{3}{2}}$ is the \emph{meridional radius of curvature}
+	\item $\alpha,\beta$ are the equitorial radius(6378.1370 km) and the Polar radius(6356.7523 km) respectively, as derived from the \emph{WGS-84 ellipsoid model}.
+	\item $e = \sqrt{1 -\frac{b^2}{a^2}}$ is the ellipsoid's eccentricity.
+	\item $h = 0 $ since the own-ship is always floating on the geoid.
+	\item $w_{\textit{AIS}}$ is white gaussian zero-mean noise with covariance matrix $\mathbf{R}_{\textit{AIS}}$ depending on the noise intensity of the AIS source.
+\end{description}
+
+The above equation can be rewritten to the standard observation model formulation
+
+\begin{equation}
+z_{AIS}(\mathbf{x},\begin{bmatrix}\phi_{0}, \lambda_{0}, \psi_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+\phi\\ \lambda
+\end{bmatrix}_{\textit{target}} = \begin{bmatrix}
+\phi_{0}\\ \lambda_{0}
+\end{bmatrix} + \mathbf{H}\mathbf{x} + w_{\textit{AIS}}
+\end{equation}
+
+, which is a linear observation model that is approximating the geoid with a \emph{spherical-linearization} about the own-ship's geodetic location.
+
+\subsection{Camera observation model}
+
+
+Assuming a camera sensor mounted on a mast with the camera z-axis aligned with the \emph{own-ship's body coordinate system}
+
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/camera2.png}
+	\caption{Camera alignment with the \emph{tracking} frame}.
+	\label{fig:camera_alignment_tracking}
+\end{figure}
+
+A top-view of the pinhole model is illustrated in \cref{fig:camera_pinhole}.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/camera_pinhole.png}
+	\caption{Pinhole model top-view}.
+	\label{fig:camera_pinhole}
+\end{figure}
+
+
+Then the observation model for the predicted pixel location of a target obtained from a deep neural-network classifier and localizer is found by projecting a point in homogeneous coordinates
+
+
+\begin{equation}
+x_{\text{wrt}_{\text{sea keeping}}} =\begin{bmatrix}x, y, 0, 1\end{bmatrix}^T
+\end{equation}
+
+
+to the finite camera frame, given measured information $z_{gyro}$ about the rotational angle of the \emph{own-ship body coord. system}, w.r.t the \emph{tracking coord. system}.
+
+
+
+\begin{equation}
+z_{\textit{cam}_{\textit{px}}}(\mathbf{x},z_{\textit{gyro}}) = \begin{bmatrix}u\\v\end{bmatrix}_{px}= \frac{\begin{bmatrix}-P_1-\\-P_2-\end{bmatrix}\mathbf{x}}{
+	\begin{bmatrix}
+	-P_3-
+	\end{bmatrix}
+	\mathbf{x}}+ w_{\text{camera}}
+\end{equation}
+
+
+Where $\mathbf{P}$ is the projection matrix and $P_{i}$ it's rows
+
+\begin{equation} \ref{eq:projection}
+P = \begin{bmatrix}-P_1- \\-P_2-\\-P_3- \end{bmatrix} = \mathbf{K}\mathbf{R_{\textit{own-ship}}^{\textit{camera}}}[\mathbf{I} | \mathbf{-C}]
+\begin{bmatrix}
+\mathbf{\mathbf{R}_{\textit{sea-keeping}}^{\textit{own-ship}}} &\mathbf{0}\\
+\mathbf{0} &1
+\end{bmatrix}
+\end{equation}
+
+Because of the denominator in \cref{eq:projection} this is a non-linear model, and a description of the matrices that comprise the projection matrix $P$ is given below:
+
+
+\subsubsection{$\mathbf{K}$}
+is the \emph{intrinsic camera calibration} matrix
+
+$$\mathbf{K} = \begin{bmatrix}f m_x &0 &p_x \\
+0 &f m_y &p_y \\
+0 &0 &z
+\end{bmatrix} $$
+
+with
+
+- $f$ is the intrinsic camera calibration parameter, focal length in mm
+- $m_x, m_y$ are the camera's sensor pixel density in $\frac{\text{number of pixels}}{mm}$ across the two different directions of the image plane.
+- $p_x,p_y$ correspond to the position of the principal point of the image in *pixel coordinates*
+- $w_{\textit{camera}}$ is white Gaussian zero mean noise with variance related to the classifier accuracy, or any calibration errors in the extrinsic and intrinsic camera matrices.
+
+\subsubsection{$\mathbf{R}_{\textit{own-ship}}^{\textit{camera}}$} 
+is the \emph{extrinsic camera rotation matrix }that describes the \emph{orientation of the camera coordinate system} w.r.t. the \emph{own-ship}.
+
+\subsubsection{$\mathbf{C}$}
+is the  \emph{extrinsic origin of the camera coordinate system} w.r.t. the \emph{own-ship}.
+
+
+\subsubsection{$\mathbf{R}_{\textit{tracking}}^{\textit{own-ship}}$} 
+Is the transformation matrix that corresponds to the \emph{roll-pitch} rotation of the \emph{own-ship's body coordinate system} w.r.t the \emph{tracking} coordinate system.. Please note that the order of the rotations matters.
+
+\begin{equation}
+R_{\textit{tracking}}^{\textit{own-ship}}=\left( R_{\textit{pitch}} R_{\textit{roll}}\right)^T
+\end{equation}
+
+Where $$R_{\textit{pitch}},R_{\textit{roll}}$$ are the standard rotation matrices for Euler's angles $z_{\textit{gyro}}=(\alpha,\beta)^T = (\textit{roll},\textit{pitch})^T$.
+
+
+\begin{equation}
+R_{\textit{roll}}= R_x(\alpha) =
+\begin{bmatrix}
+1 &0 &0\\
+0 &\cos\alpha &-\sin \alpha\\
+0 &\sin \alpha &\cos \alpha
+\end{bmatrix}
+\end{equation}
+
+
+and
+
+
+\begin{equation}
+R_{\textit{pitch}}= R_y(\beta) =
+\begin{bmatrix}
+\cos\beta &0 &\sin \beta\\
+0 &1 &0\\
+-\sin \beta &0 &\cos\beta
+\end{bmatrix}
+\end{equation}
+
+A basic assumption at this point, is that the own-ship is able to measure the angles $(\alpha,\beta)$ of the \emph{own-ship body coordinate system} w.r.t the \emph{tracking coordinate system}. These angles are usually available on a ship by using one or multiple \emph{gyro sensors}.
+\todo{check gyro sensors}
+

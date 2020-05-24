@@ -1,0 +1,82 @@
+\chapter{Introduction}
+\section{Problem statement}
+\subsection{Autonomy at sea}
+Autonomy at sea has the potential of providing many-fold solutions and benefits to existing financial, human-safety or ecological considerations. 
+
+\subsubsection{}
+\emph{Financially}, autonomy at sea can reduce crew costs, especially over long transport distances, and result in better fuel economy through optimized decisions. While one could argue that the construction cost of an autonomous ship increases due to sophisticated and complex systems onboard, it might also turn out that fully autonomous vessels can be constructed with lower investment cost, due to the lack of need to provision for crew accommodation, crew safety equipment, bridge support, and all the functionalities that maintaining human quality of life onboard. The potential crew cost savings span in a broad spectrum, depending on the type of ship and its function, but in general it is estimated that crew costs account for a substantially large proportional of a ship's operation, whether that be a cargo, passenger, supply or research vessel.
+\subsubsection{}
+\emph{"Who is responsible for avoiding a collision between two boats?"} turns out to be a frequently searched Googled term. Navigators are assumed to adhere to established regulations for preventing collisions at sea. \emph{International Regulations for Preventing Collisions at Sea(COLREG)} defines a set of rules that regulate navigational behavior for various situations encountered at sea including visual and audio signaling,  as well as expected maneuvering behaviors. Nevertheless, due to the endless number of parameters describing a particular situation, such as different berth depths, confined water-space, possible physical obstructions, different ship maneuverability abilities, weather conditions, only to name a few, even COLREG do not define the absolute right of way. The rules are in many cases open to interpretation and while in ports, there exists an air traffic controller equivalent, namely a \emph{vessel traffic controller} that helps in avoiding collisions, each navigator is \textit{"expected to assume responsibility for traversing the seas in a safe manner"}. According to a report issued by the \emph{European Maritime Safety Agency(EMSA)}, more than 18.000 collision incidents have been reported within a five-year time frame(2011-2016). The human and capital losses reported in \cref{fig:losses,fig:distribution} signify only but a fraction of the potential impact that autonomy at sea can provide. An effective holistic autonomous shipping ecosystem, minimizes accidents caused by human errors, while at the same time increasing the capacity of current carriage or transport
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/Europe-Ship-Safety.jpg}
+	\caption{Recorded maritime incidents from 2011 to 2016 – Credit: EMSA}.
+	\label{fig:losses}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/Distribution-of-Incidents.jpg}
+	\caption{Geographic distribution of maritime incidents in EU – Credit: EMSA}
+	\label{fig:distribution}
+\end{figure}
+
+\subsection{Situational awareness}
+Creating an intelligent vessel of equivalent or better --- compared to conventionally operated vessel--- performance and safety capabilities, requires the development of \emph{navigational situational awareness}. Developing situational awareness is not a trivial problem, as one is challenged to imitate the performance of an experienced seafarer, in accessing the numberless parameters as perceived through a navigator's senses(mostly vision), aided by the interfaced instruments onboard, and making optimal decisions despite the limited amount of certainty. A decisive factor in the effectiveness of this imitating process, is that  an \emph{autonomous system} has information abundance, being directly exposed to the full volume of data available from the sensors , and hence it has the potential of perceiving the environment with better accuracy than a human can through the limited communication bandwidth of human-machine interfaces and the small accuracy of ones senses. Where humans clearly outperform machines at, is combining abstract sensed information and life experience, in perceiving a scene. For all the abundant information available onboard, through for instance multiple cameras spanning 360 degrees around a vessel, or through the radar and laser sensors that can provide sub-centimeter accuracy, the actual potential of the sensors does not  fully unfold , if one does not intelligently combine the different \emph{sensor modalities} that accompany them. This intelligent data handling, is in many cases referred to as \emph{Sensor Fusion}.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{/Users/dimda/static_web/static/thesis/munin_shore_satellite_autonomous_ship_control_robotics.JPG}
+	\caption{Situational awareness courtesy of \cite{MUNIN}}
+	\label{fig:situation}
+\end{figure}
+
+\subsection{Sensor fusion}
+Although \emph{Sensor Fusion} is considered to be a modern concept, it has existed since the ancient times and in different forms. Seafarers traveling long distances, relied on a navigational technique known as "\emph{dead reckoning}", which is simply a fusion of a magnetic compass, a chronometer and a speed estimation in order to derive a ship's relative latitude and longitude given a known starting point. Taking it even further, a sextant is, even nowadays, used to localize a ship with respect to a map of celestial bodies using the instruments bearing measurements. All of these techniques were performed by humans onboard ships long before the first computer even existed. Sensor fusion in the context of developing situational awareness at sea, is the ability to bring together inputs from multiple radars, lidars and cameras onboard, external or internal GNSS sensors, to form a single model or image of the environment around the vessel. The resulting model is more accurate because it balances the strengths of the different sensors. An intelligent navigation system can then use the information provided through sensor fusion to support more-intelligent actions.
+\subsubsection{Modalities}
+Each sensor used onboard has inherent strength and weaknesses.  While a \emph{radar sensor} is very capable in determining relative distance, bearing and range-rate --- even in challenging conditions ---, it's resolution and lack of contextual information does not allow one to extract abstract features, such as the class of an observed object. \emph{Camera sensors} on the other hand, can provide the context information required to perform classification tasks, however they can be easily influenced by the varying environmental conditions, such as dirt, rain or extreme dynamic lighting conditions. \emph{Laser sensors} have been successfully used both for classification and localization of objects, but in general do not share the range or affordability of a camera or a radar sensor. Additional sensed information, such as a ship's absolute position, its identification code and more navigational data are being broadcasted to other ships through VHF channels by a system known as \emph{Automatic Identification System (AIS)}. 
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{/Users/dimda/static_web/static/thesis/aptiv.png}
+	\caption{Automotive sensor modalities strength and weaknesses. Courtesy of Aptiv.}.
+	\label{fig:taylor_approximation}
+\end{figure}
+
+
+\subsection{Scope}
+Data fusion techniques can be classified into three main categories \cite{nedo2013}:
+\begin{itemize}
+	\item Data association
+	\item State estimation
+	\item Decision fusion
+\end{itemize}
+
+A foundational aspect of sea domain awareness is the ability to identify and accurately track the state of multiple target ships as well as one's own-ship state. Therefore, the scope of this thesis comprises of developing a \emph{ship tracking framework} , by implementing sensor fusion techniques found in literature with a focus on \begin{mylist}
+	\item State estimation
+	\item Data association
+\end{mylist}
+. The performance of the framework should be validated both on simulated as well as on real datasets collected by DTU Elektro during sea trials.
+
+\subsubsection{State estimation}
+Concerning state estimation, both linear and non-linear observers are developed, namely Kalman Filtering(KF), Extended Kalman Filtering(EKF) and Particle Filtering(PF). The performance, limitations and qualitative characteristics of the aforementioned approaches are being compared against each other in an effort to provide an argument about the suitability of each approach to the problem at hand, and identify their strengths and weaknesses.
+\subsubsection{Data association}
+Solving the data association problem requires defining the set of observations that correspond to each individual tracked target as illustrated in \cref{fig:MultipathDA} .
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/DataAssociation2.jpg}
+	\caption{ Multipath data association problem\cite{Lan2019}.}.
+	\label{fig:MultipathDA}
+\end{figure}
+
+In the scope of the current thesis, the functionalities of the mentioned \emph{state-estimation} approaches are extended to handle multiple targets and clutter measurements by using statistical tools such as \emph{measurement gating},leading to approximate solutions known in literature as Probabilistic Data Association Filtering(PDAF). 
+
+\subsection{Past research}
+\subsection{Key literature}
+
+
