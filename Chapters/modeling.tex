@@ -83,7 +83,7 @@ which is describing  \emph{constant turn rate and velocity} (\textbf{CTRV}) mode
 	\label{fig:state_vector}
 \end{figure}
 
-\subsection{Discretisation of the CTRV motion model}
+\subsection{Discretization of the CTRV motion model}
 
 Since the system is simulated in discrete time, one can integrate the motion model differential equations in \cref{eq:CTRV_continuous} within a sample time $T$ and obtain the state transition function vector
 
@@ -149,7 +149,7 @@ g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
 An \emph{observation model} or \emph{sensor model} $z_k = h(\mathbf{x_k}) + w_k$ expresses a sensor's observations $z_k$ at time instances $t_k$ given the state vector $\mathbf{x}$ . $w_k$ is assumed to be white gaussian noise with covariance matrix that depends on the specific sensor. The selection of the state vector $\mathbf{x}$ can lead to linear or nonlinear observation models.
 
 The author is using the term \emph{observations} in the tracking context to refer to the post processed information derived from raw-sensor \emph{measurements}. In most cases the observations are a byproduct of multiple raw sensor measurements. For instance line of sight sensors such as a laser distance sensor, a radar, create dense point representations around the sensor's origin. These points can be grouped into geometric entities by various feature extraction algorithms, in order to create target \emph{observations}.  Likewise, a camera in the tracking context, instead of an imaging device, can be modeled as a relative bearing sensor, by pre-processing the raw image data through an ANN that extracts detected targets pixel locations within the frames. This abstraction level greatly simplifies the measurement models, since one can directly focus on the data-fusion and bypass the observation acquisition process, which at a certain level constitutes a separate and independent task. It is worth mentioning that the author in this thesis chose to focus on a \emph{medium level fusion approach}\cite{Luo2002}, which means that features(target's position) are fused to obtain features of better quality that can be employed by different tasks.
-\todo{Disambiguate different sensor fusion levels, provide a whole section?}
+%\todo{Disambiguate different sensor fusion levels, provide a whole section?}
 
 
 
@@ -189,12 +189,14 @@ where the observation noise $w$ is commonly assumed to be white, zero-mean Gauss
 
 
 
-A reasonable sizing of the noise variances can be
-\todo{write part on actual values selection}
+A reasonable sizing of the noise variances for simulation purposes can be
+%\todo{write part on actual values selection}
 \begin{description}
-	\item $\sigma^2_\rho = \SI{10}{\meter}$
-	\item $\sigma^2_\theta = \SI[parse-numbers=false]{3\frac{\pi}{180}}{\radian}  $
+	\item $3\sigma_\rho = \SI{10}{\meter}$
+	\item $3\sigma_\theta = \SI[parse-numbers=false]{3\frac{\pi}{180}}{\radian}  $
 \end{description}
+
+These noise intensities are a tuning parameter in a simulated test. Exaggerating on the simulated white noise intensities is a common approach when developing filtering algorithms, in order to assure robustness under non-linearity and non-Gaussianity effects when testing on real data.
 
 \subsection{Converted measurements GPS model}
 
@@ -520,3 +522,93 @@ R_{\textit{pitch}}= R_y(\beta) =
 A basic assumption at this point, is that the own-ship is able to measure the angles $(\alpha,\beta)$ of the \emph{own-ship body coordinate system} w.r.t the \emph{tracking coordinate system}. These angles are usually available on a ship by using one or multiple \emph{gyro sensors}.
 \todo{check gyro sensors}
 
+\subsection{Real sensors \& modeling}
+
+The sensor types fused in this project are summarized in \cref{tab:sensor_inventory,tab:sensor_active}. A sensor can be classified as being
+
+\begin{itemize}
+\item\textbf{Proprioceptive}, measuring values internal to
+	the system. Examples are own-ship's heading, speed, or COG
+	\item\textbf{Exteroceptive} , obtaining information from the own-ship's environment (e.g bearing and distance to objects)
+	\item\textbf{Passive}, using energy coming from the
+	environment. 
+	\item\textbf{Active}, emitting energy and then measuring the response.
+\end{itemize}
+ 
+
+When modeling the sensors, specific assumptions were made on the Gaussian white noise intensities of the radar observation model. These parameters are subject to final tuning in order to match the ones from the real data. It is a common approach to start with rational assumptions for these values when still in the \emph{simulation design phase} and  experiment with different values by \emph{"tuning the knobs"} when designing the system that should work on the real data. 
+
+Quite often, manufacturers provide noise in the form of maximum error on the real values without specifying whiteness or Gaussianity. The approach in this thesis when modeling real sensor noise, is to fit the maximum error value $e_{\text{max}}$ found in a sensors specification data-sheets, to a Gaussian distribution $\mathcal{N}(0,\sigma^2)$ by assuming that there is no bias error unless specified, and that $e_{\text{max}} = 3 \sigma$ where $\sigma^2$ is the \emph{variance} of the fitted distribution $\mathcal{N}$.
+\begin{table}[H]
+		\centering
+	\caption{Sensor inventory and observation types}
+	\label{tab:sensor_inventory}
+	\begin{tabular}{llll}
+		\toprule
+		& \textbf{Sensor}         & \textbf{Raw Data}       & \textbf{Extracted Feature}                  \\ \hline
+		&
+		IMU &
+		\begin{tabular}[c]{@{}l@{}}Accelerometers\\ Gyroscope\\ Magnetometer\end{tabular} &
+		\multicolumn{1}{c}{6 DOF Pose (x,y,z, roll, pitch, yaw)} \\ \hline
+		&
+		GNSS(through AIS) &
+		\begin{tabular}[c]{@{}l@{}}Latitude\\ Longitude\\ Altitude\\ Time\end{tabular} &
+		\begin{tabular}[c]{@{}l@{}}Position\\ Heading\\ Velocity\end{tabular} \\ \hline
+		& W-Band radar      & Bearing and range scans & Clustered objects 2 DOF relative pose (x,y) \\ \hline
+		& Visible light camera & Image pixels            & Target class and relative bearing           \\ \bottomrule
+	\end{tabular}
+\end{table}
+\begin{table}[H]
+		\centering
+	\caption{Sensor inventory characteristics}
+	\label{tab:sensor_active}
+	\begin{tabular}{llll}
+		\hline
+		& \textbf{Sensor}         & \textbf{Active/Passive} & \textbf{Reference frame} \\ \hline
+		& IMU                     & Passive                 & Proprioceptive                        \\ \hline
+		& GNSS(through AIS)       & Passive                 & Proprioceptive \& Exteroceptive       \\ \hline
+		& Radar (long range)      & Active                  & Exteroceptive                         \\ \hline
+		& Visible spectrum camera & Passive                 & Exteroceptive                         \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection{Radar}
+The radar sensor used in the scope of this thesis is a W-Band radar \todo{Fill specifications table and picture}. 
+
+
+\begin{table}[]
+	\centering
+	\caption{Radar modeled specifications}
+	\label{tab:radar_specs}
+	\begin{tabular}{ll}
+		\hline
+		\textbf{Sensor} & a \\ \hline
+		\textbf{Modeled observation accuracy} &  \\
+		Range & $\SI{10}{\m}$ \\
+		Bearing & $\SI{1}{\degree}$ \\ \hline
+		\textbf{Parameters} &  \\
+		Field of View & $\SI{360}{\degree}$ \\
+		Maximum Distance of View & $\SI{20}{\km}$ \\
+		Field of View scan time & $\approx \SI{2}{\second}$ \\ \hline
+	\end{tabular}
+\end{table}
+\subsubsection{AIS}
+
+\begin{table}[H]
+	\centering
+	\caption{AIS modeled specifications}
+	\label{tab:AIS_specs}
+	\begin{tabular}{ll}
+		\hline
+		\textbf{Model} & a \\ \hline
+		\textbf{Maximum error $e_{max}$} &  \\
+		${\lambda ,\phi}$ & 20m (When converted to a tangential frame) \\
+		${COG}$ & \SI{10}{\deg} \\
+		${SOG}$ & \SI{2}{\knot} \\ \hline
+		\textbf{Modeled update time} & 5-60s \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection{Cameras}
+
+\todo{Fill about cameras}
