@@ -27,27 +27,27 @@ An environment is defined by:
 
 
 \begin{description}
-	\item[State-space] Defines the motion and observation models
+	\item[State-space] Defines the motion and observation models(see \Cref{sec:SS})
 	\begin{itemize}
-		\item Cartesian position and cartesian velocity
-		\item Cartesian position and polar velocity
+		\item Cartesian position and cartesian velocity, i.e. $ x=[x,y,\velocity_x, \velocity_y] $
+		\item Cartesian position and polar velocity, i.e. $ x = [x,y,|\velocity|,\heading]$
 	\end{itemize}
 \end{description}
 
 \begin{description}
 	\item[Moving objects] A list of simulated point objects in the environment defined by:
 	\begin{itemize}
-		\item Initial state
-		\item Selected simulation motion model
-		\item Selected input noise intensities
+		\item An objects initial state $x_0$
+		\item Selected simulation motion model $f(\codt)$
+		\item Selected process noise intensities $ \procnoise $
 	\end{itemize}
 \end{description}
 
 \begin{description}
 	\item[Tracked targets] Maintain a list of tracked targets. Each target is created given:
 	\begin{itemize}
-		\item Initial target state
-		\item Initial tracked target uncertainty
+		\item Initial estimated target state $\hat{x}_0$
+		\item Initial tracked target state uncertainty $P(0)$
 		\item A filter which can be based on
 			\begin{description}
 				\item[Continuous methods]:
@@ -69,17 +69,17 @@ An environment is defined by:
 
 
 \begin{description}
-	\item[Sensor modules] Each type of sensor defines a different class and each modeled sensor in the environment is defined by a different object. During the environment updates, the sensor modules are providing observations to the filtering module either as virtual sensors, or from real data logs.
+	\item[Sensor modules] Each type of sensor defines a different class and each modeled sensor in the environment is defined by a different object. During the environment updates, the sensor modules are providing observations to the filtering module either as simulated sensors, or from real data logs.
 	\begin{description}
-		\item[Virtual sensors]
+		\item[Simulated sensors]
 		\begin{itemize}
 			\item[]
-			\item Virtual measurements are being calculated for the simulated \emph{moving objects} based on the inverse observation models, at a defined update frequency.
-			\item Variable noise intensities
+			\item Simulated measurements are being calculated for the simulated \emph{moving objects} based on a sensor's observation model $h(\cdot)$, at a defined simulated sensor update frequency.
+			\item Variable observation noise intensities \measnoise
 			\item Variable number of outliers
-			\item Measurement association is known and can be included or not in the problem.
+			\item Concerning the Data Association problem as described in \Cref{ch:Tracking}, when using simulated sensors, a measurement's origin is always available and knowledge of such can either be assumed known or unknown in the filtering algorithms.
 		\end{itemize}
-		\item[Real data sensors]
+		\item[Real data]
 				\begin{itemize}
 					\item[]
 					\item Data logs are being aggregated and sampled into an indexing data-structure based on their timestamps and the environment sample time $T_s$.
@@ -93,7 +93,7 @@ An environment is defined by:
 	
 \section{Differences between simulated and real targets}
 
-The general environment structure allows for little to no changes in the test scripts, between simulating a target or using the actual recorded data. Most of the changes concern the lack of actual ground truth for the targets to compare against filtering performance, and re-tuning of filtering parameters.
+The general environment structure allows for little to no changes in the test scripts when having to switch between simulating a target or using the actual recorded data. Most of the changes concern the lack of actual ground truth for the targets to compare against filtering performance, and re-tuning of filtering parameters.
 \begin{itemize}
 	\item  The origin of an observation is not associated with a tracked target, hence the data association problem arises.
 	\item No ground truth is available for the real targets.
@@ -101,4 +101,35 @@ The general environment structure allows for little to no changes in the test sc
 	\item Possible mismatch in the modeled observation noise.
 	\item Possible mismatch in the observation association process.
 \end{itemize}
+
+\section{3D visualization}
+
+Usually a picture is worth a thousand words, with that in mind a visualization module based on MATLAB built-in functionalities was developed, trying to illustrate the different tracking scenarios and provide filtering performance graphs. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{simulator.png}
+	\caption{3d Representation of a simulated tracked ship. Blue trajectory corresponds to the ground truth, where red trajectory corresponds to the estimated position. Red and green ellipses correspond to $3\sigma$ confidence intervals after the prediction and the measurement update step respectively. The point clouds above the ship illustrate the Particle Filter.}
+	\label{fig:simulator1}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{good_one.png}
+		\caption{Particle Filter focused representation. A ship's position estimates along with its estimation history, emphasis on visualizing the Particle Filter as  point-clouds}	\label{fig:simulator2}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{3ple_cross.png}
+	\caption{Triple ship tracking in crossing scenario, using probabilistic data association (PDA) to maintain multiple target tracks.	}\label{fig:simulator3}
+\end{figure}
+
+
+\section{Summary}
+
+A simulation and verification environment is build based on the MATLAB framework, with emphasis on code re-usability, modularity in simulating different sensor and motion models, and rapid prototype testing of either continuous or sampled filtering algorithms. A visualization model provides feedback for the performance of the filter algorithms.
+
+
 

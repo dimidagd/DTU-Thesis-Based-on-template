@@ -53,7 +53,7 @@ Two variants exist, the selection of which is a matter of convention but lead to
 	\item North, East, Down (\textbf{\emph{NED}})
 \end{itemize}
 
-The North-East-Down and East-North-Up coordinate systems, are local geodetic systems fixed to the Earth. They are determined by a tangent plane attached to the geodetic reference ellipsoid at a reference point of interest, which determines the origin of the system. The differentiation between the two systems is the direction that the unit vectors are pointing, which is indicated by their actual names.
+The North-East-Down and East-North-Up coordinate systems, are local geodetic systems fixed to the Earth. They are determined by a tangent plane attached to the geodetic reference ellipsoid at a reference point of interest, which determines the origin of the system. The differentiation between the two systems is the direction that the unit vectors are pointing, which is indicated by their names.
 
 
 Tangential coordinate systems are convenient in the context of tracking nearby ships because the tracking problem can be reduced to tracking a target on a two-dimensional plane.
@@ -84,11 +84,21 @@ GNSS measurements usually arrive in  \textbf{geodetic} coordinates, where as tra
 The transformation between these two systems requires an intermediate transformation from \textbf{geodetic} $(\phi,\lambda,h)$ to \textbf{ECEF}   $(X,Y,Z)$ coordinates \ref{eq:GEO2ECEF}.
 
 \begin{equation} \label{eq:GEO2ECEF}
-	\begin{aligned}
-			X &=(N+h)cos\lambda cos\phi \\
-			Y &= (N+h)cos\lambda sin\phi \\
-			Z &= [N(1-e^2)+h] sin\lambda	
-	\end{aligned}
+	\begin{bmatrix}
+	X\\
+	Y\\
+	Z
+	\end{bmatrix}_{\text{ECEF}} =
+	\begin{bmatrix}
+	(N+h)cos\lambda cos\phi \\
+	(N+h)cos\lambda sin\phi \\
+	[N(1-e^2)+h] sin\lambda	
+	\end{bmatrix}
+%	\begin{aligned}
+%			X &=(N+h)cos\lambda cos\phi \\
+%			Y &= (N+h)cos\lambda sin\phi \\
+%			Z &= [N(1-e^2)+h] sin\lambda	
+%	\end{aligned}
 \end{equation}
 
 
@@ -116,7 +126,7 @@ Given a reference point in Geodetic $[\phi_0,\lambda_0]$ and the corresponding E
 \end{equation}
 
 
-where $\mathcal{L}$ is the tangential plane projection matrix of the geodetic ellipsoid with the origin being the reference point $[\phi_0,\lambda_0,h_0]$ \ref{eq:Lambda}
+where $\mathcal{L}$ is the tangential plane projection matrix of the geodetic ellipsoid with the origin being the reference point $[\phi_0,\lambda_0,h_0]$ ( \Cref{eq:Lambda})
 
 
 
@@ -139,14 +149,14 @@ To describe the position and orientation of a ship, one can use the following or
 \begin{figure}[H] 	
 	\centering
 	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/seakeeping_body.jpg}
-	\caption{Body fixed, sea-keeping and NED systems \cite{Perez2007}}.
+	\caption{Body fixed, sea-following and NED systems \cite{Perez2007}}.
 	\label{fig:ownship_frames}	
 \end{figure}
 
 \begin{enumerate}
 	\item NED/ENU, $\{n\} , \{e\}$
 	\item Body-fixed, $\{b\}$
-	\item Sea-keeping, $\{s\}$
+	\item Sea-following, $\{s\}$
 	\item Tracking coordinates, $\{t\}$
 \end{enumerate}
 
@@ -157,15 +167,15 @@ To describe the position and orientation of a ship, one can use the following or
 
 The \emph{body fixed}, as the name suggests, is fixed to the hull of a vessel. The x-axis is pointing towards the bow, the y-axis points starboard and the z-axis points downwards completing the orthogonal system. The origin of the system in marine applications is usually the origin of the principal axes of inertia, which simplifies the solution of the dynamical equations of motion for the body. This coordinate system is used to express on-board velocity and acceleration measurements and the equations of motion of the vessel as a rigid body are formulated about the origin $o_{b}$.
 
-\subsection{Sea-keeping coordinate system}
+\subsection{Sea-following coordinate system}
 
 
-The \emph{sea-keeping} frame follows the average speed of the vessel. As such, the system is fixed to the ship's \emph{equilibrium} state, which is defined by the ship's average speed and heading. The positive x-axis is pointing towards the forward velocity vector, the y-axis is pointing starboard and the z-axis is pointing down. The origin of the system is selected so that the z-axis is pointing through its mean center of mass, and the x-y plane coincides with the mean free water surface.
+The \emph{sea-following} frame follows the average heading of the vessel. As such, the system is fixed to the ship's \emph{equilibrium} state, which is defined by the ship's average speed and heading. The positive x-axis is pointing ahead, the y-axis is pointing starboard and the z-axis is pointing down. The origin of the system is selected so that the z-axis is pointing through its mean center of buoyancy, and the x-y plane coincides with the \emph{calm water surface}.
 
 \subsection{Own-ship tracking coordinate system}
 
 
-For the shake of simplicity, one can define the tracking coordinates system $\\{t\\}$. The origin of the tracking system coincides with the origin of the seakeeping coordinate system of the own-ship. The x-axis is pointing in the heading direction of the own-ship, the y-axis is pointing port, and the z-axis up to complete a dextral orthogonal system. The x-y axes are always coplanar to the East North plane and since this is an \emph{equilibrium coordinate system}, the coordinates of a stationary target observed in this system do not depend on the roll or pitch angles of the own-ship. It is important to note that this is not the case for the yaw angle as well. As the own-ship's heading direction is changing, a stationary target would appear to move in a circle in this system. Thus the configuration space for the tracking problem is reduced in tracking along two dimensions. The reduction to a two-dimensional problem is justifiable if one considers that the own-ship as well as the tracked targets are floating objects that are close enough for geodetic curvature effects to be negligible, and a tangential plane approach to be accurate enough.
+For the shake of simplicity, one can define the tracking coordinates system $\\{t\\}$. The origin of the tracking system coincides with the origin of the sea-following coordinate system of the own-ship. The x-axis is pointing in the heading direction of the own-ship, the y-axis is pointing port, and the z-axis up to complete a dextral orthogonal system. The x-y axes are always coplanar to the East North plane and since this is an \emph{equilibrium coordinate system}, the coordinates of a stationary target observed in this system do not depend on the roll or pitch angles of the own-ship. It is important to note that this is not the case for the yaw angle as well. As the own-ship's heading direction is changing, a stationary target would appear to move in a circle in this system. Thus the configuration space for the tracking problem is reduced in tracking along two dimensions. The reduction to a two-dimensional problem is justifiable if one considers that the own-ship as well as the tracked targets are floating objects that are close enough for geodetic curvature effects to be negligible, and a tangential plane approach to be accurate enough.
 
 
 

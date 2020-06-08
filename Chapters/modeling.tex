@@ -7,7 +7,7 @@ This sections is devoted to:
 	\item Different sensors and their models	
 \end{enumerate}
 
-\section{State-space}
+\section{State-space} \label{sec:SS}
 Assuming the target's motion on a \emph{two-dimensional tracking plane}, then two different state-space descriptions can be used depending on the expression of the target's \emph{velocity vector}:
 
 \begin{enumerate}
@@ -17,7 +17,7 @@ Assuming the target's motion on a \emph{two-dimensional tracking plane}, then tw
 		
 	\item Polar velocity model 
 	
-	$$\mathbf{x} = \left[x,y,\upsilon, \psi,\omega\right]^{T} $$
+	$$\mathbf{x} = \left[x,y,\boatspeed, \heading,\omega\right]^{T} $$
 		
 \end{enumerate}
 
@@ -25,17 +25,17 @@ where
 
 \begin{subequations}
 	\begin{align}
-		\upsilon &= \sqrt{\dot{x}^2 + \dot{y}^2}  \\
-		\psi &= \arctan\left(\frac{\dot{y}}{\dot{x}}\right) \\
-		\omega &= \dot{\psi}
+		\boatspeed &= \sqrt{\dot{x}^2 + \dot{y}^2}  \\
+		\heading &= \arctan\left(\frac{\dot{y}}{\dot{x}}\right) \\
+		\turnrate &= \dot{\heading}
 	\end{align}
 \end{subequations}
 
 \begin{description}
 	\item $(x,y)$ : the displacement relative to the local tracking coordinate system
-	\item $\upsilon$ : is the target's linear velocity magnitude.
-	\item $\psi$ : is the target's velocity vector heading angle w.r.t the tracking system's x-axis.
-	\item $\omega$ : the target's turn rate.
+	\item $\boatspeed$ : is the target's linear velocity magnitude.
+	\item $\heading$ : is the target's velocity vector heading angle w.r.t the tracking system's x-axis.
+	\item $\omega$ : the target's turn rate in the horizontal plane.
 \end{description}
 
 
@@ -63,22 +63,22 @@ While the motion models proposed in literature are numerous, most of them are ma
 Starting with a time continuous model:
 
 \begin{equation}
-\begin{aligned}\dot{\mathbf{x}}(t) = f(\mathbf{x}(t)) + w(t) &&,\mathbf{x} = \left[x,y,\upsilon, \psi,\omega\right]^{T}  \end{aligned}
+\begin{aligned}\dot{\mathbf{x}}(t) = f(\mathbf{x}(t)) + w(t) &&,\mathbf{x} = \left[x,y,\boatspeed, \heading,\omega\right]^{T}  \end{aligned}
 \end{equation}
 
 
-then assuming that the linear velocity $\upsilon$ and the turn rate $\omega$ remain constant  --- which is a fair assumption for a moving vessel --- then the non-linear differential equations describing the motion are according to \cite{Schubert2008}
+then assuming that the linear velocity $\boatspeed$ and the turn rate $\omega$ remain constant  --- which is a fair assumption for a moving vessel --- then the non-linear differential equations describing the motion are according to \cite{Schubert2008}
 
 \begin{equation}\label{eq:CTRV_continuous}
-f =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\upsilon} \\ \dot{\psi} \\ \dot{\omega}  \end{bmatrix}=  \begin{bmatrix}\upsilon cos(\psi) \\ \upsilon sin(\psi) \\ 0 \\ \omega \\ 0  \end{bmatrix}
+f =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\boatspeed} \\ \dot{\heading} \\ \dot{\omega}  \end{bmatrix}=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ 0 \\ \omega \\ 0  \end{bmatrix}
 \end{equation}
 
 which is describing  \emph{constant turn rate and velocity} (\textbf{CTRV}) model since the linear and angular velocities accelerations are zero.
 
-
+\todo{Fig speed from upsilon to V in figure?}
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/2d_track_state.png}
+	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/2d_track_state_corr.png}
 	\caption{Tracked target state vector top view, in the own-ship's tracking coordinate system}.
 	\label{fig:state_vector}
 \end{figure}
@@ -90,39 +90,33 @@ Since the system is simulated in discrete time, one can integrate the motion mod
 
 \begin{equation}
 \begin{aligned}
-\mathbf{x}(t+T) = \mathbf{x}(t) + \int_{t}^{t+T}(f(\mathbf{x}(\tau)+w(\tau) )d\tau &&\text{and}&& f(\mathbf{x(\tau)})=  \begin{bmatrix}\upsilon cos(\psi) \\ \upsilon sin(\psi) \\ 0 \\ \omega \\ 0  \end{bmatrix}
+\mathbf{x}(t+T) = \mathbf{x}(t) + \int_{t}^{t+T}(f(\mathbf{x}(\tau)+w(\tau) )d\tau &&\text{and}&& f(\mathbf{x(\tau)})=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ 0 \\ \omega \\ 0  \end{bmatrix}
 \end{aligned}
 \end{equation}
 
 where 
 
 \begin{equation}
-\mathbf{x(\tau)} = \left[x,y,\upsilon, \psi,\omega\right]^{T}
+\mathbf{x(\tau)} = \left[x,y,\boatspeed, \heading,\omega\right]^{T}
 \end{equation}
 
-is the state-space vector, and
+is the state-space vector, and $\procnoise(\tau ) $ is the process noise vector
 
-\begin{equation}
-w(\tau ) 
-\end{equation}
-
-is the process noise vector
-
-and hence , after ignoring noise,  the discrete state transition vector $g$ is
+After ignoring noise,  the discrete state transition vector function $g(\cdot)$ is
 
 
 \begin{equation}
 \mathbf{x}(t+T) = g\left(\mathbf{x}(t)\right)
 \end{equation}
 
-where $g(\mathbf{x}(t))$ by direct integration, for $\mathbf{x}(t) =\left[x,y,\upsilon, \psi,\omega\right]^{T} $ is
+where $g(\mathbf{x}(t))$ by direct integration, for $\mathbf{x}(t) =\left[x,y,\boatspeed, \heading,\omega\right]^{T} $ is
 
 
 
 \begin{equation}
 g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
-\frac{2\upsilon}{\omega}sin(\omega T)cos(\psi + \frac{\omega T}{2})\\
--\frac{2\upsilon}{\omega}sin(\omega T)cos(\psi + \frac{\omega T}{2})\\
+\frac{2\boatspeed}{\omega}sin(\omega T)cos(\heading + \frac{\omega T}{2})\\
+-\frac{2\boatspeed}{\omega}sin(\omega T)cos(\heading + \frac{\omega T}{2})\\
 0 \\
 \omega T \\
 0
@@ -134,8 +128,8 @@ or
 
 \begin{equation}
 g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
-\upsilon T cos(\psi)\\
-\upsilon T sin(\psi)\\
+\boatspeed T cos(\heading)\\
+\boatspeed T sin(\heading)\\
 0 \\
 0 \\
 0
@@ -159,11 +153,13 @@ The author is using the term \emph{observations} in the tracking context to refe
 \subsection{Radar model}
 
 The output of the radar observation model is assumed to be the relative range and bearing measurements of the centroids of clustered raw radar measurements. The model is thus derived by calculating the relative position of a target to the sensor in polar form $z_{radar} = \begin{bmatrix}
-\rho,
-\theta
+\range,
+\bearing
 \end{bmatrix}^{T}$ , given the target's position $\begin{bmatrix}x_t, y_t\end{bmatrix}^{T}$ w.r.t the sensor's coordinate system.
 \todo{rewrite based on known target and own-ship?}
 
+
+\todo{Make corrections to figures from windows}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/radar.png}
@@ -172,7 +168,7 @@ The output of the radar observation model is assumed to be the relative range an
 \end{figure}
 
 
-If the radar's coordinate system, is for simplicity  chosen to coincide with a \emph{tracking coordinate system},  attached to the own-ships sea-keeping coordinate system. Then the information about the own-ship is not necessary in the calculations and as such
+If the radar's coordinate system, is for simplicity  chosen to coincide with a \emph{tracking coordinate system},  attached to the own-ships sea-following coordinate system. Then the information about the own-ship is not necessary in the calculations and as such
 
 \begin{equation}
 z_{radar}(\mathbf{x}) = \begin{bmatrix}
@@ -201,12 +197,12 @@ These noise intensities are a tuning parameter in a simulated test. Exaggerating
 \subsection{Converted measurements GPS model}
 
 
-The relative GPS observation model calculates the target's relative position $\begin{bmatrix}x, y\end{bmatrix}^{T} $ w.r.t the own-ship's tracking coordinate system, which is directly a part of the target's state vector$\mathbf{x}$
+The relative GPS observation model calculates the target's relative position $\begin{bmatrix}x, y\end{bmatrix}^{T} $ w.r.t the own-ship's tracking coordinate system, which is directly a part of the target's state vector $\mathbf{x}$
 \todo{needs rewriting}. 
 
 \begin{enumerate}
 \item The own-ship's geodetic coordinates $\begin{bmatrix}\phi_{0}, \lambda_{0} \end{bmatrix}^{T}$
-\item The own-ships sea-keeping heading angle from true north $\psi_{\textit{0}}$
+\item The own-ships sea-following heading angle from true north $\heading_{\textit{0}}$
 \item The target's measured geodetic coordinates $\begin{bmatrix}\phi, \lambda\end{bmatrix}^{T}$ which is usually available at sea through the Automatic Identification System.
 \end{enumerate}
 
@@ -214,7 +210,7 @@ The relative GPS observation model calculates the target's relative position $\b
 
 
 \begin{equation}
-z_{GPS}(\mathbf{x},\begin{bmatrix}\phi_{0}, \lambda_{0}, \psi_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+z_{GPS}(\mathbf{x},\begin{bmatrix}\phi_{0}, \lambda_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
 x \\
 y
 \end{bmatrix}_{GPS} = \begin{bmatrix}
@@ -234,7 +230,7 @@ The AIS observations $[\phi, \lambda]^{T}$ can be transformed into tracking coor
 \begin{bmatrix}
 x \\
 y
-\end{bmatrix} = R_z(\frac{\pi}{2}-\psi_{\textit{0}}) \cdot F_1\left(F_2(\begin{bmatrix}
+\end{bmatrix} = R_z(\frac{\pi}{2}-\heading_{\textit{0}}) \cdot F_1\left(F_2(\begin{bmatrix}
 \phi \\
 \lambda
 \end{bmatrix}),\begin{bmatrix}
@@ -264,7 +260,7 @@ Where
 	\phi_0,
 	\lambda_0
 	\end{bmatrix}^T$ as a reference point.
-	\item $R_z(\theta)$ is the transformation from ENU to \emph{sea-keeping/tracking }coordinate system.
+	\item $R_z(\theta)$ is the transformation from ENU to \emph{sea-following/tracking }coordinate system.
 \end{description}
 
 \subsection{AIS observation model}
@@ -321,16 +317,16 @@ dE\\ dN
 
 Since the target's state is in the \emph{tracking/seakeeping} coordinate system, one needs to transform it to ENU.
 
-If $\mathbf{R}_z(\psi)$ is the Euler's angle transformation for a rotation $\psi$ around the z-axis, then the transformation from \emph{sea-keeping/tracking to ENU}
+If $\mathbf{R}_z(\heading)$ is the Euler's angle transformation for a rotation $\heading$ around the z-axis, then the transformation from \emph{sea-following/tracking to ENU}
 
-$$\mathbf{R}^{\textit{ENU}}_{\textit{sea-keeping}} $$
+$$\mathbf{R}^{\textit{ENU}}_{\textit{sea-following}} $$
 
-given the own-ship's *heading from true-north* $\psi_{\textit{0}}$
+given the own-ship's \emph{heading from true-north} $\heading_{\textit{0}}$
 is ,
 
 
 \begin{equation}
-R_{\textit{sea-keeping}}^{\textit{ENU}} = R_{z}(\frac{\pi}{2}-\psi_{\textit{0}})
+R_{\textit{sea-following}}^{\textit{ENU}} = R_{z}(\frac{\pi}{2}-\heading_{\textit{0}})
 \end{equation}
 
 
@@ -338,7 +334,7 @@ R_{\textit{sea-keeping}}^{\textit{ENU}} = R_{z}(\frac{\pi}{2}-\psi_{\textit{0}})
 \begin{bmatrix}
 dE\\ dN
 \end{bmatrix}=
-R_{\textit{sea-keeping}}^{\textit{ENU}}
+R_{\textit{sea-following}}^{\textit{ENU}}
 \begin{bmatrix}
 x\\ y
 \end{bmatrix}_{\textit{\{t\}}}
@@ -369,10 +365,10 @@ dE\\ dN
 &\begin{bmatrix}
 \phi_{0}\\ \lambda_{0}
 \end{bmatrix}_{\textit{own-ship}} + \mathbf{T}(\phi_{0})^{-1}
-\mathbf{R}^{\textit{ENU}}_{\textit{sea-keeping}}(\psi_{\textit{0}})
+\mathbf{R}^{\textit{ENU}}_{\textit{sea-following}}(\heading_{\textit{0}})
 \begin{bmatrix}
-X_{\textit{target}}\\ Y_{\textit{target}}
-\end{bmatrix}_{\textit{wrt}_{{\textit{sea-keeping}}}}+w_{\textit{AIS}}
+x_{\textit{target}}\\ y_{\textit{target}}
+\end{bmatrix}_{\textit{wrt}_{{\textit{sea-following}}}}+w_{\textit{AIS}}
 \end{aligned}
 \end{equation}
 
@@ -386,10 +382,10 @@ Where
 	0 &M(\phi)
 	\end{bmatrix}
 	$ is the transformation matrix from \emph{geodetic differences} to \emph{ENU differences}.
-	\item $N(\phi) = \frac{\alpha}{\sqrt{1-e^2\sin^2\phi}}$ is the \emph{prime vertical radius of curvature}
-	\item $M(\phi) = \frac{\alpha(1-e^2)}{(1-e^2\sin^2\phi)^\frac{3}{2}}$ is the \emph{meridional radius of curvature}
-	\item $\alpha,\beta$ are the equitorial radius(6378.1370 km) and the Polar radius(6356.7523 km) respectively, as derived from the \emph{WGS-84 ellipsoid model}.
-	\item $e = \sqrt{1 -\frac{b^2}{a^2}}$ is the ellipsoid's eccentricity.
+	\item $N(\phi) = \frac{\eqRadius}{\sqrt{1-e^2\sin^2\phi}}$ is the \emph{prime vertical radius}
+	\item $M(\phi) = \frac{\eqRadius(1-e^2)}{(1-e^2\sin^2\phi)^\frac{3}{2}}$ is the \emph{meridional radius}
+	\item $\eqRadius,\polarRadius$ are the equatorial radius(6378.1370 km) and the Polar radius(6356.7523 km) respectively, as derived from the \emph{WGS-84 ellipsoid model} \cite{Farrell2008}.
+	\item $e = \sqrt{1 -\frac{\polarRadius^2}{\eqRadius^2}}$ is the ellipsoid's eccentricity.
 	\item $h = 0 $ since the own-ship is always floating on the geoid.
 	\item $w_{\textit{AIS}}$ is white gaussian zero-mean noise with covariance matrix $\mathbf{R}_{\textit{AIS}}$ depending on the noise intensity of the AIS source.
 \end{description}
@@ -397,7 +393,7 @@ Where
 The above equation can be rewritten to the standard observation model formulation
 
 \begin{equation}
-z_{AIS}(\mathbf{x},\begin{bmatrix}\phi_{0}, \lambda_{0}, \psi_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+z_{AIS}(\mathbf{x},\begin{bmatrix}\phi_{0}, \lambda_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
 \phi\\ \lambda
 \end{bmatrix}_{\textit{target}} = \begin{bmatrix}
 \phi_{0}\\ \lambda_{0}
@@ -457,15 +453,15 @@ Where $\mathbf{P}$ is the projection matrix and $P_{i}$ it's rows
 \begin{equation} \ref{eq:projection}
 P = \begin{bmatrix}-P_1- \\-P_2-\\-P_3- \end{bmatrix} = \mathbf{K}\mathbf{R_{\textit{own-ship}}^{\textit{camera}}}[\mathbf{I} | \mathbf{-C}]
 \begin{bmatrix}
-\mathbf{\mathbf{R}_{\textit{sea-keeping}}^{\textit{own-ship}}} &\mathbf{0}\\
+\mathbf{\mathbf{R}_{\textit{sea-following}}^{\textit{own-ship}}} &\mathbf{0}\\
 \mathbf{0} &1
 \end{bmatrix}
 \end{equation}
 
 Because of the denominator in \cref{eq:projection} this is a non-linear model, and a description of the matrices that comprise the projection matrix $P$ is given below:
 
-
-\subsubsection{$\mathbf{K}$}
+\begin{description}
+\item[$\mathbf{K}$]
 is the \emph{intrinsic camera calibration} matrix
 
 $$\mathbf{K} = \begin{bmatrix}f m_x &0 &p_x \\
@@ -473,36 +469,39 @@ $$\mathbf{K} = \begin{bmatrix}f m_x &0 &p_x \\
 0 &0 &z
 \end{bmatrix} $$
 
-with
+where
 
-- $f$ is the intrinsic camera calibration parameter, focal length in mm
-- $m_x, m_y$ are the camera's sensor pixel density in $\frac{\text{number of pixels}}{mm}$ across the two different directions of the image plane.
-- $p_x,p_y$ correspond to the position of the principal point of the image in *pixel coordinates*
-- $w_{\textit{camera}}$ is white Gaussian zero mean noise with variance related to the classifier accuracy, or any calibration errors in the extrinsic and intrinsic camera matrices.
+\begin{description}
+	\item[$f$] is the \emph{focal length} usually in mm, an intrinsic camera calibration parameter
+	\item[$m_x, m_y$] are the camera's sensor pixel density in $\frac{\text{number of pixels}}{mm}$ across the two different directions of the image plane.
+	\item[$p_x,p_y$] correspond to the position of the principal point of the image in \emph{pixel coordinates}
+	\item[$w_{\textit{camera}}$] is white Gaussian zero mean noise with variance related to the classifier accuracy, or any calibration errors in the extrinsic and intrinsic camera matrices.
+	
+\end{description}
 
-\subsubsection{$\mathbf{R}_{\textit{own-ship}}^{\textit{camera}}$} 
+\item[$\mathbf{R}_{\textit{own-ship}}^{\textit{camera}}$]
 is the \emph{extrinsic camera rotation matrix }that describes the \emph{orientation of the camera coordinate system} w.r.t. the \emph{own-ship}.
 
-\subsubsection{$\mathbf{C}$}
+\item[$\mathbf{C}$]
 is the  \emph{extrinsic origin of the camera coordinate system} w.r.t. the \emph{own-ship}.
 
 
-\subsubsection{$\mathbf{R}_{\textit{tracking}}^{\textit{own-ship}}$} 
+\item[$\mathbf{R}_{\textit{tracking}}^{\textit{own-ship}}$]
 Is the transformation matrix that corresponds to the \emph{roll-pitch} rotation of the \emph{own-ship's body coordinate system} w.r.t the \emph{tracking} coordinate system.. Please note that the order of the rotations matters.
 
 \begin{equation}
 R_{\textit{tracking}}^{\textit{own-ship}}=\left( R_{\textit{pitch}} R_{\textit{roll}}\right)^T
 \end{equation}
 
-Where $$R_{\textit{pitch}},R_{\textit{roll}}$$ are the standard rotation matrices for Euler's angles $z_{\textit{gyro}}=(\alpha,\beta)^T = (\textit{roll},\textit{pitch})^T$.
+Where $$R_{\textit{pitch}},R_{\textit{roll}}$$ are the standard rotation matrices for Euler's angles $z_{\textit{gyro}}=(\roll,\pitch)^T = (\textit{roll},\textit{pitch})^T$.
 
 
 \begin{equation}
-R_{\textit{roll}}= R_x(\alpha) =
+R_{\textit{roll}}= R_x(\roll) =
 \begin{bmatrix}
 1 &0 &0\\
-0 &\cos\alpha &-\sin \alpha\\
-0 &\sin \alpha &\cos \alpha
+0 &\cos\roll &-\sin \roll\\
+0 &\sin \roll &\cos \roll
 \end{bmatrix}
 \end{equation}
 
@@ -511,15 +510,17 @@ and
 
 
 \begin{equation}
-R_{\textit{pitch}}= R_y(\beta) =
+R_{\textit{pitch}}= R_y(\pitch) =
 \begin{bmatrix}
-\cos\beta &0 &\sin \beta\\
+\cos\pitch &0 &\sin \pitch\\
 0 &1 &0\\
 -\sin \beta &0 &\cos\beta
 \end{bmatrix}
 \end{equation}
 
-A basic assumption at this point, is that the own-ship is able to measure the angles $(\alpha,\beta)$ of the \emph{own-ship body coordinate system} w.r.t the \emph{tracking coordinate system}. These angles are usually available on a ship by using one or multiple \emph{gyro sensors}.
+A basic assumption at this point, is that the own-ship is able to measure the angles $(\roll,\pitch)$ of the \emph{own-ship body coordinate system} w.r.t the \emph{tracking coordinate system}. These angles are usually available on a ship by using one or multiple \emph{gyro sensors}.
+
+\end{description}
 \todo{check gyro sensors}
 
 \subsection{Real sensors \& modeling}
