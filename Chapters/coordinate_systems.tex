@@ -29,7 +29,7 @@ The earth's surface is approximated by an ellipsoid of revolution of known param
 \end{table}
  Locations near the surface are described in terms of latitude, longitude, and height :
 
-\[(\phi, \lambda, h)^T \]
+\[(\lat, \longi, h)^T \]
 
 
 
@@ -61,7 +61,7 @@ Tangential coordinate systems are convenient in the context of tracking nearby s
 
 \subsection{Earth Centered Earth-fixed (ECEF)}
 
-\textbf{ECEF} is a \emph{Cartesian coordinate system} $[X,Y,Z]^T$ with its origin placed at the earth's \emph{center of mass}, hence the naming convention. It is a rotating system as the \emph{z-axis} is pointing through \emph{true north} while the \emph{x-axis} intersects earth's spheroid at the geodetic coordinates $[\phi,\lambda]^{T} =  [0,0]^{T}$(\cref{fig:ECEF_ENU}).
+\textbf{ECEF} is a \emph{Cartesian coordinate system} $[X,Y,Z]^T$ with its origin placed at the earth's \emph{center of mass}, hence the naming convention. It is a rotating system as the \emph{z-axis} is pointing through \emph{true north} while the \emph{x-axis} intersects earth's spheroid at the geodetic coordinates $[\phi,\longi]^{T} =  [0,0]^{T}$(\cref{fig:ECEF_ENU}).
 
 
 \begin{figure}[H]
@@ -81,7 +81,7 @@ There is a need to define transformations between different coordinate systems, 
 GNSS measurements usually arrive in  \textbf{geodetic} coordinates, where as tracking at sea is usually performed on a \textbf{local tangential plane}.
 
 
-The transformation between these two systems requires an intermediate transformation from \textbf{geodetic} $(\phi,\lambda,h)$ to \textbf{ECEF}   $(X,Y,Z)$ coordinates \ref{eq:GEO2ECEF}.
+The transformation between these two systems requires an intermediate transformation from \textbf{geodetic} $(\phi,\longi,h)$ to \textbf{ECEF}   $(X,Y,Z)$ coordinates \ref{eq:GEO2ECEF}.
 
 \begin{equation} \label{eq:GEO2ECEF}
 	\begin{bmatrix}
@@ -90,14 +90,14 @@ The transformation between these two systems requires an intermediate transforma
 	Z
 	\end{bmatrix}_{\text{ECEF}} =
 	\begin{bmatrix}
-	(N+h)cos\lambda cos\phi \\
-	(N+h)cos\lambda sin\phi \\
-	[N(1-e^2)+h] sin\lambda	
+	(N+h)cos\lat cos\longi \\
+	(N+h)cos\lat sin\longi \\
+	[N(1-e^2)+h] sin\lat
 	\end{bmatrix}
 %	\begin{aligned}
-%			X &=(N+h)cos\lambda cos\phi \\
-%			Y &= (N+h)cos\lambda sin\phi \\
-%			Z &= [N(1-e^2)+h] sin\lambda	
+%			X &=(N+h)cos\longi cos\phi \\
+%			Y &= (N+h)cos\longi sin\phi \\
+%			Z &= [N(1-e^2)+h] sin\longi	
 %	\end{aligned}
 \end{equation}
 
@@ -106,7 +106,7 @@ The transformation between these two systems requires an intermediate transforma
 
 
 
-Given a reference point in Geodetic $[\phi_0,\lambda_0]$ and the corresponding ECEF $[X_0,Y_0,Z_0]$ coordinates, then any other point's ECEF coordinates $[X,Y,Z]$ can be converted to local tangential plane coordinates $[x,y,z]$ using the transformation in \ref{eq:transformation_ECEF2ENU}
+Given a reference point in Geodetic $[\lat_0,\longi_0]$ and the corresponding ECEF $[X_0,Y_0,Z_0]$ coordinates, then any other point's ECEF coordinates $[X,Y,Z]$ can be converted to local tangential plane coordinates $[x,y,z]$ using the transformation in \ref{eq:transformation_ECEF2ENU}
 
 
 \begin{equation} \label{eq:transformation_ECEF2ENU}
@@ -114,28 +114,28 @@ Given a reference point in Geodetic $[\phi_0,\lambda_0]$ and the corresponding E
 		x\\
 		y\\
 		z
-	\end{bmatrix}= \mathcal{L}\left(\begin{bmatrix}
+	\end{bmatrix}_{\text{tangential}}= \mathcal{L}\left(\begin{bmatrix}
 		X\\
 		Y\\
 		Z
-	\end{bmatrix} - \begin{bmatrix}
+	\end{bmatrix}_{\text{ECEF}} - \begin{bmatrix}
 		X_0\\
 		Y_0\\
 		Z_0
-	\end{bmatrix}\right)
+	\end{bmatrix}_{\text{ECEF}}\right)
 \end{equation}
 
 
-where $\mathcal{L}$ is the tangential plane projection matrix of the geodetic ellipsoid with the origin being the reference point $[\phi_0,\lambda_0,h_0]$ ( \Cref{eq:Lambda})
+where $\mathcal{L}(\cdot)$ (\Cref{eq:Lambda}) is the tangential plane projection matrix of the geodetic ellipsoid with the origin being the reference point $[\lat_0,\longi_0,h_0]$ 
 
 
 
 
 \begin{equation} \label{eq:Lambda}
 \mathcal{L} = \begin{bmatrix}
--sin\phi_0  & cos\phi_0 & 0 \\\\
--sin\lambda_0cos\phi_0 & -sin\lambda_0sin\phi_0 & cos\lambda_0\\\\
-cos\lambda_0 cos\phi_0 & cos\lambda_0 sin\phi_0 & sin\lambda_0
+-sin\lat_0  & cos\lat_0 & 0 \\\\
+-sin\longi_0cos\lat_0 & -sin\longi_0sin\lat_0 & cos\longi_0\\\\
+cos\longi_0 cos\lat_0 & cos\longi_0 sin\lat_0 & sin\longi_0
 \end{bmatrix}
 \end{equation}
 

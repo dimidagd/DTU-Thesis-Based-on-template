@@ -29,8 +29,8 @@ An environment is defined by:
 \begin{description}
 	\item[State-space] Defines the motion and observation models(see \Cref{sec:SS})
 	\begin{itemize}
-		\item Cartesian position and cartesian velocity, i.e. $ x=[x,y,\velocity_x, \velocity_y] $
-		\item Cartesian position and polar velocity, i.e. $ x = [x,y,|\velocity|,\heading]$
+		\item Cartesian position and cartesian velocity, i.e. $ x=[x,y,\boatspeed_x, \boatspeed_y] $
+		\item Cartesian position and polar velocity, i.e. $ x = [x,y,|\boatspeed|,\heading]$
 	\end{itemize}
 \end{description}
 
@@ -38,7 +38,7 @@ An environment is defined by:
 	\item[Moving objects] A list of simulated point objects in the environment defined by:
 	\begin{itemize}
 		\item An objects initial state $x_0$
-		\item Selected simulation motion model $f(\codt)$
+		\item Selected simulation motion model $f(\cdot)$
 		\item Selected process noise intensities $ \procnoise $
 	\end{itemize}
 \end{description}

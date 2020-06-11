@@ -73,7 +73,7 @@ then assuming that the linear velocity $\boatspeed$ and the turn rate $\omega$ r
 f =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\boatspeed} \\ \dot{\heading} \\ \dot{\omega}  \end{bmatrix}=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ 0 \\ \omega \\ 0  \end{bmatrix}
 \end{equation}
 
-which is describing  \emph{constant turn rate and velocity} (\textbf{CTRV}) model since the linear and angular velocities accelerations are zero.
+which is describing a \emph{constant turn rate and velocity} (\textbf{CTRV}) model since the linear and angular velocities accelerations are zero.
 
 \todo{Fig speed from upsilon to V in figure?}
 \begin{figure}[H]
@@ -140,7 +140,9 @@ g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
 
 \section{Observation models}
 
-An \emph{observation model} or \emph{sensor model} $z_k = h(\mathbf{x_k}) + w_k$ expresses a sensor's observations $z_k$ at time instances $t_k$ given the state vector $\mathbf{x}$ . $w_k$ is assumed to be white gaussian noise with covariance matrix that depends on the specific sensor. The selection of the state vector $\mathbf{x}$ can lead to linear or nonlinear observation models.
+An \emph{observation model} or \emph{sensor model} $z_k = h(\mathbf{x_k}) + \measnoise_k$ expresses a sensor's observations $z_k$ at time instances $t_k$ given the state vector $\mathbf{x}$ .
+
+ $\measnoise_k$ is assumed to be white Gaussian noise with covariance matrix $\measCov(k)$ that depends on the specific sensor. Depending on the selection of the state vector $\mathbf{x}$, the one can come up with a linear or nonlinear observation model.
 
 The author is using the term \emph{observations} in the tracking context to refer to the post processed information derived from raw-sensor \emph{measurements}. In most cases the observations are a byproduct of multiple raw sensor measurements. For instance line of sight sensors such as a laser distance sensor, a radar, create dense point representations around the sensor's origin. These points can be grouped into geometric entities by various feature extraction algorithms, in order to create target \emph{observations}.  Likewise, a camera in the tracking context, instead of an imaging device, can be modeled as a relative bearing sensor, by pre-processing the raw image data through an ANN that extracts detected targets pixel locations within the frames. This abstraction level greatly simplifies the measurement models, since one can directly focus on the data-fusion and bypass the observation acquisition process, which at a certain level constitutes a separate and independent task. It is worth mentioning that the author in this thesis chose to focus on a \emph{medium level fusion approach}\cite{Luo2002}, which means that features(target's position) are fused to obtain features of better quality that can be employed by different tasks.
 %\todo{Disambiguate different sensor fusion levels, provide a whole section?}
@@ -177,7 +179,7 @@ z_{radar}(\mathbf{x}) = \begin{bmatrix}
 \end{bmatrix} = \begin{bmatrix}
 \sqrt{x^2 + y^2} \\
 arctan(\frac{y}{x})
-\end{bmatrix} + w_{radar}
+\end{bmatrix} + \measnoise_{radar}
 \end{equation}
 
 
@@ -201,29 +203,29 @@ The relative GPS observation model calculates the target's relative position $\b
 \todo{needs rewriting}. 
 
 \begin{enumerate}
-\item The own-ship's geodetic coordinates $\begin{bmatrix}\phi_{0}, \lambda_{0} \end{bmatrix}^{T}$
+\item The own-ship's geodetic coordinates $\begin{bmatrix}\lat_{0}, \longi_{0} \end{bmatrix}^{T}$
 \item The own-ships sea-following heading angle from true north $\heading_{\textit{0}}$
-\item The target's measured geodetic coordinates $\begin{bmatrix}\phi, \lambda\end{bmatrix}^{T}$ which is usually available at sea through the Automatic Identification System.
+\item The target's measured geodetic coordinates $\begin{bmatrix}\lat, \longi\end{bmatrix}^{T}$ which is usually available at sea through the Automatic Identification System.
 \end{enumerate}
 
 
 
 
 \begin{equation}
-z_{GPS}(\mathbf{x},\begin{bmatrix}\phi_{0}, \lambda_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+z_{GPS}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
 x \\
 y
 \end{bmatrix}_{GPS} = \begin{bmatrix}
 x \\
 y
-\end{bmatrix} + w_{GPS}
+\end{bmatrix} + \measnoise_{GPS}
 \end{equation}
 
 The fact that the geodetic coordinates origin and the heading angle of the own-ship is not included in the state-space representation leads to a \emph{linear observation model}.
 
 The observations are pre-converted to \emph{tracking coordinates}, and the noise is added on the the post-converted observations.
 
-The AIS observations $[\phi, \lambda]^{T}$ can be transformed into tracking coordinates $[x,y]^{T}$ by using the transformations from the relative chapter.
+The AIS observations $[\lat, \longi]^{T}$ can be transformed into tracking coordinates $[x,y]^{T}$ by using the transformations from the relative chapter.
 
 
 \begin{equation}
@@ -231,10 +233,10 @@ The AIS observations $[\phi, \lambda]^{T}$ can be transformed into tracking coor
 x \\
 y
 \end{bmatrix} = R_z(\frac{\pi}{2}-\heading_{\textit{0}}) \cdot F_1\left(F_2(\begin{bmatrix}
-\phi \\
-\lambda
+\lat \\
+\longi
 \end{bmatrix}),\begin{bmatrix}
-\phi_0 \\ \lambda_0
+\lat_0 \\ \longi_0
 \end{bmatrix}\right)
 \end{equation}
 
@@ -242,23 +244,23 @@ Where
 
 \begin{description}
 	\item $F_2\left(\begin{bmatrix}
-	\phi \\
-	\lambda
+	\lat \\
+	\longi
 	\end{bmatrix}\right)$ is the transformation from geodetic to ECEF coordinates
 	\item $F_2\left(\begin{bmatrix}
-	\phi \\
-	\lambda
+	\lat \\
+	\longi
 	\end{bmatrix}\right)$ is the transformation from geodetic to ECEF coordinates
 	\item $F_1\left( \begin{bmatrix}
 	X \\
 	Y \\
 	Z
 	\end{bmatrix}_{ECEF},\begin{bmatrix}
-	\phi_0 \\
-	\lambda_0
+	\lat_0 \\
+	\longi_0
 	\end{bmatrix}\right)$ is the transformation from ECEF to ENU, given the geodetic coordinates of the own-ship $\begin{bmatrix}
-	\phi_0,
-	\lambda_0
+	\lat_0,
+	\longi_0
 	\end{bmatrix}^T$ as a reference point.
 	\item $R_z(\theta)$ is the transformation from ENU to \emph{sea-following/tracking }coordinate system.
 \end{description}
@@ -271,17 +273,17 @@ An alternative method to using the aforementioned GPS model is to leverage the f
 
 \begin{equation}
 	\begin{bmatrix}
-		\phi\\ \lambda
+		\lat\\ \longi
 		\end{bmatrix}_{\text{target}}=
 		\begin{bmatrix}
-		\phi_{0}\\ \lambda_{0}
+		\lat_{0}\\ \longi_{0}
 	\end{bmatrix}_{\text{own-ship}} + \begin{bmatrix}
-	\delta\phi \\ \delta\lambda
-	\end{bmatrix} + w_{\textit{AIS}}
+	\delta\lat \\ \delta\longi
+	\end{bmatrix} + \measnoise_{\textit{AIS}}
 \end{equation}
 
 
-By differentiating the model mentioned in the Coordinate systems section, one can confirm that for given own-ship geodetic coordinates $(\phi_0,\lambda_0, h_0)_{\textit{own-ship}}$
+By differentiating the model mentioned in the Coordinate systems section, one can confirm that for given own-ship geodetic coordinates $(\lat_0,\longi_0, h_0)_{\textit{own-ship}}$
 
 
 
@@ -290,12 +292,12 @@ By differentiating the model mentioned in the Coordinate systems section, one ca
 dE\\dN\\dU
 \end{bmatrix}=
 \begin{bmatrix}
-(N(\phi_0)+h_0)\cos\phi_0 &0 &0\\
-0 &M(\phi_0) + h_0 &0\\
+(N(\lat_0)+h_0)\cos\lat_0 &0 &0\\
+0 &M(\lat_0) + h_0 &0\\
 0 &0 &1
 \end{bmatrix}
 \begin{bmatrix}
-d\lambda\\d\phi\\dh
+d\longi\\d\lat\\dh
 \end{bmatrix}
 \end{equation}
 
@@ -305,9 +307,9 @@ Tracking is performed \emph{at sea level}, thus $h=0$, leading to
 
 \begin{equation}
 \begin{bmatrix}
-d\lambda\\ d\phi
+d\longi\\ d\lat
 \end{bmatrix}=
-\mathbf{T}(\phi)^{-1}
+\mathbf{T}(\lat)^{-1}
 \begin{bmatrix}
 dE\\ dN
 \end{bmatrix}
@@ -350,25 +352,25 @@ x\\ y
 
 
 
-and thus, by combining the above equations, one can solve for the observed $[\phi, \lambda]^{T}$,
+and thus, by combining the above equations, one can solve for the observed $[\lat, \longi]^{T}$,
 
 \begin{equation}
 \begin{aligned}
 \begin{bmatrix}
-\phi\\ \lambda
+\lat\\ \longi
 \end{bmatrix}&=
 \begin{bmatrix}
-\phi_{0}\\ \lambda_{0}
-\end{bmatrix} + {\mathbf{T}(\phi_{0})}^{-1}\begin{bmatrix}
+\lat_{0}\\ \longi_{0}
+\end{bmatrix} + {\mathbf{T}(\lat_{0})}^{-1}\begin{bmatrix}
 dE\\ dN
-\end{bmatrix} + w_{\textit{AIS}}=  \\
+\end{bmatrix} + \measnoise_{\textit{AIS}}=  \\
 &\begin{bmatrix}
-\phi_{0}\\ \lambda_{0}
-\end{bmatrix}_{\textit{own-ship}} + \mathbf{T}(\phi_{0})^{-1}
+\lat_{0}\\ \longi_{0}
+\end{bmatrix}_{\textit{own-ship}} + \mathbf{T}(\lat_{0})^{-1}
 \mathbf{R}^{\textit{ENU}}_{\textit{sea-following}}(\heading_{\textit{0}})
 \begin{bmatrix}
 x_{\textit{target}}\\ y_{\textit{target}}
-\end{bmatrix}_{\textit{wrt}_{{\textit{sea-following}}}}+w_{\textit{AIS}}
+\end{bmatrix}_{\textit{wrt}_{{\textit{sea-following}}}}+\measnoise_{\textit{AIS}}
 \end{aligned}
 \end{equation}
 
@@ -376,28 +378,28 @@ x_{\textit{target}}\\ y_{\textit{target}}
 Where
 
 \begin{description}
-	\item $\mathbf{T}(\phi)=
+	\item $\mathbf{T}(\lat)=
 	\begin{bmatrix}
-	N(\phi)\cos\phi &0\\
-	0 &M(\phi)
+	N(\lat)\cos\lat &0\\
+	0 &M(\lat)
 	\end{bmatrix}
 	$ is the transformation matrix from \emph{geodetic differences} to \emph{ENU differences}.
-	\item $N(\phi) = \frac{\eqRadius}{\sqrt{1-e^2\sin^2\phi}}$ is the \emph{prime vertical radius}
-	\item $M(\phi) = \frac{\eqRadius(1-e^2)}{(1-e^2\sin^2\phi)^\frac{3}{2}}$ is the \emph{meridional radius}
+	\item $N(\lat) = \frac{\eqRadius}{\sqrt{1-e^2\sin^2\lat}}$ is the \emph{prime vertical radius}
+	\item $M(\lat) = \frac{\eqRadius(1-e^2)}{(1-e^2\sin^2\lat)^\frac{3}{2}}$ is the \emph{meridional radius}
 	\item $\eqRadius,\polarRadius$ are the equatorial radius(6378.1370 km) and the Polar radius(6356.7523 km) respectively, as derived from the \emph{WGS-84 ellipsoid model} \cite{Farrell2008}.
 	\item $e = \sqrt{1 -\frac{\polarRadius^2}{\eqRadius^2}}$ is the ellipsoid's eccentricity.
 	\item $h = 0 $ since the own-ship is always floating on the geoid.
-	\item $w_{\textit{AIS}}$ is white gaussian zero-mean noise with covariance matrix $\mathbf{R}_{\textit{AIS}}$ depending on the noise intensity of the AIS source.
+	\item $\measnoise_{\textit{AIS}}$ is white Gaussian zero-mean noise with covariance matrix $\measCov_{\textit{AIS}}$ depending on the modeled noise intensity of the AIS source.
 \end{description}
 
 The above equation can be rewritten to the standard observation model formulation
 
 \begin{equation}
-z_{AIS}(\mathbf{x},\begin{bmatrix}\phi_{0}, \lambda_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
-\phi\\ \lambda
+z_{AIS}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+\lat\\ \longi
 \end{bmatrix}_{\textit{target}} = \begin{bmatrix}
-\phi_{0}\\ \lambda_{0}
-\end{bmatrix} + \mathbf{H}\mathbf{x} + w_{\textit{AIS}}
+\lat_{0}\\ \longi_{0}
+\end{bmatrix} + \mathbf{H}\mathbf{x} + \measnoise_{\textit{AIS}}
 \end{equation}
 
 , which is a linear observation model that is approximating the geoid with a \emph{spherical-linearization} about the own-ship's geodetic location.
@@ -444,7 +446,7 @@ z_{\textit{cam}_{\textit{px}}}(\mathbf{x},z_{\textit{gyro}}) = \begin{bmatrix}u\
 	\begin{bmatrix}
 	-P_3-
 	\end{bmatrix}
-	\mathbf{x}}+ w_{\text{camera}}
+	\mathbf{x}}+ \measnoise_{\text{camera}}
 \end{equation}
 
 
@@ -475,7 +477,7 @@ where
 	\item[$f$] is the \emph{focal length} usually in mm, an intrinsic camera calibration parameter
 	\item[$m_x, m_y$] are the camera's sensor pixel density in $\frac{\text{number of pixels}}{mm}$ across the two different directions of the image plane.
 	\item[$p_x,p_y$] correspond to the position of the principal point of the image in \emph{pixel coordinates}
-	\item[$w_{\textit{camera}}$] is white Gaussian zero mean noise with variance related to the classifier accuracy, or any calibration errors in the extrinsic and intrinsic camera matrices.
+	\item[$\measnoise_{\textit{camera}}$] is white Gaussian zero mean noise with variance related to the classifier accuracy, or any calibration errors in the extrinsic and intrinsic camera matrices.
 	
 \end{description}
 
@@ -603,7 +605,7 @@ The radar sensor used in the scope of this thesis is a W-Band radar \todo{Fill s
 		\hline
 		\textbf{Model} & a \\ \hline
 		\textbf{Maximum error $e_{max}$} &  \\
-		${\lambda ,\phi}$ & 20m (When converted to a tangential frame) \\
+		${\longi ,\lat}$ & 20m (When converted to a tangential frame) \\
 		${COG}$ & \SI{10}{\deg} \\
 		${SOG}$ & \SI{2}{\knot} \\ \hline
 		\textbf{Modeled update time} & 5-60s \\ \hline
