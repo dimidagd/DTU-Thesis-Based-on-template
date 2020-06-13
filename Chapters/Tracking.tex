@@ -8,38 +8,38 @@ Tracking is the problem of performing \emph{state estimation} of a \emph{single 
 
 \begin{itemize}
 	\item A tracked target's state at sample time $k$ is, $\\right _k=(x,y,V,h,\omega)^T$ with respect to the own-ship tangential frame.
-	\item It is assumed that a target's track is already \emph{initialized} i.e the sub-problem under consideration is that of \emph{\textbf{track maintenance}} .
-	\item An observation ${z^i}_k = h^i(x_k) + {w^i}_k$ is derived at sample time $k$ from the $i$-th sensor with the respective $h^i(\cdot)$ observation model and measurement noise ${w^i}_k$.
+	\item It is assumed that a target's track is already \emph{initialized} \ie the sub-problem under consideration is that of \emph{\textbf{track maintenance}} .
+	\item An observation ${\realobserv^i}_k = h^i(x_k) + {w^i}_k$ is derived at sample time $k$ from the $i$-th sensor with the respective $h^i(\cdot)$ observation model and observation noise ${w^i}_k$.
 	\item $w^i \sim \mathcal{N}(0, \matr{R}^i)$ is Gaussian white band limited noise and its covariance matrix $\matr{R}^i$ depends on the sensor properties.
-	\item Detection probability $P_D$ less than unity, i.e. there exists the possibility of the sensor not returning an observation that belongs to the target, due to various reasons.
-	\item Non zero false detection probability $P_{FD}$, i.e. the sensor can provide  \emph{false positive} observations that do not originate from the tracked target, usually due to clutter or the observation originating from a different target.
-	\item Possibility for \emph{multiple observations} originating from a single target, such an example could be a large ship, for which the clustering algorithm produced two separate clusters.
+	\item Detection probability $P_D$ less than unity, \ie. there exists the possibility of the sensor not returning an observation that belongs to the target, due to various reasons.
+	\item Non zero false detection probability $P_{FD}$, \ie. the sensor can provide  \emph{false positive} observations that do not originate from the tracked target, usually due to clutter or the observation originating from a different target.
+	\item Possibility for \emph{multiple observations} originating from a single target, such an example could that hypothetical scenario of observing a large ship with a radar sensor, while having a close range obstruction that "shadows" the mid section of the remote ship. In such a case the clustering algorithm would produce two separate clusters, one for the bow and one for the stern of the remote ship.
 \end{itemize}
 
 \section{Clutter model}
-A sensor observation can originate from various object's sources such as real targets, clouds, terrain reflections and thermal noise. The unwanted measurements are referred as \emph{clutter observations}\cite{Memon2020}.
+A sensor observation can originate from various object's sources such as real targets, clouds, terrain reflections and thermal noise. The unwanted observations are referred as \emph{clutter observations} \cite{Memon2020}.
 
 
 Most of the sensors are finite in their perception resolution, that is they have $N$  \emph{resolution cells}. A detection is declared in a cell if  the output of the signal for the specific cell exceeds a threshold. If the sensor points to a region which is not occupied by a target, then false detections can still occur  due to sensor noise or background noise. Usually filtering is performed with \emph{observations} instead of detections, that is with the output of the raw-data pre-processor.\\
 
-In radar tracking for example, the pre-processor might be running clustering algorithms on raw-detections and provide the mean of each cluster as a different observation. The preprocessing of the raw data should remove what was defined as clutter, nevertheless pre-processors still produce false positive observations. It is a common practice hence, to assume that the \textbf{Observations} have a similar clutter model to raw detections.
+In radar tracking for example, the pre-processor might be running clustering algorithms on raw-detections and provide the mean of each cluster as a different observation. The preprocessing of the raw data should remove what was defined as clutter, nevertheless it can still induce false positive observations. It is a common practice hence, to assume that the \textbf{Observations} have a similar clutter model to raw detections.
 
 \subsection{Assumptions}
 
 \begin{itemize}
-	\item The probability of a \emph{false positive} observation inside the sensors grid cell is $P_{FA} = p$ in each cell
+	\item The probability of a \emph{false detection} inside the sensors grid cell is $P_{FD} = p$ in each cell
 	\item The events of observations in each cell are independent of each other.
 	\item 
-	Under the above assumptions, the \emph{probability mass function} (pmf) of the number of false alarms in these $N$ cells, follows a \emph{binomial}(Bernouli) distribution.
+	Under the above assumptions, the \emph{probability mass function} (pmf) of the number of false alarms in these $N$ cells, follows a \emph{binomial}(Bernoulli) distribution.
 	
 	$$
-	P\{n_{FA}=m\} = \mu_{FA}(m) = \begin{pmatrix}N \\m \end{pmatrix} p^m (1-p)^{N-m}
+	P\{n_{FD}=m\} = \mu_{FD}(m) = \begin{pmatrix}N \\m \end{pmatrix} p^m (1-p)^{N-m}
 	$$
 \end{itemize}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{radar_grid}
-	\caption{An illustration of the resolution cells in a full radar scan, and a single radar spoke\cite{Wilthil2017}}
+	\caption{Resolution cells in a full radar scan. In green a single radar spoke(angle resolution increment). \cite{Wilthil2017}.}
 	\label{fig:radargrid}
 \end{figure}
 
@@ -47,28 +47,28 @@ If $V$ is the volume of the $N$ cells under consideration, then $\lambda$ is the
 
 
 $$
-\lambda = \frac{E{n_{FA}}}{V} = \frac{Np}{V}
+\lambda = \frac{ \E{n_{FD}}}{V} = \frac{N p}{V}
 $$
 
 
-and if $Np >1$ then the \emph{Poisson distribution} can be approximated by \Cref{eq:poisson}
+and if $Np >1$ then a \emph{Poisson distribution} can be approximated by \Cref{eq:poisson}
 
 \begin{equation}\label{eq:poisson}
-\mu_{FA}(m) \approx e^{-Np}\frac{(Np)^m}{m!}
+\mu_{FD}(m) \approx e^{-Np}\frac{(Np)^m}{m!}
 \end{equation}
 
 
 thus the \emph{number of false alarms}(clutter observations)in a volume $V$ given a spatial density of clutter observations $\lambda$ is
 
 $$
-\mu_{FA}(m) \approx e^{-\lambda V}\frac{(\lambda V)^m}{m!}
+\mu_{FD}(m) \approx e^{-\lambda V}\frac{(\lambda V)^m}{m!}
 $$
 
-The justification of using the above clutter model, is that the pdf of a false observation  is \emph{uniform}, or in other words, clutter points can originate from anywhere in a sensor's measurement space.
+The justification of using the above clutter model, is that the pdf of a false observation  is \emph{uniform}, or in other words, clutter points can originate from anywhere in a sensor's observation space.
 
 
 $$
-p(z|{z = \text{false measurement}}) = \frac{1}{V}
+p(\realobserv|{\realobserv = \text{invalid observation}}) = \frac{1}{V}
 $$
 
 
@@ -81,7 +81,7 @@ Data association in the context of filtering can be categorized as follows accor
 \begin{itemize}
 	\item Non-Bayesian techniques
 	\begin{itemize}
-		\item Nearest Neighbour association
+		\item Nearest Neighbor association
 		\item Strongest Neighbour association (assuming intensity information)
 		\item Track-Split approach
 	\end{itemize}
@@ -99,42 +99,42 @@ Data association in the context of filtering can be categorized as follows accor
 When tracking single or multiple objects, one needs to associate sensor observations, which at the moment of capture are of unknown origin, to a tracked target, before performing filtering.\\
 
 
-The first step towards identifying an observation's origin is \emph{validating or gating} , that is to filter out unrealistic observations which most likely constitute outliers. This can be done in a probabilistic way by defining a \emph{validation region}(gate), or else a \emph{probabilistic hypervolume} in the measurement space of a sensor. \\
+The first step towards identifying an observation's origin is \emph{validating or gating} , that is to filter out unrealistic observations which most likely constitute outliers. This can be done in a probabilistic way by defining a \emph{validation region}(gate), or else a \emph{probabilistic hypervolume} in the observation space of a sensor. \\
 
 
-A measurement within the \emph{validation region}  does not necessarily originate from the target the gate pertains to, but it is a \emph{valid association candidate} . As soon as multiple observations belong to the same gate, then there is an observation \emph{association uncertainty}.
+An observation within the \emph{validation region}  does not necessarily originate from the target the gate pertains to, but it is a \emph{valid association candidate} . As soon as multiple observations belong to the same gate, then there is an observation \emph{association uncertainty}.
 
 \subsection{Validation region(gate)}
 
-If one considers a tracked target, i.e the filter has already been initialized, then one is is possible to calculate the \emph{predicted observation} mean $\hat{z}(k+1|k)$ and its associated covariance $S(k+1)$ through the sensor's observation model and the filter's estimate of the state.
+If one considers a tracked target, \ie the filter has already been initialized, then one is is possible to calculate the \emph{predicted observation} mean $\predObserv(k+1|k)$ and its associated covariance $S(k+1)$ through the sensor's observation model and the filter's estimate of the state.
 
 
-A fair assumption at this point, is that the \emph{true measurement} probability distribution function $$ z(k+1| Z^k)$$, conditioned on the past, is \emph{normally distributed} with its PDF given by the standard Gaussian
+A fair assumption at this point, is that the \emph{true observation} probability distribution function $$ \realobserv(k+1| \validObservationSet^k)$$, conditioned on the past, is \emph{normally distributed} with its PDF given by the standard Gaussian
 
 $$
-p[z(k+1)|Z^k] = \mathcal{N}[z(k+1); \hat{z}(k+1|k), S(k+1)]
+p[\realobserv(k+1)|\validObservationSet^k] = \mathcal{N}[\realobserv(k+1); \predObserv(k+1|k), S(k+1)]
 $$
 
 
 
-Then the true measurement belongs to the \emph{validation region} with probability
+Then the true observation belongs to the \emph{validation region} with probability
 
 
 \begin{equation}\label{eq:gateEquation}
-\mathcal{V}(k+1, \gamma) = \{z: [z-\hat{z}(k+1|k)]^T S(k+1)^{-1} [z-\hat{z}(k+1|k)] \leq \gamma \}
+\mathcal{V}(k+1, \gateThreshold) = \{\realobserv: [\realobserv-\predObserv(k+1|k)]^T S(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] \leq \gateThreshold \}
 \end{equation}
 
-\Cref{eq:gateEquation} describes a \emph{validation region} or else a \emph{probabilistic hyper-volume}. In the simple case in which the measurement space is the three dimensional euclidean space $R^3$ then $\mathcal{V}$ defines an ellipsoid of probability concentration , that is the region of \emph{minimum volume }that contains a given probability mass. The length of the ellipsoid semi-axes correspond to the square roots of the eigenvalues(singular values) of $\gamma S$ (\Cref{fig:ellipsoid}).
+\Cref{eq:gateEquation} describes a \emph{validation region} or else a \emph{probabilistic hyper-volume}. In the simple case in which the observation space is the three dimensional euclidean space $R^3$ then $\mathcal{V}$ defines an ellipsoid of probability concentration , that is the region of \emph{minimum volume }that contains a given probability mass. The length of the ellipsoid semi-axes correspond to the square roots of the eigenvalues(singular values) of $\gateThreshold S$ (\Cref{fig:ellipsoid}).
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{ellipsoid.png}
-	\caption{$\gamma = \{1,3,9\}$ standard deviational ellipsoids(SDE)\cite{Wang2015}.}
+	\caption{$\gateThreshold = \{1,3,9\}$ standard deviational ellipsoids(SDE) \cite{Wang2015}.}
 	\label{fig:ellipsoid}
 \end{figure}
 
 
-The quadratic form for $\mathcal{V}$ in \Cref{eq:validationGate} implies that the validation region is \emph{chi-square distributed}, with number of degrees of freedom equal to the dimensionality $n_z$ of the sensor's observations space.
+The quadratic form for $\mathcal{V}$ in \Cref{eq:validationGate} implies that the validation region is \emph{chi-square distributed}, with number of degrees of freedom equal to the dimensionality $n_\realobserv$ of the sensor's observations space.
 
 
 \begin{figure}[H]
@@ -145,10 +145,10 @@ The quadratic form for $\mathcal{V}$ in \Cref{eq:validationGate} implies that th
 \end{figure}
 
 
-In order to obtain a value for the gating probability $P_G$, one can use the cumulative distribution function $F_{n_{z}}(\gamma)=P(X \leq \gamma)$ of $\mathcal{V}$ and since as already mentioned, $\mathcal{V}$ is a chi-squared distributed variable, the calculation of $\gamma$ is the solution to \Cref{eq:gammasol}
+In order to obtain a value for the gating probability $P_G$, one can use the cumulative distribution function $F_{n_{\realobserv}}(\gateThreshold)=P(X \leq \gateThreshold)$ of $\mathcal{V}$ and since as already mentioned, $\mathcal{V}$ is a chi-squared distributed variable, the calculation of $\gateThreshold$ is the solution to \Cref{eq:gammasol}
 
 \begin{equation}\label{eq:gammasol}
-P(X \leq \gamma) = P_g = \end{equation}
+P(X \leq \gateThreshold) = P_g = \end{equation}
 
 
 Unfortunately no closed-form solution exists for \Cref{eq:gammasol} , since the function is highly non-linear, nevertheless look-up tables are available after its point-wise evaluation as in \Cref{fig:chisquaredtable}.
@@ -160,39 +160,39 @@ Unfortunately no closed-form solution exists for \Cref{eq:gammasol} , since the 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\linewidth]{chi_squared_table.png}
-	\caption{Look up table for $\gamma$, right tail chi-squared percentile, $\text{df}$ degrees of freedom .}
+	\caption{Look up table for $\gateThreshold$, right tail chi-squared percentile, $\text{df}$ degrees of freedom .}
 	\label{fig:chisquaredtable}
 \end{figure}
 
 
 
-One can verify that for the bearing and range radar case, $df = n_z =2 $ degrees of freedom and if the probability that the true observation will fall in the gate is
+One can verify that for the bearing and range radar case, $df = n_\realobserv =2 $ degrees of freedom and if the probability that the true observation will fall in the gate is
 
-$$P_{g} = P\{ z(k+1)\in\mathcal{V}(k+1,\gamma)\}=0.99$$
+$$P_{g} = P\{ \realobserv(k+1)\in\mathcal{V}(k+1,\gateThreshold)\}=0.99$$
 
 
 That means that an outlier's probability $P_{\text{outlier}}$ will be
 
 $$P_{\text{outlier}} = 1 - P_g = 0.01$$
 
-then a possible solution for the gating threshold is
+then a possible solution for the gating threshold by looking up in the table in \Cref{fig:chisquaredtable} is
 
-$$\gamma \approx 9.21$$
+$$\gateThreshold \approx 9.21$$
 
 
-The square root $g = \sqrt{\gamma}$ is also referred to as \emph{
+The square root $g = \sqrt{\gateThreshold}$ is also referred to as \emph{
 "number of sigmas"} or standard deviations of the gate.
 
-The \emph{validation region} thus, consists of points whose  \emph{statistical distance} to the predicted measurement is below a threshold $\gamma$.  This is equivalent to the \emph{normalized innovation} $[z-\hat{z}(k+1|k)]^T S(k+1)^{-1} [z-\hat{z}(k+1|k)]$ being below this threshold.
+The \emph{validation region} thus, consists of points whose  \emph{statistical distance} to the predicted observation is below a threshold $\gateThreshold$.  This is equivalent to the \emph{normalized innovation} $$[\realobserv-\predObserv(k+1|k)]^T S(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] < \gateThreshold^2 $$ being below this threshold.
 
-Measurements \emph{outside the validation region}can be ignored, as they are too far and very unlikely(at least with probability $1-P_g$) to have originated from the target of interest. This argument holds, as long as the predicted observation is accurate enough.
+Measurements \emph{outside the validation region} can be ignored, as they are too far and very unlikely(at least with probability $1-P_g$) to have originated from the target of interest. This argument holds, as long as the predicted observations can be modeled by Gaussians and their first two moments.
 \section{Probabilistic Data Association Filter (PDAF)}
 
-This filter is based on the KF/EKF algorithm, it keeps the update equations the same but is probabilistically fusing
-observations within the target's validating region into a single fused innovation update step.
+This filter is based on the KF/EKF algorithm, it keeps the same time and measurement update scheme but is probabilistically fusing
+observations within the target's validating region into a single fused innovation update step, by weighting individual validated measurements according to their likelihood.
 
 \subsection{PDAF modeling assumptions}
-
+\cite{BarShalom1980} Defines the following assumptions for the PDAF algorithm.
 \begin{itemize}
 	\item There is a single target of interest whose state evolves according to a dynamic equation driven by process noise. The state of the tracked target is $x_k \in \realnumbers^{n_x} $ and is assumed to evolve in time according to \Cref{eq:stateEvolution}
 	
@@ -200,26 +200,26 @@ observations within the target's validating region into a single fused innovatio
 	x(k+1) = F(k)x(k) + \upsilon(k)
 	\end{equation}
 	
-	with the true observation $z(k) \in \realnumbers^{n_z}$ 
+	with the true observation $\realobserv(k) \in \realnumbers^{n_z}$ 
 	
-	\[ z(k) = H(k)x(k) + w(k) \]
+	\[ \realobserv(k) = H(k)x(k) + w(k) \]
 
 	where $\procnoise(k)$ and $\measnoise(k)$ are zero-mean mutually independent white Gaussian noise sequences with covariance matrices $\proccCov(k)$ and $\measCov(k)$, respectively.
 	\item The target's track is already initialized.
-	\item At each sensor sample time, a validation region(gate) to filter the highly unlikely observations is created\cite{Shalom1995}.
+	\item At each sensor sample time, a validation region(gate) to filter the highly unlikely observations is created \cite{Shalom1995}.
 	\item The target exhibits a detection probability at each sensor scan $P_D$.
 	\item The remaining observations(not originating from the target) are assumed due to false detection or clutter, and are assumed to be of uniform spatial distribution.
-	\item All past information about the target is summari\cite{BarShalom1980}zed by a single Gaussian belief	
+	\item All past information about the target is summarized by a single Gaussian belief
 	
 	
 	\begin{equation}\label{eq:gaussAssumption}
-	p[x(k)|Z^{k-1}] = \mathcal{N}\left(x(k);\hat{x}(k|k-1),P(k|k-1)\right)
+	p[x(k)|\validObservationSet^{k-1}] = \mathcal{N}\left(x(k);\hat{x}(k|k-1),P(k|k-1)\right)
 	\end{equation}
 	
 	
 	
 	with argument $x(k)$,mean $\hat{x(k|k-1)}$ and covariance matrix $P(k|k-1)$.
-	\item The observation pdf originating from the target is Gaussian with mean $\hat{z}(k|k-1)$ and \emph{innovation covariance}  $\innCov(k)$.
+	\item The observation pdf originating from the target is Gaussian with mean $\predObserv(k|k-1)$ and \emph{innovation covariance}  $\innCov(k)$.
 \end{itemize}
 The above assumptions enable a state estimation scheme which is almost as simple as the standard \emph{Kalman Filter}(KF) but much more effective in clutter.
 \subsection{PDAF algorithm}
@@ -229,75 +229,95 @@ Two versions of the PDAF algorithm exist
 \begin{enumerate}
 	\item Non parametric
 	\begin{itemize}
-	\item A diffuse prior is used as knowledge for the number of false measurements
-	\item Requires no knowledge about the spatial density $\lambda$ of false measurements.
+	\item A diffuse prior is used as knowledge for the number of false observations
+	\item Requires no knowledge about the spatial density $\lambda$ of false observations.
 	\end{itemize}
 	\item Parametric
 	
 
 	\begin{itemize}
-		\item A Poisson probability mass function is used for the number of false measurements
-		\item  Requires the spatial density parameter $\lambda$ (expected number per unit volume) of the false measurements
+		\item A Poisson probability mass function is used for the number of false observations
+		\item  Requires the spatial density parameter $\lambda$ (expected number per unit volume) of the false observations
 	\end{itemize}
 \end{enumerate}
 
 \subsection{PDAF approach}
-The basic idea in PDAF is to decompose the estimation process with respect to the origin of each element of the latest set of validated observations $Z(k)$, denoted as
+The basic idea in PDAF is to decompose the estimation process with respect to the origin of each element of the latest set of validated observations $\validObservationSet(k)$, denoted as
 
 \begin{equation}\label{key}
-Z(k) = \{z_i(k)^{m(k)}_{i=1}\}
+\validObservationSet(k) = \{\realobserv_i(k)^{m(k)}_{i=1}\}
 \end{equation}
 
 with
 
 \begin{description}
-	\item[$z_i(k)$] is the $i$-th validated measurement
-	\item[$ m(k) $] is the number of measurements in the validation region at time $k$.
+	\item[$\realobserv_i(k)$] is the $i$-th validated observation
+	\item[$ m(k) $] is the number of observations in the validation region at time $k$.
 \end{description}
 
 Then the set of observations is 
 
 \begin{equation}\label{observSet}
-	Z^k = \{Z(j)\}^{k}_{j=1}
+	\realobserv^k = \{\validObservationSet(j)\}^{k}_{j=1}
 \end{equation}
 
 
 \subsection{Validated observations(gating)}
 
-A basic step in the PDAF algorithm is to filter out highly unlikely observations. This can be done by setting up a \emph{validation region} in the observation space, and using a threshold on the \emph{statistical distance} of the observations from the region centroid.\\
+A basic step in the PDAF algorithm is to filter out highly unlikely observations. This can be done by setting up a \emph{validation region} in the observation space, and using a threshold on the \emph{statistical distance} of the observations from the region centroid.
+
+
+\begin{figure}[H]
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=0.7\linewidth]{gating1.png}
+		\caption{Dots correspond to predicted observations $\predObserv$ and  crosses to real observations $\realobserv$ or clutter.}
+		\label{fig:gating1}
+	\end{subfigure}
+	\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=0.7\linewidth]{gating2.png}
+			\caption{Ellipsoid gating, the pink area corresponds to space outside the gating threshold $\gateThreshold$. Red observations $y_t^{(2,3)}$ are being invalidated, whereas green observations $y_t^{(1,4,5)}$ are being validated}
+			\label{fig:gating2}
+	\end{subfigure}
+	%\caption{Put your caption here}
+	\label{fig:fig}
+\end{figure}
+
+
 
 
 From the Gaussian assumption(\Cref{eq:gaussAssumption}) a \emph{validation region}(gate) is defined by the ellipsoid
 
 \begin{equation}\label{eq:validationGate}
-\mathcal{V}(k+1, \gamma) = \{z: [z-\hat{z}(k+1|k)]^T S(k+1)^{-1} [z-\hat{z}(k+1|k)] \leq \gamma \}
+\mathcal{V}(k+1, \gateThreshold) = \{\realobserv: [\realobserv-\predObserv(k+1|k)]^T S(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] \leq \gateThreshold \}
 \end{equation}
 
 
 
-where $\gamma$ is the gate threshold and can be calculated by the chosen \emph{gating probability }$P_G$ and the \emph{chi-squared} distribution lookup matrix (\Cref{fig:chisquaredtable}).
+where $\gateThreshold$ is the gate threshold and can be calculated by the chosen \emph{gating probability }$P_G$ and the \emph{chi-squared} distribution lookup matrix (\Cref{fig:chisquaredtable}).
 
 
 This leads to a validated observations set
 
 $$
-\{z_i(k+1), i = 1, ..., m(k+1)\}
+\{\realobserv_i(k+1), i = 1, ..., m(k+1)\}
 $$
 
 
 The innovation $\nu_i$ corresponding to the i-th validated observation is
 
 $$\begin{aligned}
-\nu_i(k+1) = z_i(k+1) - \hat{z}(k+1|k)  && i= 1, ...,m(k+1)
+\nu_i(k+1) = \realobserv_i(k+1) - \predObserv(k+1|k)  && i= 1, ...,m(k+1)
 \end{aligned}
 $$
 
 
 The validation region volume $V$ is
 
-$$V(k+1) = c_{n_{z}}|\gamma S(k+1)|^\frac{1}{2}$$
+$$V(k+1) = c_{n_{\realobserv}}|\gateThreshold S(k+1)|^\frac{1}{2}$$
 
-where $c_{n_z}$ is the volume of the $n_z$ dimensional unit hyper-sphere, and
+where $c_{n_\realobserv}$ is the volume of the $n_z$ dimensional unit hyper-sphere, and
 
 
 \begin{equation}\label{eq:ndimensionalvolume}
@@ -317,7 +337,7 @@ Having in mind the assumptions mentioned, the association events list in \Cref{e
 \begin{equation}\label{eq:associationevents}
 \epsilon_i(k)  = \left\{
 \begin{array}{ll}
-\{z_i(k) \text{ is the target-originated measurement} \} & i = 1,...,m(k) \\
+\{\realobserv_i(k) \text{ is the target-originated observation} \} & i = 1,...,m(k) \\
 \\
 \{\text{none of the observations is target originated} \} & i=0
 \end{array}\right.
@@ -327,14 +347,14 @@ Using the total probability theorem with respect to the above events, the condit
 
 \begin{equation}\label{eq:conditionalmean}
 \begin{split}
-\hat{x}(k|k) &= E[x(k)|Z^k] \\
-&= \sum_{i=0}^{m(k)} \underbrace{E[x(k)|\epsilon_i(k),Z^k]}_{\hat{x}_i(k|k)} \underbrace{P\{\epsilon_i(k)|Z^k\}}_{\beta_i(k)}\\
+\hat{x}(k|k) &= E[x(k)|\validObservationSet^k] \\
+&= \sum_{i=0}^{m(k)} \underbrace{E[x(k)|\epsilon_i(k),\validObservationSet^k]}_{\hat{x}_i(k|k)} \underbrace{P\{\epsilon_i(k)|\validObservationSet^k\}}_{\beta_i(k)}\\
 &=\sum_{i=0}^{m(k)} \hat{x}_i(k|k) \beta_i(k)
 \end{split}
 \end{equation}
  
 \begin{description}
-	\item[$ \hat{x}_i(k|k) $ ] is the updated state conditioned on the association event that the $i$-th measurement is correct
+	\item[$ \hat{x}_i(k|k) $ ] is the updated state conditioned on the association event that the $i$-th observation is correct
 	
 	\begin{equation}\label{eq:PDAupdate}
 	\begin{array}{ll}
@@ -345,7 +365,7 @@ Using the total probability theorem with respect to the above events, the condit
 	\item[$ \beta_i(k) $] Is the conditional association probability as presented in the following paragraphs
 	
 	\begin{equation}\label{eq:associationprobability}
-	\beta_i(k) 	\overset{\Delta}{=} P\{\epsilon_i(k)|Z^k\}
+	\beta_i(k) 	\overset{\Delta}{=} P\{\epsilon_i(k)|\validObservationSet^k\}
 	\end{equation}
 	
 	\item[$K(k)$] is the Kalman gain calculated as in the standard KF
@@ -356,13 +376,13 @@ Using the total probability theorem with respect to the above events, the condit
 
 \subsubsection{Prediction}
 
-The prediction of the state and measurement to $k+1$ is done as in the standard KF filter, i.e.,
+The prediction of the state and observation to $k+1$ is done as in the standard KF filter, \ie.,
 
 
 \begin{equation}
 \begin{aligned}
 \hat{x}(x+1|k) &=  F(k)\hat{x}(k|k) \\
-\hat{z}(k+1|k) &= H(k+1)\hat{x}(x+1|k)
+\predObserv(k+1|k) &= H(k+1)\hat{x}(x+1|k)
 \end{aligned}
 \end{equation}
 
@@ -387,7 +407,7 @@ S(k+1) = H(k+1)P(k+1|k)H(k+1)^T + R(k+1)
 \subsection{Non-parametric PDAF}
 
 
-The association probability that the $i$-th measurement is the correct one can be calculated according to \cite{Kirubarajan2004} as
+The association probability that the $i$-th observation is the correct one can be calculated according to \cite{Kirubarajan2004} as
 
 \begin{equation}\label{eq:betas}
 \beta_i(k+1)=
@@ -399,7 +419,7 @@ The association probability that the $i$-th measurement is the correct one can b
 \end{equation}
 
 
-where $\beta_0$ in \Cref{eq:betas} corresponds to the \emph{probability that none of the measurements is correct}.
+where $\beta_0$ in \Cref{eq:betas} corresponds to the \emph{probability that none of the observations is correct}.
 
 The likelihood $e_i$ is
 
@@ -408,10 +428,10 @@ e_i \overset{\Delta}{=}  e^{-\frac{1}{2} \nu_i(k+1)^T S(k+1)^{-1} \nu_i(k+1)}
 $$
 and 
 $$
-b \overset{\Delta}{=} \left(\frac{2\pi}{\gamma}\right)^{\frac{n_z}{2}}m(k+1){c_{n_z}}^{-1}\frac{1-P_D P_G}{P_D}
+b \overset{\Delta}{=} \left(\frac{2\pi}{\gateThreshold}\right)^{\frac{n_\realobserv}{2}}m(k+1){c_{n_\realobserv}}^{-1}\frac{1-P_D P_G}{P_D}
 $$
 
-where $c_{n_z}$ is the $n_z$-dimensional \emph{unit hyper-sphere} volume according to \Cref{eq:ndimensionalvolume}
+where $c_{n_\realobserv}$ is the $n_z$-dimensional \emph{unit hyper-sphere} volume according to \Cref{eq:ndimensionalvolume}
 
 \subsubsection{Update}
 
@@ -454,11 +474,11 @@ where $\tilde{P}(k+1)$ as given in \Cref{eq:spread} is responsible for spreading
 	\item The estimation accuracy is \emph{data dependent} since the covariance matrix update in \Cref{eq:spread} depends on the innovations $v_i$ in contrast to the classic KF approach where the updated state covariance matrix depends only on the covariance matrix of the predicted observations $S(k+1)$ and the latest state estimate covariance matrix $P(k+1)$.
 	\item The probability of an association event $\beta_i$ is:
 	\begin{itemize}
-		\item the ratio of the "height" on the predicted measurement's Gaussian pdf of its innovation and
+		\item the ratio of the "height" on the predicted observation's Gaussian pdf of its innovation and
 		\item the sum of such terms for all the validated observations (denominator in \Cref{eq:betas}) plus a constant $b$ which accounts for the possibility of having zero validated observations.
 	\end{itemize}
-	\item The state estimate is updated with all the \emph{validated measurements}(combined innovation $v(k)$ in \Cref{eq:weighted_innovation}), weighted by their likelihood $\beta_i$ of having originated from the target.
-	\item In the \emph{parametric PDA} , $\beta$ is calculated by replacing $m(k+1)$ with $\lambda V(k+1)$ , where $\lambda$ is the spatial density of the false measurements of the clutter model. \\
+	\item The state estimate is updated with all the \emph{validated observations}(combined innovation $v(k)$ in \Cref{eq:weighted_innovation}), weighted by their likelihood $\beta_i$ of having originated from the target.
+	\item In the \emph{parametric PDA} , $\beta$ is calculated by replacing $m(k+1)$ with $\lambda V(k+1)$ , where $\lambda$ is the spatial density of the false observations of the clutter model. \\
 	
 	The distinctive difference between the parametric and the non-parametric variants, is that the parametric version assumes an a priori known diffusion density $\lambda$ , where as the non-parametric one is calculating it based on the number of validated observations $m(k+1)$ and the validation volume $V$.
 	

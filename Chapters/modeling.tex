@@ -140,11 +140,11 @@ g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
 
 \section{Observation models}
 
-An \emph{observation model} or \emph{sensor model} $z_k = h(\mathbf{x_k}) + \measnoise_k$ expresses a sensor's observations $z_k$ at time instances $t_k$ given the state vector $\mathbf{x}$ .
+An \emph{observation model} or \emph{sensor model} $\observ_k = h(\mathbf{x_k}) + \measnoise_k$ expresses a sensor's observations $\observ_k$ at time instances $t_k$ given the state vector $\mathbf{x}$ .
 
  $\measnoise_k$ is assumed to be white Gaussian noise with covariance matrix $\measCov(k)$ that depends on the specific sensor. Depending on the selection of the state vector $\mathbf{x}$, the one can come up with a linear or nonlinear observation model.
 
-The author is using the term \emph{observations} in the tracking context to refer to the post processed information derived from raw-sensor \emph{measurements}. In most cases the observations are a byproduct of multiple raw sensor measurements. For instance line of sight sensors such as a laser distance sensor, a radar, create dense point representations around the sensor's origin. These points can be grouped into geometric entities by various feature extraction algorithms, in order to create target \emph{observations}.  Likewise, a camera in the tracking context, instead of an imaging device, can be modeled as a relative bearing sensor, by pre-processing the raw image data through an ANN that extracts detected targets pixel locations within the frames. This abstraction level greatly simplifies the measurement models, since one can directly focus on the data-fusion and bypass the observation acquisition process, which at a certain level constitutes a separate and independent task. It is worth mentioning that the author in this thesis chose to focus on a \emph{medium level fusion approach}\cite{Luo2002}, which means that features(target's position) are fused to obtain features of better quality that can be employed by different tasks.
+The author is using the term \emph{observations} in the tracking context to refer to the post processed information derived from raw-sensor \emph{measurements}. In most cases the observations are a byproduct of multiple raw sensor measurements. For instance line of sight sensors such as a laser distance sensor, a radar, create dense point representations around the sensor's origin. These points can be grouped into geometric entities by various feature extraction algorithms, in order to create target \emph{observations}.  Likewise, a camera in the tracking context, instead of an imaging device, can be modeled as a relative bearing sensor, by pre-processing the raw image data through an ANN that extracts detected targets pixel locations within the frames. This abstraction level greatly simplifies the measurement models, since one can directly focus on the data-fusion and bypass the observation acquisition process, which at a certain level constitutes a separate and independent task. It is worth mentioning that the author in this thesis chose to focus on a \emph{medium level fusion approach} \cite{Luo2002}, which means that features(target's position) are fused to obtain features of better quality that can be employed by different tasks.
 %\todo{Disambiguate different sensor fusion levels, provide a whole section?}
 
 
@@ -154,7 +154,7 @@ The author is using the term \emph{observations} in the tracking context to refe
 
 \subsection{Radar model}
 
-The output of the radar observation model is assumed to be the relative range and bearing measurements of the centroids of clustered raw radar measurements. The model is thus derived by calculating the relative position of a target to the sensor in polar form $z_{radar} = \begin{bmatrix}
+The output of the radar observation model is assumed to be the relative range and bearing measurements of the centroids of clustered raw radar measurements. The model is thus derived by calculating the relative position of a target to the sensor in polar form $\observ_{radar} = \begin{bmatrix}
 \range,
 \bearing
 \end{bmatrix}^{T}$ , given the target's position $\begin{bmatrix}x_t, y_t\end{bmatrix}^{T}$ w.r.t the sensor's coordinate system.
@@ -165,15 +165,15 @@ The output of the radar observation model is assumed to be the relative range an
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/radar.png}
-	\caption{Radar observation model and different coordinate systems}.
+	\caption{Radar observation model, \{e\}:(ENU) and \{t\}(tracking) coordinate systems}.
 	\label{fig:radar_observation_model}
 \end{figure}
 
 
-If the radar's coordinate system, is for simplicity  chosen to coincide with a \emph{tracking coordinate system},  attached to the own-ships sea-following coordinate system. Then the information about the own-ship is not necessary in the calculations and as such
+If the radar's coordinate system, is for simplicity  chosen to coincide with a \emph{tracking coordinate system},  attached to the own-ships sea-following system. Then the tracking is with respect to the own-ship and the own-ships heading angle $\heading$ is not needed.\todo{write about rotating reference frame}
 
 \begin{equation}
-z_{radar}(\mathbf{x}) = \begin{bmatrix}
+\observ_{radar}(\mathbf{x}) = \begin{bmatrix}
 \rho \\
 \theta
 \end{bmatrix} = \begin{bmatrix}
@@ -183,7 +183,7 @@ arctan(\frac{y}{x})
 \end{equation}
 
 
-where the observation noise $w$ is commonly assumed to be white, zero-mean Gaussian with covariance $R_{radar} = \text{diag}\left[\sigma^2_{\rho}, \sigma^2_{\theta}\right] $
+where the observation noise $\measnoise$ is assumed to be white, zero-mean Gaussian with covariance $\measCov_{radar} = \text{diag}\left[\variance_{\rho}, \variance_{\theta}\right] $
 
 
 
@@ -212,7 +212,7 @@ The relative GPS observation model calculates the target's relative position $\b
 
 
 \begin{equation}
-z_{GPS}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+\observ_{GPS}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
 x \\
 y
 \end{bmatrix}_{GPS} = \begin{bmatrix}
@@ -267,7 +267,7 @@ Where
 
 \subsection{AIS observation model}
 
-An alternative method to using the aforementioned GPS model is to leverage the fact that the tracked targets are in the vicinity of the own-ship, and thus small differences in geodetic coordinates can be linearly mapped to ENU differences and the other way around\cite{Wellenhof1997}.
+An alternative method to using the aforementioned GPS model is to leverage the fact that the tracked targets are in the vicinity of the own-ship, and thus small differences in geodetic coordinates can be linearly mapped to ENU differences and the other way around \cite{Wellenhof1997}.
 
 
 
@@ -395,7 +395,7 @@ Where
 The above equation can be rewritten to the standard observation model formulation
 
 \begin{equation}
-z_{AIS}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+\observ_{AIS}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
 \lat\\ \longi
 \end{bmatrix}_{\textit{target}} = \begin{bmatrix}
 \lat_{0}\\ \longi_{0}
@@ -442,7 +442,7 @@ to the finite camera frame, given measured information $z_{gyro}$ about the rota
 
 
 \begin{equation}
-z_{\textit{cam}_{\textit{px}}}(\mathbf{x},z_{\textit{gyro}}) = \begin{bmatrix}u\\v\end{bmatrix}_{px}= \frac{\begin{bmatrix}-P_1-\\-P_2-\end{bmatrix}\mathbf{x}}{
+\observ_{\textit{cam}_{\textit{px}}}(\mathbf{x},z_{\textit{gyro}}) = \begin{bmatrix}u\\v\end{bmatrix}_{px}= \frac{\begin{bmatrix}-P_1-\\-P_2-\end{bmatrix}\mathbf{x}}{
 	\begin{bmatrix}
 	-P_3-
 	\end{bmatrix}
@@ -541,7 +541,7 @@ The sensor types fused in this project are summarized in \cref{tab:sensor_invent
 
 When modeling the sensors, specific assumptions were made on the Gaussian white noise intensities of the radar observation model. These parameters are subject to final tuning in order to match the ones from the real data. It is a common approach to start with rational assumptions for these values when still in the \emph{simulation design phase} and  experiment with different values by \emph{"tuning the knobs"} when designing the system that should work on the real data. 
 
-Quite often, manufacturers provide noise in the form of maximum error on the real values without specifying whiteness or Gaussianity. The approach in this thesis when modeling real sensor noise, is to fit the maximum error value $e_{\text{max}}$ found in a sensors specification data-sheets, to a Gaussian distribution $\mathcal{N}(0,\sigma^2)$ by assuming that there is no bias error unless specified, and that $e_{\text{max}} = 3 \sigma$ where $\sigma^2$ is the \emph{variance} of the fitted distribution $\mathcal{N}$.
+Quite often, manufacturers provide noise in the form of maximum error on the real values without specifying whiteness or Gaussianity. The approach in this thesis when modeling real sensor noise, is to fit the maximum error value $e_{\text{max}}$ found in a sensors specification data-sheets, to a Gaussian distribution $\mathcal{N}(0,\variance)$ by assuming that there is no bias error unless specified, and that $e_{\text{max}} = 3 \sigma$ where $\variance$ is the \emph{variance} of the fitted distribution $\mathcal{N}$.
 \begin{table}[H]
 		\centering
 	\caption{Sensor inventory and observation types}

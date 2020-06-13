@@ -19,8 +19,13 @@
 \usepackage{caption}        % better captions
 \usepackage{subcaption}     % for subfigures
 \usepackage{csquotes}       % For biblatex with babel
-\usepackage[backend=biber,style=numeric,sorting=none]{biblatex} % Package for bibliography (citing)
+% Package for bibliography (citing)
+\usepackage[backend=biber,style=ext-authoryear,sorting=none]{biblatex} 
+% Square brackets outside cite
+\DeclareOuterCiteDelims{cite}{\bibopenbracket}{\bibclosebracket}
+% Load .bib file
 \bibliography{bibliography.bib}
+
 \usepackage{tabularx}       % for ability to adjust column spacing in tabular better
 \usepackage{booktabs}       % for better tables
 \usepackage{float}          % floating figures in correct places
@@ -28,17 +33,23 @@
 \usepackage[printwatermark=false]{xwatermark} % Package for wartermark. Toggle printwatermark true or false to include or remove the watermark
 \usepackage{blindtext}
 
-%my shit DD
+%my stuff DD
 \usepackage[textwidth=100mm]{todonotes}
 \usepackage{graphicx}
-\usepackage[inline]{enumitem}
+% Vertical enumerate mylist
+\usepackage[inline]{enumitem} 
 \newlist{mylist}{enumerate*}{1}
 \setlist[mylist]{label=(\roman*)}
+
 \newcommand{\vect}[1]{\mathbf{#1}} % or \bm
 \newcommand{\matr}[1]{\mathbf{#1}} % or \bm
-\newcommand*{\imgpath}{../../../../static_web/static/thesis}%
+
+%\newcommand*{\imgpath}{../../../../static_web/static/thesis}%
+% Set images folder path
 \graphicspath{{../../../../static_web/static/thesis/}}
 \usepackage{amsfonts} 
+
+% Define variable macros
 \newcommand{\realnumbers}{{\mathbb{R}}}
 \newcommand{\procnoise}{{\upsilon}}
 \newcommand{\measnoise}{{w}}
@@ -62,6 +73,26 @@
 
 \newcommand{\lat}{{\phi}}
 \newcommand{\longi}{{\lambda}}
+
+\newcommand{\variance}{{\sigma^2}}
+\newcommand{\gateThreshold}{{\gamma_G}}
+
+\newcommand{\realobserv}{{y}}
+\newcommand{\observ}{{\realobserv}}
+\newcommand{\predObserv}{{\hat{\realobserv}}}
+\newcommand{\validObservationSet}{{Y}}
+
+\newcommand{\ie}{\mbox{i.,e.}}
+\newcommand{\eg}{\mbo{e.\,g.}}
+
+\DeclareMathOperator*{\ExpVal}{\mathbb{E}} % Expectation value
+\newcommand{\E}[1]{{\ExpVal\langle{#1}\rangle}} % same
+
+
+% matrices for displayed expressions
+\newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}} % no delimiters
+\newcommand{\pmat}[1]{\pa{\mat{#1}}} % parentheses as delimiters
+\newcommand{\bmat}[1]{\bra{\mat{#1}}} % square brackets as delimiters
 %%
 
 

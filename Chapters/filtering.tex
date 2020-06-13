@@ -10,7 +10,7 @@ For the case of a linear system with a known state transition matrix and additiv
 
 Approximate nonlinear filters can be subdivided into two classes depending on the representation form of the probability distributions. Filters in the first class are based on analytically or numerically linearizing the motion and observation models. The standard Kalman filter is then applied to the linearized state and measurement equations evaluated at an operating point. The operating point is chosen as the best current estimate based on the linearized system with the expectancy of being close to the true state \cite{Shalom2001}. The Extended Kalman Filter (EKF) belongs to this class of filters, and is a computationally effective algorithm finding applications in many areas such as motor control \cite{Terzic2001}, power system analysis \cite{Khazraj2016}, weather forecasting \cite{Rosnay2012}, and target tracking which is the main focus of this writing \cite{Shalom1995}. The alternative class of nonlinear filters use Monte Carlo Sampling to approximate the actual state's probability distribution.  A particle filter (PF) is propagating the sampled distribution through the nonlinear motion model and then re-samples the distribution based on the likelihood of measurement models. 
 
-Both approaches do not tackle directly a fundamental issue in target tracking, that of data-association. In most tracking situations, sensors provide measurements both for the target of interest as well as for different targets/noise present in the environment. Filtering frameworks need to be able to handle this additional lack of information. Probabilistic Data Association  \cite{Ristic2004} variants of the EKF and PF effectively tackle this problem by leveraging systematic knowledge of a \emph{clutter-model} and making intelligent decisions between the uncertainty levels of the estimated states and the observations inherent noise models.
+Both approaches do not tackle directly a fundamental issue in target tracking, that of data-association. In most tracking situations, sensors provide measurements both for the target of interest as well as for different targets/noise present in the environment. Filtering frameworks need to be able to handle this additional lack of information. Probabilistic Data Association \cite{Ristic2004} variants of the EKF and PF effectively tackle this problem by leveraging systematic knowledge of a \emph{clutter-model} and making intelligent decisions between the uncertainty levels of the estimated states and the observations inherent noise models.
 
 This section is thus devoted to:
 
@@ -35,7 +35,7 @@ This section is thus devoted to:
 		\item Known input $u_k$
 		\item Additive process noise $w_{\textit{x}}$ which is assumed to be a zero-mean, white and uncorrelated with known covariance matrix $Q(k)$
 	\end{itemize}
-	\item The observations $ z_k = h(\mathbf{x}_k,u_k) + \measnoise $  are linear functions of the state vector and the input vector with $\measnoise$ being additive zero-mean white Gaussian noise with known covariance matrix $\measCov(k)$
+	\item The observations $ \observ_k = h(\mathbf{x}_k,u_k) + \measnoise $  are linear functions of the state vector and the input vector with $\measnoise$ being additive zero-mean white Gaussian noise with known covariance matrix $\measCov(k)$
 	
 	\item The \emph{initial state} vector is a random variable with known mean $\mathbf{x}_0$ and covariance $P_0$ (initial uncertainty)
 \end{itemize}
@@ -57,7 +57,7 @@ Under the above assumptions the Kalman Filter is the \emph{minimum mean square e
 
 \subsection{Kalman Filter limitations}
 
-For all its powerful characteristics, such as optimality and robustness, the \emph{Kalman Filter} algorithm is not flexible enough to accommodate target tracking\cite{Shalom1995} since
+For all its powerful characteristics, such as optimality and robustness, the \emph{Kalman Filter} algorithm is not flexible enough to accommodate target tracking \cite{Shalom1995} since
 
 \begin{itemize}
 	\item Trigonometric functions lead to
@@ -108,8 +108,8 @@ and for the \emph{CTRV} motion model in specific, this leads to \Cref{eq:lineari
 \begin{equation}
 \label{eq:linearization_mot_model}
 F_{{CTRV}_{k-1}} =
-\begin{bmatrix}1 &0 &\frac{sin(h+T\omega) - \sinh}{\omega} & \upsilon \frac{cos(h+T\omega)-cosh}{\omega} & \upsilon\frac{sinh -sin(h+T\omega) + T\omega cos(h+T\omega)}{\omega^{2}}\\\\
-0 &1 &-\frac{cos(h+T\omega) - cos(\omega)}{\omega} &\upsilon \frac{sin(h+T\omega)-sinh}{\omega} & \upsilon\frac{cos(h + T\omega) -cosh + T\omega sin(h+T\omega)}{\omega^{2}}\\\\
+\begin{bmatrix}1 &0 &\frac{sin(\heading+T\omega) - \sinh}{\omega} & \boatspeed \frac{cos(\heading+T\omega)-cosh}{\omega} & \boatspeed\frac{sinh -sin(\heading+T\omega) + T\omega cos(\heading+T\omega)}{\omega^{2}}\\\\
+0 &1 &-\frac{cos(\heading+T\omega) - cos(\omega)}{\omega} &\boatspeed \frac{sin(\heading+T\omega)-sinh}{\omega} & \boatspeed\frac{cos(h + T\omega) -cosh + T\omega sin(\heading+T\omega)}{\omega^{2}}\\\\
 0 &0 &1 &0 &0 \\\\
 0 &0 &0 &0 &1\end{bmatrix}
 \end{equation}
@@ -118,7 +118,7 @@ F_{{CTRV}_{k-1}} =
 \subsection{Taylor approximation of the observation models}
 
 
-Similarly, a measurement model $z_k=h(\mathbf{x_k})$ can be linearized around the state $x_{k}$ as in \Cref{eq:linearize_jacobian2}
+Similarly, a measurement model $\observ_k=h(\mathbf{x_k})$ can be linearized around the state $x_{k}$ as in \Cref{eq:linearize_jacobian2}
 
 
 \begin{equation}
@@ -129,7 +129,7 @@ h_{k} \approx H_{k} =
 \end{bmatrix}_{x_{k} \rightarrow\text{motion updated estimate}}^{T}
 \end{equation}
 
-For example, the \emph{radar model} that measures distance and bearing  to a target around the target's state vector $\mathbf{x}_k = [x,y,\upsilon,h,\omega]^T$, can be linearized as in \Cref{eq:linearize_radar}:
+For example, the \emph{radar model} that measures distance and bearing  to a target around the target's state vector $\mathbf{x}_k = [x,y,\boatspeed,h,\turnrate]^T$, can be linearized as in \Cref{eq:linearize_radar}:
 
 
 \begin{equation}
@@ -154,7 +154,7 @@ The accuracy of the approximation at a second level depends on the compactness o
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/EKF_lineariation_error.png}
-	\caption{Gaussian PDF propagation through a nonlinear model and Taylor-approximations\cite{Thrun2005}.}.
+	\caption{Gaussian PDF propagation through a nonlinear model and Taylor-approximations \cite{Thrun2005}.}.
 	\label{fig:taylor_approximation}
 \end{figure}
 
@@ -172,7 +172,7 @@ The accuracy of the approximation at a second level depends on the compactness o
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1\textwidth]{/Users/dimda/static_web/static/thesis/non_linearities_multi.png}
-	\caption{Non-linear mappings of a MISO function $z=h(x,y) = x \cdot sin(y)$ for different probability regions. The more elliptic the projected shapes, the more linear the function around the linearization point. Again a small probability region gives a good linear approximation whereas a larger region bends the ellipse over the surface, implying higher approximation errors\cite{Sola2011}.}
+	\caption{Non-linear mappings of a MISO function $\observ=h(x,y) = x \cdot sin(y)$ for different probability regions. The more elliptic the projected shapes, the more linear the function around the linearization point. Again a small probability region gives a good linear approximation whereas a larger region bends the ellipse over the surface, implying higher approximation errors \cite{Sola2011}.}
 	\label{fig:nonlinearitiesmulti}
 \end{figure}
 
@@ -223,33 +223,35 @@ I = \int \mathbf{f}(\mathbf{x})\pi(\mathbf{x}) d\mathbf{x} = I_N \approx \frac{1
 Given that the samples $\mathbf{x}^i$ are independent, then $I_N$ is an unbiased estimator, and according to the law of large numbers it will almost surely converge to $I$.
 
 
-Under the assumption that the variance of $\mathbf{f}(\mathbf{x})$, $\sigma^2$ is finite
+Under the assumption that the variance $\variance$ of $\mathbf{f}(\mathbf{x})$,  is finite
 
-\[ \sigma^2 = \int (\mathbf{f}(\mathbf{x})- I)^2 \pi(\mathbf{x}) \]
+\[ \variance = \int (\mathbf{f}(\mathbf{x})- I)^2 \pi(\mathbf{x}) \]
 
 
 then the central theorem holds and the estimation error converges to the distribution of \Cref{eq:MCI4}
 
 \begin{equation}\label{eq:MCI4}
 \lim_{N\rightarrow \inf} \sqrt{N}(I_N - I) \sim \mathcal{N}(0,
-\sigma^2)
+\variance)
 \end{equation}
 
 
-In the \textbf{\emph{Bayesian}} context, $\pi(\mathbf{x})$ conveniently corresponds to the \emph{posterior} belief density. What is not convenient though, is the fact that the posterior is usually multivariate, nonstandard and only known up to proportionality, thus distributed sampling is usually not available from it. A solution to this issue is using of \emph{\textbf{Importance Sampling}}.
+In the \textbf{\emph{Bayesian}} context, $\pi(\mathbf{x})$ conveniently corresponds to the \emph{posterior} belief density. What is not convenient though, is the fact that the posterior is usually multivariate, nonstandard and only known up to proportionality, thus distributed sampling is usually not available from it. A solution to this issue is the use of \emph{\textbf{Importance Sampling}}.
 
 \subsection{Importance Sampling}
 
 In order to generate samples directly from $\pi (\mathbf{x})$ and estimate $I$ using Monte Carlo integration, one can generate samples from a density $q(\mathbf{x})$, which is similar to $\pi(\mathbf{x})$. The probability distribution function $q(\mathbf{x})$ is usually referred to as \emph{\textbf{importance }}or \emph{\textbf{proposal}} \emph{density}.
 
 
-Similarity between $\pi \text{ - } q $ is expressed as
+The similarity between $\pi \text{ - } q $ is expressed as
 
 \begin{equation}\label{eq:proposal1}
 \pi(\mathbf{x}) > 0 \rightarrow q(\mathbf{x})>0 , \text{for all } \mathbf{x} \in R^{n_x}
 \end{equation}
 
-\Cref{eq:proposal1}  implies that $q(\mathbf{x})$ and $\pi(\mathbf{x})$ have the same support. The integral $I$ can be rewritten thus as
+\Cref{eq:proposal1}  implies that $q(\mathbf{x})$ and $\pi(\mathbf{x})$ have the same support.
+
+Then the integral $I$ can be rewritten as
 
 \begin{equation}\label{eq:MCIntegral}
 I = \int \mathbf{f}(\mathbf{x}) d\mathbf{x} = \int f(\mathbf{x}) \frac{\pi(\mathbf{x})}{q(\mathbf{x})}q(\mathbf{x}) d\mathbf{x}
@@ -274,17 +276,17 @@ w(\mathbf{x}^i)  \frac{\tilde{w}(\mathbf{x}^i)}{\sum_{j=1}^N \tilde{w}(\mathbf{x
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{/Users/dimda/static_web/static/thesis/MC_importance.png}
-	\caption{1-D Belief representation with weighted particles\cite{Rao2013}.}
+	\caption{1-D Belief representation with weighted particles \cite{Rao2013}.}
 	\label{fig:1d_belief}
 \end{figure}
 
 \subsection{Bayesian Estimation}
 
-As already mentioned, in the Bayesian context, $\pi (\mathbf{x})$ is the posterior density. For selecting the proposal distribution $q(\mathbf{x})$ it makes sense to try to maintain a degree of similarity between the proposal and the posterior, so that the finite $N$ selected $\mathbf{x}^i$ samples fall into probable regions of the posterior, that is regions that contain information about the actual posterior distribution $p(\mathbf{x} | z_i)$.
+As already mentioned, in the Bayesian context, the distribution of interest $\pi (\mathbf{x})$ is the posterior density. For selecting the proposal distribution $q(\mathbf{x})$ it makes sense to try to maintain a degree of similarity between the proposal and the posterior, so that the finite $N$ selected $\mathbf{x}^i$ samples fall into probable regions of the posterior, that is regions that contain information about the actual posterior distribution $p(\mathbf{x} | \observ_i)$ and not around the distribution's tail.
 \subsection{Sequential importance Sampling}
 
 
-Intuitively, a recursive Bayesian nonlinear filter is a very suitable domain for applying \emph{Monte Carlo Integration}. This \emph{Sequential Monte Carlo} approach is known with various names\cite{Ristic2004} such as,
+Intuitively, a recursive Bayesian nonlinear filter is a very suitable domain for applying \emph{Monte Carlo Integration}. This \emph{Sequential Monte Carlo} approach is known with various names \cite{Ristic2004} such as,
 
 \begin{itemize}
 	\item Boostrap Filtering
@@ -293,20 +295,20 @@ Intuitively, a recursive Bayesian nonlinear filter is a very suitable domain for
 	\item Survival of the fittest
 \end{itemize}
 
-The key idea again, is to represent the \emph{posterior density} function by a limited set of samples and their importance weights, based on which estimates can be calculated. As the number of samples increases, the sampled distribution becomes an equivalent representation to the functional description of the posterior probability distribution function, and the \textbf{SIS} filter approaches the optimal Bayesian filtering estimator\cite{Ristic2004}.
+The key idea again, is to represent the \emph{posterior density} function by a limited set of samples and their importance weights, based on which estimates can be calculated. As the number of samples increases, the sampled distribution becomes an equivalent representation to the functional description of the posterior probability distribution function, and the \textbf{SIS} filter approaches the optimal Bayesian filtering estimator \cite{Ristic2004}.
 
 
-The recursive nature of the \emph{SIS} algorithm, implies that the new weights describing the posterior distribution $p(\mathbf{x}_k | \mathbf{z}_k)$ are being updated based on their previous values, and the likelihood of a new measurement $$p(\mathbf{z}_k | \mathbf{x}_k^i)$$, i.e.
+The recursive nature of the \emph{SIS} algorithm, implies that the new weights describing the posterior distribution $p(\mathbf{x}_k | \mathbf{\observ}_k)$ are being updated based on their previous values, and the likelihood of a new measurement $$p(\mathbf{\observ}_k | \mathbf{x}_k^i)$$, i.e.
 
 \begin{equation}\label{eq:SIS}
-w_k^i \sim w_{k-1}^i \frac{p(\mathbf{z}_k | \mathbf{x}_k^i)p(\mathbf{x}_k^i | \mathbf{x}_{k-1}^i)}{q(\mathbf{x}_k^i | \mathbf{x}_{k-1}^i , \mathbf{z}_k)}
+w_k^i \sim w_{k-1}^i \frac{p(\mathbf{\observ}_k | \mathbf{x}_k^i)p(\mathbf{x}_k^i | \mathbf{x}_{k-1}^i)}{q(\mathbf{x}_k^i | \mathbf{x}_{k-1}^i , \mathbf{\observ}_k)}
 \end{equation}
 
 
 Then the posterior filtered density is approximated by a probability mass function in \Cref{eq:posterior_pmf}
 
 \begin{equation}\label{eq:posterior_pmf}
-p(\mathbf{x}_k | \mathbf{z}_k) \approx \sum_{i=1}^N w_k^i \delta(\mathbf{x}_k - \mathbf{x}_k^i)
+p(\mathbf{x}_k | \mathbf{\observ}_k) \approx \sum_{i=1}^N w_k^i \delta(\mathbf{x}_k - \mathbf{x}_k^i)
 \end{equation}
 
 
@@ -314,26 +316,26 @@ The recursiveness of the SIS algorithm is evident from the fact that the importa
 
 \subsection{Selecting the Importance Density}
 
-A popular and convenient selection of the importance density is the transitional prior, i.e. the motion model\cite{Ristic2004}:
+A popular and convenient selection of the importance density is the transitional prior, i.e. the motion model \cite{Ristic2004}:
 
 \begin{equation}\label{eq:SISmotmodel}
-q(\mathbf{x_k | x_{k-1}^i , \mathbf{z}_k}) = p(\mathbf{x}_k | \mathbf{x}_{k-1}^i)
+q(\mathbf{x}_k | \mathbf{x}_{k-1}^i , \mathbf{\observ}_k) = p(\mathbf{x}_k | \mathbf{x}_{k-1}^i)
 \end{equation}
 
 substituting \Cref{eq:SISmotmodel} in the **SIS** algorithm(\Cref{eq:SIS}) yields \Cref{eq:SIS2}
 
 \begin{equation}\label{eq:SIS2}
- w_k^i \sim w_{k-1}^i p(\mathbf{z}_k | \mathbf{x}_k^i)
+ w_k^i \sim w_{k-1}^i p(\mathbf{\observ}_k | \mathbf{x}_k^i)
 \end{equation}
 
 
 \subsection{Degeneracy problem}
 
-A general problem of a SIS particle filter is that the particle distribution becomes extremely peaked through the subsequent measurement updates. That is, the variance of the importance weights can only increase over time. This effect overtime leads to poor accuracy of the estimates and leads to a common problem of the SIS particle filter, that of \emph{degeneracy}. An effective countermeasure is monitoring the level of degeneracy of the filter and re-sample when appropriate. An example of a performance index is the effective sample size $N_{\text{eff}}$ as introduced by\cite{Kong1994}
+A general problem of a SIS particle filter is that the particle distribution becomes extremely peaked through the subsequent measurement updates. That is, the variance of the importance weights can only increase over time. This effect overtime leads to poor accuracy of the estimates and leads to a common problem of the SIS particle filter, that of \emph{degeneracy}. An effective countermeasure is monitoring the level of degeneracy of the filter and re-sample when appropriate. An example of a performance index is the effective sample size $N_{\text{eff}}$ as introduced by \cite{Kong1994}
 
 
 \begin{equation}
-\hat{N}\_{\text{eff}} = \frac{1}{\sum_{i=1}^{N}(w_k^i)^2}
+\hat{N}_{\text{eff}} = \frac{1}{\sum_{i=1}^{N}(w_k^i)^2}
 \end{equation}
 
 
@@ -354,7 +356,7 @@ Whenever filter degeneracy is detected(i.e $N_{\text{eff}}$ falling below a thre
 Re-sampling follows the strategy of \emph{survival of the fittest}, by eliminating particles in the set with low weight values and replacing them with copies of the more probable ones.
 
 
-The re-sampling algorithm is thus\cite{Ristic2004}:
+The re-sampling algorithm is thus \cite{Ristic2004}:
 
 \begin{enumerate}
 	\item Normalize the particle set weights $w^j$
@@ -381,13 +383,13 @@ $$P(\hat{x}_k^i = x_k^j) = w_k^j$$ This results in useful samples having a highe
 
 
 
-The use of re-sampling technique might lead to different issues though. \emph{Diversity} among particles is depleted as highly probable particles are through subsequent re-sampling steps \emph{genetically dominating} the distribution. Moreover, if the process noise is too low then the distribution will not \emph{diversify} enough in between measurement updates and will eventually become a uniformly weighted cloned collection of a few particles. This phenomenon is also known as \emph{sample impoverishment} or \emph{particle depletion}\ref{fig:impoverishment}\cite{Chatzi2002}.
+The use of re-sampling technique might lead to different issues though. \emph{Diversity} among particles is depleted as highly probable particles are through subsequent re-sampling steps \emph{genetically dominating} the distribution. Moreover, if the process noise is too low then the distribution will not \emph{diversify} enough in between measurement updates and will eventually become a uniformly weighted cloned collection of a few particles. This phenomenon is also known as \emph{sample impoverishment} or \emph{particle depletion} \Cref{fig:impoverishment} \cite{Chatzi2002}.
 
 % TODO: \usepackage{graphicx} required
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\linewidth]{../../../../static_web/static/thesis/impoverishment}
-	\caption{Particles impoverishment\cite{Ju2019}}
+	\caption{Particles impoverishment \cite{Ju2019}}
 	\label{fig:impoverishment}
 \end{figure}
 
@@ -395,20 +397,20 @@ The use of re-sampling technique might lead to different issues though. \emph{Di
 \subsection{PF Algorithm outline}
 
 
-The PF algorithm genetics are illustrated in \Cref{fig:PF_genetics} and is summarized as follows
+The PF algorithm genetics are illustrated in \Cref{fig:PF_genetics} and summarized as follows
 
 \begin{enumerate}
-	\item Initialise the filter by drawing particles according to an initial belief $p(\mathbf{x}_0)$.\\
+	\item Initialize the filter by drawing particles according to an initial belief $p(\mathbf{x}_0)$.\\
 	
-	Usually  $p(\mathbf{x}\_0)$ is Gaussian with known moments, or a uniform distribution around the initial estimate  $\mathbf{x}_{0}$.
+	Usually  $p(\mathbf{x}_0)$ is Gaussian with known moments, or a uniform distribution around the initial estimate  $\mathbf{x}_{0}$.
 	
 	\item Update the particle set weights according to a the likelihood of the new measurement.\\
 	
-	This step requires point-wise evaluation of the likelihood-function $p(\mathbf{z}\_k | \mathbf{x}\_k)$ which depends on the stochastic properties, of the \emph{measurement model}.\\
+	This step requires point-wise evaluation of the likelihood-function $p(\mathbf{\observ}_k | \mathbf{x}_k)$ which depends on the stochastic properties, of the \emph{measurement model}.\\
 	
 	Example: For the radar sensor, the likelihood function is the \emph{multivariate Gaussian}:
 	$$
-	p(z|x) = (2\pi)^{-\frac{k}{2}}\det{}(\mathbf{R})e^{-\frac{1}{2}\left(z-h(x))^{T}\mathbf{R}(z-h(x)\right)}
+	p(\observ|x) = (2\pi)^{-\frac{k}{2}}\det{}(\mathbf{R})e^{-\frac{1}{2}\left(\observ-h(x))^{T}\mathbf{R}(\observ-h(x)\right)}
 	$$
 	Where $\mathbf{R}_{k\times k}$ is the measurement noise covariance matrix
 	
