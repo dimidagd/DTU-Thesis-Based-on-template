@@ -43,7 +43,7 @@ This section is thus devoted to:
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/KF2.png}
+	\includegraphics[width=0.6\textwidth]{KF2.png}
 	\caption{Block diagram of a discrete Kalman filtering algorithm}.
 	\label{fig:state_vector}
 \end{figure}
@@ -153,7 +153,7 @@ The accuracy of the approximation at a second level depends on the compactness o
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth]{/Users/dimda/static_web/static/thesis/EKF_lineariation_error.png}
+	\includegraphics[width=0.6\textwidth]{EKF_lineariation_error.png}
 	\caption{Gaussian PDF propagation through a nonlinear model and Taylor-approximations \cite{Thrun2005}.}.
 	\label{fig:taylor_approximation}
 \end{figure}
@@ -161,7 +161,7 @@ The accuracy of the approximation at a second level depends on the compactness o
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{/Users/dimda/static_web/static/thesis/gaussian_error.png}
+	\includegraphics[width=0.8\textwidth]{gaussian_error.png}
 	
 	\caption{Propagation error  of the Gaussian mean due to non-linearity. For a given non-linear function $h()$ the propagation error $e=\mathbf{E}[h(\mathbf{x})]-h(\mathbf{E}[\mathbf{x}])$ is large for Gaussians with larger variance \textit{(thick line, left)} and unnoticeable for narrow Gaussians\textit{(thin line, right)} \cite{Sola2011}.}
 		
@@ -171,7 +171,7 @@ The accuracy of the approximation at a second level depends on the compactness o
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=1\textwidth]{/Users/dimda/static_web/static/thesis/non_linearities_multi.png}
+	\includegraphics[width=1\textwidth]{non_linearities_multi.png}
 	\caption{Non-linear mappings of a MISO function $\observ=h(x,y) = x \cdot sin(y)$ for different probability regions. The more elliptic the projected shapes, the more linear the function around the linearization point. Again a small probability region gives a good linear approximation whereas a larger region bends the ellipse over the surface, implying higher approximation errors \cite{Sola2011}.}
 	\label{fig:nonlinearitiesmulti}
 \end{figure}
@@ -275,7 +275,7 @@ w(\mathbf{x}^i)  \frac{\tilde{w}(\mathbf{x}^i)}{\sum_{j=1}^N \tilde{w}(\mathbf{x
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{/Users/dimda/static_web/static/thesis/MC_importance.png}
+	\includegraphics[width=0.8\textwidth]{MC_importance.png}
 	\caption{1-D Belief representation with weighted particles \cite{Rao2013}.}
 	\label{fig:1d_belief}
 \end{figure}
@@ -368,7 +368,7 @@ The re-sampling algorithm is thus \cite{Ristic2004}:
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{/Users/dimda/static_web/static/thesis/stratified_resampling.png}
+	\includegraphics[width=0.8\textwidth]{stratified_resampling.png}
 	\caption{Re-sampling process based on Cumulative Sum. The particle $x_{k_j}$ has a good chance of surviving.}.
 	\label{fig:CSW}
 \end{figure}
@@ -388,7 +388,7 @@ The use of re-sampling technique might lead to different issues though. \emph{Di
 % TODO: \usepackage{graphicx} required
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\linewidth]{../../../../static_web/static/thesis/impoverishment}
+	\includegraphics[width=0.8\linewidth]{impoverishment}
 	\caption{Particles impoverishment \cite{Ju2019}}
 	\label{fig:impoverishment}
 \end{figure}
@@ -428,7 +428,7 @@ The PF algorithm genetics are illustrated in \Cref{fig:PF_genetics} and summariz
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{/Users/dimda/static_web/static/thesis/particle_filter_genetics.png}
+	\includegraphics[width=0.8\textwidth]{particle_filter_genetics.png}
 	\caption{General particle filtering algorithm genetics \cite{Chatzi2002}.}
 	\label{fig:PF_genetics}
 \end{figure}
