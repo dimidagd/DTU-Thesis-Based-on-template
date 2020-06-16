@@ -43,8 +43,7 @@ where
 
 
 
-\section{Motion models}
-
+\section{Motion models} \label{sec:MotionModels}
 
 As discussed in a previous section, when choosing a coordinate system for the target motion model, it is very convenient to assume the target's state on a the own-ship's two dimensional tracking plane.
 
@@ -75,7 +74,7 @@ f =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\boatspeed} \\ \dot{\heading} \\ \d
 
 which is describing a \emph{constant turn rate and velocity} (\textbf{CTRV}) model since the linear and angular velocities accelerations are zero.
 
-\todo{Fig speed from upsilon to V in figure?}
+%\todo{Fig speed from upsilon to V in figure?}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{2d_track_state_corr.png}
@@ -138,7 +137,7 @@ g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
 
 \todo{Finish up with process noise input function as well!}
 
-\section{Observation models}
+\section{Observation models} \label{sec:ObservationModels}
 
 An \emph{observation model} or \emph{sensor model} $\observ_k = h(\mathbf{x_k}) + \measnoise_k$ expresses a sensor's observations $\observ_k$ at time instances $t_k$ given the state vector $\mathbf{x}$ .
 
@@ -160,17 +159,18 @@ The output of the radar observation model is assumed to be the relative range an
 \end{bmatrix}^{T}$ , given the target's position $\begin{bmatrix}x_t, y_t\end{bmatrix}^{T}$ w.r.t the sensor's coordinate system.
 \todo{rewrite based on known target and own-ship?}
 
-
-\todo{Make corrections to figures from windows}
+%\todo{Make corrections to figures from windows} Done
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{radar.png}
-	\caption{Radar observation model, \{e\}:(ENU) and \{t\}(tracking) coordinate systems}.
+	\caption{Radar observation model, \{e\} ()ENU) and \{t\} (tracking) coordinate systems.}
 	\label{fig:radar_observation_model}
 \end{figure}
 
 
-If the radar's coordinate system, is for simplicity  chosen to coincide with a \emph{tracking coordinate system},  attached to the own-ships sea-following system. Then the tracking is with respect to the own-ship and the own-ships heading angle $\heading$ is not needed.\todo{write about rotating reference frame}
+If the radar's coordinate system, is for simplicity  chosen to coincide with a \emph{tracking coordinate system},  attached to the own-ships sea-following system. Then the tracking is with respect to the own-ship and the own-ships heading angle $\heading$ is not needed.
+
+\todo{write about rotating reference frame}
 
 \begin{equation}
 \observ_{radar}(\mathbf{x}) = \begin{bmatrix}
@@ -242,7 +242,7 @@ y
 
 Where
 
-\begin{description}
+\begin{itemize}
 	\item $F_2\left(\begin{bmatrix}
 	\lat \\
 	\longi
@@ -263,7 +263,7 @@ Where
 	\longi_0
 	\end{bmatrix}^T$ as a reference point.
 	\item $R_z(\theta)$ is the transformation from ENU to \emph{sea-following/tracking }coordinate system.
-\end{description}
+\end{itemize}
 
 \subsection{AIS observation model}
 
@@ -288,6 +288,7 @@ By differentiating the model mentioned in the Coordinate systems section, one ca
 
 
 \begin{equation}
+\label{eq:ENUgeodifferences}
 \begin{bmatrix}
 dE\\dN\\dU
 \end{bmatrix}=
@@ -319,12 +320,11 @@ dE\\ dN
 
 Since the target's state is in the \emph{tracking/seakeeping} coordinate system, one needs to transform it to ENU.
 
-If $\mathbf{R}_z(\heading)$ is the Euler's angle transformation for a rotation $\heading$ around the z-axis, then the transformation from \emph{sea-following/tracking to ENU}
+If $\mathbf{R}_z(\heading)$ is the Euler's angle transformation for a rotation $\heading$ around the z-axis, then the transformation from \emph{sea-following/tracking} to \emph{ENU} coordinates, is
 
 $$\mathbf{R}^{\textit{ENU}}_{\textit{sea-following}} $$
 
-given the own-ship's \emph{heading from true-north} $\heading_{\textit{0}}$
-is ,
+given the own-ship's \emph{heading from true-north} $\heading_{\textit{0}}$, then,
 
 
 \begin{equation}
@@ -383,27 +383,34 @@ Where
 	N(\lat)\cos\lat &0\\
 	0 &M(\lat)
 	\end{bmatrix}
-	$ is the transformation matrix from \emph{geodetic differences} to \emph{ENU differences}.
+	$ is the transformation matrix from \emph{geodetic differences} to \emph{ENU differences} (see \Cref{eq:ENUgeodifferences}).
 	\item $N(\lat) = \frac{\eqRadius}{\sqrt{1-e^2\sin^2\lat}}$ is the \emph{prime vertical radius}
-	\item $M(\lat) = \frac{\eqRadius(1-e^2)}{(1-e^2\sin^2\lat)^\frac{3}{2}}$ is the \emph{meridional radius}
-	\item $\eqRadius,\polarRadius$ are the equatorial radius(6378.1370 km) and the Polar radius(6356.7523 km) respectively, as derived from the \emph{WGS-84 ellipsoid model} \cite{Farrell2008}.
+	\item $M(\lat) = \frac{\eqRadius(1-e^2)}{(1-e^2\sin^2\lat)^{3/2}}$ is the \emph{meridional radius}
+	\item $\eqRadius,\polarRadius$ are the equatorial radius(6378.1370 km) and the Polar radius(6356.7523 km) respectively, as derived from the \emph{WGS-84 ellipsoid model} \cite{Farrell2008} (see also \Cref{fig:earthellipradii}).
 	\item $e = \sqrt{1 -\frac{\polarRadius^2}{\eqRadius^2}}$ is the ellipsoid's eccentricity.
-	\item $h = 0 $ since the own-ship is always floating on the geoid.
+	\item $h _0 \approx 0 $ since the own-ship is floating on the water surface.
 	\item $\measnoise_{\textit{AIS}}$ is white Gaussian zero-mean noise with covariance matrix $\measCov_{\textit{AIS}}$ depending on the modeled noise intensity of the AIS source.
 \end{description}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{EarthEllipRadii}
+	\caption{Three different radii as a function of Earth's latitude. $R$ is the geocentric radius; $M$ is the meridional radius; and $N$ is the prime vertical radius \cite{nima2000}.}
+	\label{fig:earthellipradii}
+\end{figure}
+
 
 The above equation can be rewritten to the standard observation model formulation
 
 \begin{equation}
-\observ_{AIS}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+\observ_{\textit{AIS}}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
 \lat\\ \longi
 \end{bmatrix}_{\textit{target}} = \begin{bmatrix}
 \lat_{0}\\ \longi_{0}
 \end{bmatrix} + \mathbf{H}\mathbf{x} + \measnoise_{\textit{AIS}}
 \end{equation}
 
-, which is a linear observation model that is approximating the geoid with a \emph{spherical-linearization} about the own-ship's geodetic location.
-
+, which is a \textbf{linear} observation model that is approximating the geoid with a \emph{spherical-linearization} about the own-ship's geodetic location. It is worth mentioning that as the tracking reference point moves from north to south, one would have to recalculate the transformation matrix of \Cref{eq:ENUgeodifferences}, to account for changes in earth's eccentricity. Nevertheless, in the time frame of a tracking scenario the eccentricity $e$ of the geoid remains almost constant throughout the tracking process, which allows one to assume that the observation function of the AIS $h_{\textit{AIS}}(\cdot)$ is a \emph{linear-time invariant} (LTI) system, as long as $\heading_{\textit{0}} = \const$. The last assumption is clearly violated in most tracking scenarios in which the own-ship is maneuvering and the heading angle $\heading$ is changing over time. This fact gave the author a lead on identifying that tracking targets with respect to the own-ship makes the $\text{AIS}$ observation model non-linear, and provided motivation for using a constant reference system.
 \subsection{Camera observation model}
 
 

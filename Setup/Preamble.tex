@@ -39,7 +39,8 @@
 % Vertical enumerate mylist
 \usepackage[inline]{enumitem} 
 \newlist{mylist}{enumerate*}{1}
-\setlist[mylist]{label=(\roman*)}
+%\setlist[mylist]{label=(\roman*)}
+\setlist[mylist]{label=(\alph*)}
 
 \newcommand{\vect}[1]{\mathbf{#1}} % or \bm
 \newcommand{\matr}[1]{\mathbf{#1}} % or \bm
@@ -88,7 +89,7 @@
 
 \DeclareMathOperator*{\ExpVal}{\mathbb{E}} % Expectation value
 \newcommand{\E}[1]{{\ExpVal\langle{#1}\rangle}} % same
-
+\newcommand{\const}{{\textit{const.}}
 
 % matrices for displayed expressions
 \newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}} % no delimiters
@@ -96,5 +97,12 @@
 \newcommand{\bmat}[1]{\bra{\mat{#1}}} % square brackets as delimiters
 %%
 
+% TODOs
+%\usepackage{xargs} 
+%\newcommandx{\todounsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+%\newcommandx{\todochange}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+%\newcommand{\todoINFO}[1]{\todo[color=blue!25]{INFO: #1}}
+%\newcommandx{\todoIMPROVE}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+%\newcommandx{\todothiswillnotshow}[2][1=]{\todo[disable,#1]{#2}}
 
 %\includeonly{Chapters/modeling}
