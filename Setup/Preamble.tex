@@ -48,8 +48,8 @@
 
 %\newcommand*{\imgpath}{../../../../static_web/static/thesis}%
 % Set images folder path
-\graphicspath{{../../../../static_web/static/thesis/}}
-\graphicspath{{../static_web/static/thesis/}}
+\graphicspath{{../../../../static_web/static/thesis/}{../static_web/static/thesis/}}
+%\graphicspath{{../static_web/static/thesis/}}
 \usepackage{amsfonts} 
 
 % Define variable macros
@@ -97,6 +97,8 @@
 \newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}} % no delimiters
 \newcommand{\pmat}[1]{\pa{\mat{#1}}} % parentheses as delimiters
 \newcommand{\bmat}[1]{\bra{\mat{#1}}} % square brackets as delimiters
+
+\renewcommand{\det}[1]{{\text{det}\{{#1}\}}}
 %%
 
 % TODOs

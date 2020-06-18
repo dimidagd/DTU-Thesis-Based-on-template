@@ -65,3 +65,18 @@ where
 
 
 \subsection{Covariance matrix determinant}
+
+
+Since the matrix $P_k$ encapsulating a target's state uncertainty is a covariance matrix, it is and remains by definition positive semi-definite. Hence one can calculate the determinant $$\det{P_k} = \prod_{i=1}^{n_x} \lambda_i$$ , where $\lambda_i$ are the eigenvalues of $P_k$ and $n_x$ is the dimensionality of the state $x$. Since the eigenvalues of the covariance matrix are proportional to the volume of an uncertainty ellipsoid, then their product represents a metric of the uncertainty volume, and can be used as a scalar index for the overall \textit{"amount of uncertainty"} in an estimate $\hat{x}$. It is important to mention that the eigenvalues are not scale invariant, hence the actual magnitude of $\det{P_k}$ depends on the relative scaling of the units in $P_k$. Having that in mind, the absolute value of $\det{P_k}$ is insignificant in the context of uncertainty monitoring. 
+
+What the author found interesting is the relative fluctuations in $\det{P_k}$ over time samples $k$, as it indicates how the state uncertainty increases after a time update, or decreases after a sensor update step. This effect can be seen in 
+
+In \Cref{fig:detp} one can see the effect of fusing asynchronous sensor observations on the determinant of the state covariance matrix $P_k$.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{detP.png}
+	\caption{Determinant of the state covariance matrix $P_k$. Fusion of different measurement updates in an Extended Kalman Filter. One can observe that a simulated camera sensor provides new observations approximately every 10 samples($f_{\text{cam}} = \SI{1}{\Hz}$), whereas a simulated AIS sensors provides observations every 100 samples ($f_{\text{AIS}} = \SI{0.1}{\Hz}$). Each sensor reduces the uncertainty at a different level.}
+	\label{fig:detp}
+\end{figure}
+>>>>>>> d64d0e518b1d201048b73ad2cd003d435021613a
