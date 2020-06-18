@@ -1,4 +1,4 @@
-\chapter{Filtering}
+\chapter{Filtering} \label{ch:filtering}
 \section{Introduction}
 All sensors are noisy to some extend depending on the actual sensor, the data processing algorithms, or the enviromental conditions. At the same time, while at sea there is no guarantee that all the sensors are producing useful observations. There is a need thus to leverage the characteristics of every sensor when tracking a remote ship, in combination with knowledge about a ship's kinematic model, in order to produce estimates of better quality than when relying solely on a sensor output. Bayesian techniques have traditionally been very effective at providing the probabilistic framework under which such fusion algorithms are developed. The purpose of this chapter is thus to give an overview of a limited number of filtering techniques that were tested both in simulated and in real multi-sensor scenarios.
 
@@ -27,8 +27,8 @@ This section is thus devoted to:
 \end{description}
 
 
-\section{Kalman Filters}
-
+\section{Kalman Filters} \label{sec:KalmanFilters}
+A Kalman Filter is based on the following assumptions
 \begin{itemize}
 	\item System's state evolution $\mathbf{x}_{k+1} = f(\mathbf{x}_k,u_k) + w_{\textit{x}}$ is linear and driven by
 	\begin{itemize}

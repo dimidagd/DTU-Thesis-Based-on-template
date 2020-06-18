@@ -10,4 +10,58 @@ Simulations provide a flexible and controllable environment to conduct prelimina
 	\item Tun-able noise intensities for each sensor
 	\item Different refresh rates for each simulated sensors
 	\item Artificial outliers/clutter observations generation.
+	\item Type of filter used, \ie Kalman Filter, Extended Kalman Filter, Particle Filter, and with or without Probabilistic Data Association extension.
 \end{enumerate}
+
+\section{Performance}
+\subsection{Single target tracking: (root) mean square error ((R)MSE)} \label{ssec:RMSE}
+A common performance measure of estimation is the root mean square error. 
+
+Given $M$ estimates $\hat{x}^{i}_{1:T}$ and the matching ground truth $x^{0(i)}_{1:T}$, then
+
+\begin{equation}\label{RMSE}
+	MSE(\hat{x}_t) = \frac{1}{M} \sum_{i=1}^{M} \norm{ {\hat{x}_t^{(i)} - x_t^{0(i)}}}^2
+\end{equation}
+
+The RMSE combines the variance and bias of the estimate,
+\begin{equation}\label{key}
+MSE(\hat{x}_t)  = \text{var} \hat{x}_t + b_t^2
+\end{equation}
+\subsection{Normalized Estimation Error squared (NEES)}
+An important step in designing a Kalman Filter or any of its variants is that of \emph{tuning}. For a given application and a system design problem, the observation and process noise covariance matrices $R,Q$ must be chosen, so as to give an acceptable level of performance. Performance can be measured in terms of \emph{Mean Squared Error} (see \Cref{ssec:RMSE}) and the overall idea behind tuning is to evaluate different combinations of filter parameters that yield the optimal performance. If one has access to ground truth data, as derived either from an additional measurement system or from simulations, performance can be assessed in a statistical fashion based on the \emph{normalized estimation error squared} (NEES, \cref{eq:NEES}). 
+
+\begin{equation}\label{eq:NEES}
+NEES(\hat{x}_t) = \frac{1}{M} \sum_{i=1}^{M} ({\hat{x}_t^{(i)} - x_t^{0(i)}})^T (P^{(i)}_t)({\hat{x}_t^{(i)} - x_t^{0(i)}}) 
+\end{equation}
+
+Under the Gaussanity assumptions and given a correct tuning, then the \emph{NEES} follows a chi-squared distribution of $n_x$  degrees of freedom
+
+\begin{equation}\label{key}
+NEES(\hat{x}_t) \sim \chi^2(n_x), \quad \hat{x}_t \in \realnumbers^{n_x}
+\end{equation}
+
+According to \cite{TargetTracking} performance based on the scalar index $NEES(\hat{x}_t)$ can be characterize the filtering quality as:
+
+\begin{description}
+	\item[$< n_x$] The estimate is conservative, \ie the estimate is better than indicated from $P$.
+	\item[$ \approx n_x $] The estimated covariance matches the observations.
+	\item[$> n_x$] The estimate is too optimistic, \ie the estimate is worse than indicated from $P$.
+\end{description}
+\subsection{Normalized Innovation Squared test}
+Unfortunately, definite ground truth data $x_t$ is usually unavailable when recording real data, and as such an alternative metric is defined. The \emph{Normalized Innovation error Squared} (NIS) is an alternative to NEES that does not require ground truth information.
+
+\begin{equation}\label{eq:NIS}
+NIS(\realobserv^j_k,\hat{x}_k) = ({\realobserv}^j_k - {\predObserv}^j_k)^T \, S_k^{-1} \, ({\realobserv}^j_k - {\predObserv}^j_k)
+\end{equation}
+
+where
+
+\begin{description}
+	\item[$ \realobserv^j_k $] is the $j$-th sensor's observation, arriving at sample time $k$.
+	\item[$ \predObserv_k $] is the predicted observation at sample time $k$ for the \ith{j} sensor, \ie $ \predObserv_t =  h(\hat{x}_t)$.
+	\item[$h(\cdot)$] is the observation model of the associated sensor which can be linearized around the latest estimate by $\mat{H}_k$ (see \cref{sec:KalmanFilters})
+	\item[$S_k = H_k P_k H_k^T + R_k$] is the innovation covariance matrix (see \cref{sec:KalmanFilters}).
+\end{description}
+
+
+\subsection{Covariance matrix determinant}
