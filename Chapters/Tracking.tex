@@ -134,7 +134,44 @@ Then the true observation belongs to the \emph{validation region} with probabili
 \end{figure}
 
 
-The quadratic form for $\mathcal{V}$ in \Cref{eq:validationGate} implies that the validation region is \emph{chi-square distributed}, with number of degrees of freedom equal to the dimensionality $n_\realobserv$ of the sensor's observations space.
+The quadratic form for $\mathcal{V}$ in \Cref{eq:validationGate} implies that the validation region is \emph{chi-square distributed}, with number of degrees of freedom equal to the dimensionality $n_\realobserv$ of the sensor's observations space. The formal proof follows,
+
+%For formal  proof see bottom of https://markusthill.github.io/mahalanbis-chi-squared
+
+For a symmetric matrix 
+\begin{equation} \label{eq:matrixsquareroot}
+ \mat{S} = \mat{U} \mat{\Lambda} \mat{U}^T
+\end{equation}
+
+And hence the square root of a matrix can be defined as
+
+\begin{equation}\label{eq:matrixsquareroot2}
+	\mat{S}^{\frac{1}{2}} =  \mat{U} \mat{\Lambda}^{\frac{1}{2}} \mat{U}^T
+\end{equation}
+
+Since $S^-1$ is also symmetric, its square root can be found based on \Cref{eq:matrixsquareroot} to be a symmetric matrix as well. Dropping the sample index $k$ to simplify the equations, the statistical distance $D$ can be written as
+
+\begin{align}
+D &= [\realobserv-\predObserv]^T S^{-1} [\realobserv-\predObserv] \\
+ &= [\realobserv-\predObserv]^T S^{-\frac{1}{2}} S^{-\frac{1}{2}} [\realobserv-\predObserv] \\
+ &= [S^{-\frac{1}{2}}(\realobserv-\predObserv)]^T [S^{-\frac{1}{2}}(\realobserv-\predObserv)] \\
+ &= \mat{Y}^T \mat{Y}
+ &= \norm{\mat{Y}}^2
+ &= \sum_{k=1}^{\mathcal{n_y}} Y_k^2
+\end{align}
+
+From the transformation $ \mat{Y} = \mat{S}^{\frac{1}{2}(\realobserv-\predObserv)} \sim \mathcal{N}(\vec{0},\Sigma)$, it turns out that the covariance matrix $\Sigma_Y$ of the new variable $Y$ is the identify matrix $I$.
+
+
+$$ Y \sim \mathcal{N}(0,\Sigma_y) \sim \mathcal{N}(\vec{0},\mat{I}) $$
+
+Hence the elements $Y_k$ in the random vector $\vec{Y}$ are random variables, and are drawn from independent normal distributions $Y_k \sim \mathcal{N}(0,1)$, which justifies that $D$ is chi-squared distributed with $n_y$ degrees of freedom.
+
+\begin{equation}\label{key}
+D \sim \chi^2(n_y)
+\end{equation}
+
+
 
 
 \begin{figure}[H]
@@ -145,10 +182,16 @@ The quadratic form for $\mathcal{V}$ in \Cref{eq:validationGate} implies that th
 \end{figure}
 
 
-In order to obtain a value for the gating probability $P_G$, one can use the cumulative distribution function $F_{n_{\realobserv}}(\gateThreshold)=P(X \leq \gateThreshold)$ of $\mathcal{V}$ and since as already mentioned, $\mathcal{V}$ is a chi-squared distributed variable, the calculation of $\gateThreshold$ is the solution to \Cref{eq:gammasol}
+In order to obtain a value for the gating probability $P_G$, 
+
+\begin{equation}\label{key}
+P_G = \int_{0}^{\gateThreshold} \chi^2(\gamma, n_y)d\gamma
+\end{equation}
+
+hence, one can use the cumulative distribution function $F_{n_{\realobserv}}(\gateThreshold)=P(X \leq \gateThreshold)$ of $\mathcal{V}$ and since as already mentioned, $\mathcal{V}$ is a chi-squared distributed variable, the calculation of $\gateThreshold$ is the solution to \Cref{eq:gammasol}
 
 \begin{equation}\label{eq:gammasol}
-P(X \leq \gateThreshold) = P_g = \end{equation}
+P(X \leq \gateThreshold) = P_g  \end{equation}
 
 
 Unfortunately no closed-form solution exists for \Cref{eq:gammasol} , since the function is highly non-linear, nevertheless look-up tables are available after its point-wise evaluation as in \Cref{fig:chisquaredtable}.
