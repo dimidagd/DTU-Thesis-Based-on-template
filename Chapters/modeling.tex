@@ -13,11 +13,11 @@ Assuming the target's motion on a \emph{two-dimensional tracking plane}, then tw
 \begin{enumerate}
 	\item Cartesian velocity model 
 	
-	$$\mathbf{x} = \left[x,y,\dot{x}, \dot{y},\omega\right]^{T} $$
+	$$\vect{x} = \left[x,y,\dot{x}, \dot{y},\omega\right]^{T} $$
 		
 	\item Polar velocity model 
 	
-	$$\mathbf{x} = \left[x,y,\boatspeed, \heading,\omega\right]^{T} $$
+	$$\vect{x} = \left[x,y,\boatspeed, \heading,\omega\right]^{T} $$
 		
 \end{enumerate}
 
@@ -62,7 +62,7 @@ While the motion models proposed in literature are numerous, most of them are ma
 Starting with a time continuous model:
 
 \begin{equation}
-\begin{aligned}\dot{\mathbf{x}}(t) = f(\mathbf{x}(t)) + w(t) &&,\mathbf{x} = \left[x,y,\boatspeed, \heading,\omega\right]^{T}  \end{aligned}
+\begin{aligned}\dot{\vect{x}}(t) = f(\vect{x}(t)) + w(t) &&,\vect{x} = \left[x,y,\boatspeed, \heading,\omega\right]^{T}  \end{aligned}
 \end{equation}
 
 
@@ -89,14 +89,14 @@ Since the system is simulated in discrete time, one can integrate the motion mod
 
 \begin{equation}
 \begin{aligned}
-\mathbf{x}(t+T) = \mathbf{x}(t) + \int_{t}^{t+T}(f(\mathbf{x}(\tau)+w(\tau) )d\tau &&\text{and}&& f(\mathbf{x(\tau)})=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ 0 \\ \omega \\ 0  \end{bmatrix}
+\vect{x}(t+T) = \vect{x}(t) + \int_{t}^{t+T}(f(\vect{x}(\tau)+w(\tau) )d\tau &&\text{and}&& f(\vect{x(\tau)})=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ 0 \\ \omega \\ 0  \end{bmatrix}
 \end{aligned}
 \end{equation}
 
 where 
 
 \begin{equation}
-\mathbf{x(\tau)} = \left[x,y,\boatspeed, \heading,\omega\right]^{T}
+\vect{x(\tau)} = \left[x,y,\boatspeed, \heading,\omega\right]^{T}
 \end{equation}
 
 is the state-space vector, and $\procnoise(\tau ) $ is the process noise vector
@@ -105,15 +105,15 @@ After ignoring noise,  the discrete state transition vector function $g(\cdot)$ 
 
 
 \begin{equation}
-\mathbf{x}(t+T) = g\left(\mathbf{x}(t)\right)
+\vect{x}(t+T) = g\left(\vect{x}(t)\right)
 \end{equation}
 
-where $g(\mathbf{x}(t))$ by direct integration, for $\mathbf{x}(t) =\left[x,y,\boatspeed, \heading,\omega\right]^{T} $ is
+where $g(\vect{x}(t))$ by direct integration, for $\vect{x}(t) =\left[x,y,\boatspeed, \heading,\omega\right]^{T} $ is
 
 
 
 \begin{equation}
-g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
+g(\vect{x}(t)) = \vect{x}(t) +  \begin{bmatrix}
 \frac{2\boatspeed}{\omega}sin(\omega T)cos(\heading + \frac{\omega T}{2})\\
 -\frac{2\boatspeed}{\omega}sin(\omega T)cos(\heading + \frac{\omega T}{2})\\
 0 \\
@@ -126,7 +126,7 @@ or
 
 
 \begin{equation}
-g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
+g(\vect{x}(t)) = \vect{x}(t) +  \begin{bmatrix}
 \boatspeed T cos(\heading)\\
 \boatspeed T sin(\heading)\\
 0 \\
@@ -139,9 +139,9 @@ g(\mathbf{x}(t)) = \mathbf{x}(t) +  \begin{bmatrix}
 
 \section{Observation models} \label{sec:ObservationModels}
 
-An \emph{observation model} or \emph{sensor model} $\observ_k = h(\mathbf{x_k}) + \measnoise_k$ expresses a sensor's observations $\observ_k$ at time instances $t_k$ given the state vector $\mathbf{x}$ .
+An \emph{observation model} or \emph{sensor model} $\observ_k = h(\vect{x_k}) + \measnoise_k$ expresses a sensor's observations $\observ_k$ at time instances $t_k$ given the state vector $\vect{x}$ .
 
- $\measnoise_k$ is assumed to be white Gaussian noise with covariance matrix $\measCov(k)$ that depends on the specific sensor. Depending on the selection of the state vector $\mathbf{x}$, the one can come up with a linear or nonlinear observation model.
+ $\measnoise_k$ is assumed to be white Gaussian noise with covariance matrix $\measCov(k)$ that depends on the specific sensor. Depending on the selection of the state vector $\vect{x}$, the one can come up with a linear or nonlinear observation model.
 
 The author is using the term \emph{observations} in the tracking context to refer to the post processed information derived from raw-sensor \emph{measurements}. In most cases the observations are a byproduct of multiple raw sensor measurements. For instance line of sight sensors such as a laser distance sensor, a radar, create dense point representations around the sensor's origin. These points can be grouped into geometric entities by various feature extraction algorithms, in order to create target \emph{observations}.  Likewise, a camera in the tracking context, instead of an imaging device, can be modeled as a relative bearing sensor, by pre-processing the raw image data through an ANN that extracts detected targets pixel locations within the frames. This abstraction level greatly simplifies the measurement models, since one can directly focus on the data-fusion and bypass the observation acquisition process, which at a certain level constitutes a separate and independent task. It is worth mentioning that the author in this thesis chose to focus on a \emph{medium level fusion approach} \cite{Luo2002}, which means that features(target's position) are fused to obtain features of better quality that can be employed by different tasks.
 %\todo{Disambiguate different sensor fusion levels, provide a whole section?}
@@ -173,7 +173,7 @@ If the radar's coordinate system, is for simplicity  chosen to coincide with a \
 \todo{write about rotating reference frame}
 
 \begin{equation}
-\observ_{radar}(\mathbf{x}) = \begin{bmatrix}
+\observ_{radar}(\vect{x}) = \begin{bmatrix}
 \rho \\
 \theta
 \end{bmatrix} = \begin{bmatrix}
@@ -199,7 +199,7 @@ These noise intensities are a tuning parameter in a simulated test. Exaggerating
 \subsection{Converted measurements GPS model}
 
 
-The relative GPS observation model calculates the target's relative position $\begin{bmatrix}x, y\end{bmatrix}^{T} $ w.r.t the own-ship's tracking coordinate system, which is directly a part of the target's state vector $\mathbf{x}$
+The relative GPS observation model calculates the target's relative position $\begin{bmatrix}x, y\end{bmatrix}^{T} $ w.r.t the own-ship's tracking coordinate system, which is directly a part of the target's state vector $\vect{x}$
 \todo{needs rewriting}. 
 
 \begin{enumerate}
@@ -212,7 +212,7 @@ The relative GPS observation model calculates the target's relative position $\b
 
 
 \begin{equation}
-\observ_{GPS}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+\observ_{GPS}(\vect{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
 x \\
 y
 \end{bmatrix}_{GPS} = \begin{bmatrix}
@@ -310,7 +310,7 @@ Tracking is performed \emph{at sea level}, thus $h=0$, leading to
 \begin{bmatrix}
 d\longi\\ d\lat
 \end{bmatrix}=
-\mathbf{T}(\lat)^{-1}
+\matr{T}(\lat)^{-1}
 \begin{bmatrix}
 dE\\ dN
 \end{bmatrix}
@@ -320,9 +320,9 @@ dE\\ dN
 
 Since the target's state is in the \emph{tracking/seakeeping} coordinate system, one needs to transform it to ENU.
 
-If $\mathbf{R}_z(\heading)$ is the Euler's angle transformation for a rotation $\heading$ around the z-axis, then the transformation from \emph{sea-following/tracking} to \emph{ENU} coordinates, is
+If $\matr{R}_z(\heading)$ is the Euler's angle transformation for a rotation $\heading$ around the z-axis, then the transformation from \emph{sea-following/tracking} to \emph{ENU} coordinates, is
 
-$$\mathbf{R}^{\textit{ENU}}_{\textit{sea-following}} $$
+$$\matr{R}^{\textit{ENU}}_{\textit{sea-following}} $$
 
 given the own-ship's \emph{heading from true-north} $\heading_{\textit{0}}$, then,
 
@@ -361,15 +361,15 @@ and thus, by combining the above equations, one can solve for the observed $[\la
 \end{bmatrix}&=
 \begin{bmatrix}
 \lat_{0}\\ \longi_{0}
-\end{bmatrix} + {\mathbf{T}(\lat_{0})}^{-1}\begin{bmatrix}
+\end{bmatrix} + {\matr{T}(\lat_{0})}^{-1}\begin{bmatrix}
 dE\\ dN
 \end{bmatrix} + \measnoise_{\textit{AIS}}=  \\
 &\begin{bmatrix}
 \lat_{0}\\ \longi_{0}
-\end{bmatrix}_{\textit{own-ship}} + \mathbf{T}(\lat_{0})^{-1}
-\mathbf{R}^{\textit{ENU}}_{\textit{sea-following}}(\heading_{\textit{0}})
+\end{bmatrix}_{\textit{own-ship}} + \matr{T}(\lat_{0})^{-1}
+\matr{R}^{\textit{ENU}}_{\textit{sea-following}}(\heading_{\textit{0}})
 \begin{bmatrix}
-x_{\textit{target}}\\ y_{\textit{target}}
+x_{\textit{t}}\\ y_{\textit{t}}
 \end{bmatrix}_{\textit{wrt}_{{\textit{sea-following}}}}+\measnoise_{\textit{AIS}}
 \end{aligned}
 \end{equation}
@@ -378,7 +378,7 @@ x_{\textit{target}}\\ y_{\textit{target}}
 Where
 
 \begin{description}
-	\item $\mathbf{T}(\lat)=
+	\item $\matr{T}(\lat)=
 	\begin{bmatrix}
 	N(\lat)\cos\lat &0\\
 	0 &M(\lat)
@@ -403,18 +403,18 @@ Where
 The above equation can be rewritten to the standard observation model formulation
 
 \begin{equation}
-\observ_{\textit{AIS}}(\mathbf{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
+\observ_{\textit{AIS}}(\vect{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
 \lat\\ \longi
-\end{bmatrix}_{\textit{target}} = \begin{bmatrix}
+\end{bmatrix}_{\textit{AIS}} = \underbrace{\begin{bmatrix}
 \lat_{0}\\ \longi_{0}
-\end{bmatrix} + \mathbf{H}\mathbf{x} + \measnoise_{\textit{AIS}}
+\end{bmatrix}}_{\textit{reference}} + \underbrace{\matr{H}\vect{x} }_{\textit{small differences model}} + \measnoise_{\textit{AIS}}
 \end{equation}
 
 , which is a \textbf{linear} observation model that is approximating the geoid with a \emph{spherical-linearization} about the own-ship's geodetic location. It is worth mentioning that as the tracking reference point moves from north to south, one would have to recalculate the transformation matrix of \Cref{eq:ENUgeodifferences}, to account for changes in earth's eccentricity. Nevertheless, in the time frame of a tracking scenario the eccentricity $e$ of the geoid remains almost constant throughout the tracking process, which allows one to assume that the observation function of the AIS $h_{\textit{AIS}}(\cdot)$ is a \emph{linear-time invariant} (LTI) system, as long as $\heading_{\textit{0}} = \const $. The last assumption is clearly violated in most tracking scenarios in which the own-ship is maneuvering and the heading angle $\heading$ is changing over time. This fact gave the author a lead on identifying that tracking targets with respect to the own-ship makes the $\text{AIS}$ observation model non-linear, and provided motivation for using a constant reference system.
 \subsection{Camera observation model}
 
 
-Assuming a camera sensor mounted on a mast with the camera z-axis aligned with the \emph{own-ship's body coordinate system}
+Assuming a camera sensor mounted on a mast with the camera z-axis aligned with the \emph{own-ship's body coordinate system}, then a top-view of the pinhole model is illustrated in \cref{fig:camera_pinhole}.
 
 
 
@@ -425,7 +425,7 @@ Assuming a camera sensor mounted on a mast with the camera z-axis aligned with t
 	\label{fig:camera_alignment_tracking}
 \end{figure}
 
-A top-view of the pinhole model is illustrated in \cref{fig:camera_pinhole}.
+
 
 
 \begin{figure}[H]
@@ -436,44 +436,53 @@ A top-view of the pinhole model is illustrated in \cref{fig:camera_pinhole}.
 \end{figure}
 
 
-Then the observation model for the predicted pixel location of a target obtained from a deep neural-network classifier and localizer is found by projecting a point in homogeneous coordinates
+Then the observation model for the predicted pixel location of a target obtained from a deep neural-network classifier and localizer is found by projecting the position of a remote ship in the sea-following coordinate system $\vect{x}_{\text{wrt}_{\text{sea following}}}=\begin{bmatrix}x, y, 0, 1\end{bmatrix}^T$ to the finite camera frame (\Cref{eq:projection_model}).
 
-
-\begin{equation}
-x_{\text{wrt}_{\text{sea keeping}}} =\begin{bmatrix}x, y, 0, 1\end{bmatrix}^T
+\begin{equation}\label{eq:projection_model}
+\vec{\observ}_{cam} = P \cdot \vect{x}_{\text{wrt}_{\text{sea following}}}
 \end{equation}
 
 
-to the finite camera frame, given measured information $z_{gyro}$ about the rotational angle of the \emph{own-ship body coord. system}, w.r.t the \emph{tracking coord. system}.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\linewidth]{multiple_object_detections.jpg}
+	\caption{Multiple ships detection using an Artificial Neural Network(ANN) approach. Courtesy of \cite{Blanke2020}.}
+	\label{fig:multipleobjectdetections}
+\end{figure}
 
 
+
+ 
+
+The solution to \Cref{eq:projection_model} is
+ 
 
 \begin{equation}
-\observ_{\textit{cam}_{\textit{px}}}(\mathbf{x},z_{\textit{gyro}}) = \begin{bmatrix}u\\v\end{bmatrix}_{px}= \frac{\begin{bmatrix}-P_1-\\-P_2-\end{bmatrix}\mathbf{x}}{
+\observ_{\textit{cam}_{\textit{px}}}(\vect{x},z_{\textit{gyro}}) = \begin{bmatrix}u\\v\end{bmatrix}_{px}= \frac{\begin{bmatrix}-P_1-\\-P_2-\end{bmatrix}\vect{x}}{
 	\begin{bmatrix}
 	-P_3-
 	\end{bmatrix}
-	\mathbf{x}}+ \measnoise_{\text{camera}}
+	\vect{x}}+ \measnoise_{\text{camera}}
 \end{equation}
 
 
-Where $\mathbf{P}$ is the projection matrix and $P_{i}$ it's rows
+Where $\matr{P}$ is the projection matrix and $P_{i}$ are it's rows
 
-\begin{equation} \ref{eq:projection}
-P = \begin{bmatrix}-P_1- \\-P_2-\\-P_3- \end{bmatrix} = \mathbf{K}\mathbf{R_{\textit{own-ship}}^{\textit{camera}}}[\mathbf{I} | \mathbf{-C}]
+\begin{equation} \label{eq:projection}
+P = \begin{bmatrix}-P_1- \\-P_2-\\-P_3- \end{bmatrix} = \matr{K}\matr{R_{\textit{own-ship}}^{\textit{camera}}}[\vect{I} | \matr{-C}]
 \begin{bmatrix}
-\mathbf{\mathbf{R}_{\textit{sea-following}}^{\textit{own-ship}}} &\mathbf{0}\\
-\mathbf{0} &1
+\matr{\matr{R}_{\textit{sea-following}}^{\textit{own-ship}}} &\vect{0}\\
+\vect{0} &1
 \end{bmatrix}
 \end{equation}
 
 Because of the denominator in \cref{eq:projection} this is a non-linear model, and a description of the matrices that comprise the projection matrix $P$ is given below:
 
 \begin{description}
-\item[$\mathbf{K}$]
+\item[$\matr{K}$]
 is the \emph{intrinsic camera calibration} matrix
 
-$$\mathbf{K} = \begin{bmatrix}f m_x &0 &p_x \\
+$$\matr{K} = \begin{bmatrix}f m_x &0 &p_x \\
 0 &f m_y &p_y \\
 0 &0 &z
 \end{bmatrix} $$
@@ -488,14 +497,14 @@ where
 	
 \end{description}
 
-\item[$\mathbf{R}_{\textit{own-ship}}^{\textit{camera}}$]
+\item[$\matr{R}_{\textit{own-ship}}^{\textit{camera}}$]
 is the \emph{extrinsic camera rotation matrix }that describes the \emph{orientation of the camera coordinate system} w.r.t. the \emph{own-ship}.
 
-\item[$\mathbf{C}$]
+\item[$\matr{C}$]
 is the  \emph{extrinsic origin of the camera coordinate system} w.r.t. the \emph{own-ship}.
 
 
-\item[$\mathbf{R}_{\textit{tracking}}^{\textit{own-ship}}$]
+\item[$\matr{R}_{\textit{tracking}}^{\textit{own-ship}}$]
 Is the transformation matrix that corresponds to the \emph{roll-pitch} rotation of the \emph{own-ship's body coordinate system} w.r.t the \emph{tracking} coordinate system.. Please note that the order of the rotations matters.
 
 \begin{equation}
@@ -530,7 +539,10 @@ R_{\textit{pitch}}= R_y(\pitch) =
 A basic assumption at this point, is that the own-ship is able to measure the angles $(\roll,\pitch)$ of the \emph{own-ship body coordinate system} w.r.t the \emph{tracking coordinate system}. These angles are usually available on a ship by using one or multiple \emph{gyro sensors}.
 
 \end{description}
-\todo{check gyro sensors}
+
+%given measured information $z_{gyro}$ about the rotational angle of the \emph{own-ship body coordinate system}, w.r.t the \emph{tracking coordinate system}.
+\todo{Make correctiosn to camera}
+ Using \emph{Artifical Neural Networks} for ship detection using camera data, has been demonstrated in \cite{Blanke2020} and it is considered one of the \emph{State-of-the-Art} methods in image processing at the time of writing of this reading.
 
 \subsection{Real sensors \& modeling}
 
@@ -575,9 +587,9 @@ Quite often, manufacturers provide noise in the form of maximum error on the rea
 	\begin{tabular}{llll}
 		\hline
 		& \textbf{Sensor}         & \textbf{Active/Passive} & \textbf{Reference frame} \\ \hline
-		& IMU                     & Passive                 & Proprioceptive                        \\ \hline
-		& GNSS(through AIS)       & Passive                 & Proprioceptive \& Exteroceptive       \\ \hline
-		& Radar (long range)      & Active                  & Exteroceptive                         \\ \hline
+		& IMU                     & Passive                 & Proprioceptive                        \\ 
+		& GNSS(through AIS)       & Passive                 & Proprioceptive \& Exteroceptive \\
+		& Radar (long range)      & Active                  & Exteroceptive                         \\ 
 		& Visible spectrum camera & Passive                 & Exteroceptive                         \\ \hline
 	\end{tabular}
 \end{table}

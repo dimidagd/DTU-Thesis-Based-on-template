@@ -104,7 +104,7 @@ The first step towards identifying an observation's origin is \emph{validating o
 
 An observation within the \emph{validation region}  does not necessarily originate from the target the gate pertains to, but it is a \emph{valid association candidate} . As soon as multiple observations belong to the same gate, then there is an observation \emph{association uncertainty}.
 
-\subsection{Validation region(gate)}
+\subsection{Validation region(gate)}\label{ssec:validationregion}
 
 If one considers a tracked target, \ie the filter has already been initialized, then one is is possible to calculate the \emph{predicted observation} mean $\predObserv(k+1|k)$ and its associated covariance $S(k+1)$ through the sensor's observation model and the filter's estimate of the state.
 
@@ -117,14 +117,14 @@ $$
 
 
 
-Then the true observation belongs to the \emph{validation region} with probability
+Then a real observation $\realobserv$, belongs to the \emph{validation region} with probability
 
 
 \begin{equation}\label{eq:gateEquation}
 \mathcal{V}(k+1, \gateThreshold) = \{\realobserv: [\realobserv-\predObserv(k+1|k)]^T S(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] \leq \gateThreshold \}
 \end{equation}
 
-\Cref{eq:gateEquation} describes a \emph{validation region} or else a \emph{probabilistic hyper-volume}. In the simple case in which the observation space is the three dimensional euclidean space $R^3$ then $\mathcal{V}$ defines an ellipsoid of probability concentration , that is the region of \emph{minimum volume }that contains a given probability mass. The length of the ellipsoid semi-axes correspond to the square roots of the eigenvalues(singular values) of $\gateThreshold S$ (\Cref{fig:ellipsoid}).
+\Cref{eq:gateEquation} describes a \emph{validation region} or else a \emph{probabilistic hyper-volume}. In the simple case in which the observation space is the three dimensional euclidean space , \ie $\realobserv \in \realnumbers^3$, then $\mathcal{V}$ defines an ellipsoid of probability concentration, that is the region of \emph{minimum volume }that contains a given probability mass. The length of the ellipsoid semi-axes correspond to the square roots of the eigenvalues(singular values) of $\gateThreshold \matr{S}$ (\Cref{fig:ellipsoid}).
 
 \begin{figure}[H]
 	\centering
@@ -134,38 +134,49 @@ Then the true observation belongs to the \emph{validation region} with probabili
 \end{figure}
 
 
-The quadratic form for $\mathcal{V}$ in \Cref{eq:validationGate} implies that the validation region is \emph{chi-square distributed}, with number of degrees of freedom equal to the dimensionality $n_\realobserv$ of the sensor's observations space. The formal proof follows,
+The quadratic form for $\mathcal{V}$ in \Cref{eq:validationGate} implies that the validation region is \emph{chi-square distributed}, with number of degrees of freedom equal to the dimensionality $n_\realobserv$ of the sensor's observations space. The formal proof follows, where the sample index $k$ was dropped to simplify the equations.
 
 %For formal  proof see bottom of https://markusthill.github.io/mahalanbis-chi-squared
 
-For a symmetric matrix 
+The Eigendecomposition of a symmetric matrix such as $\matr{S}$ is
 \begin{equation} \label{eq:matrixsquareroot}
- \mat{S} = \mat{U} \mat{\Lambda} \mat{U}^T
+\matr{S} = \matr{U} \matr{\Lambda} \matr{U}^T
 \end{equation}
 
-And hence the square root of a matrix can be defined as
+where 
+
+And hence the square root of a matrix such that $\matr{S}^{\frac{1}{2}}\cdot \matr{S}^{\frac{1}{2}} = \matr{S}$, can be defined as
 
 \begin{equation}\label{eq:matrixsquareroot2}
-	\mat{S}^{\frac{1}{2}} =  \mat{U} \mat{\Lambda}^{\frac{1}{2}} \mat{U}^T
+	\matr{S}^{\frac{1}{2}} =  \matr{U} \matr{\Lambda}^{\frac{1}{2}} \matr{U}^T
 \end{equation}
 
-Since $S^-1$ is also symmetric, its square root can be found based on \Cref{eq:matrixsquareroot} to be a symmetric matrix as well. Dropping the sample index $k$ to simplify the equations, the statistical distance $D$ can be written as
+since
 
 \begin{align}
-D &= [\realobserv-\predObserv]^T S^{-1} [\realobserv-\predObserv] \\
- &= [\realobserv-\predObserv]^T S^{-\frac{1}{2}} S^{-\frac{1}{2}} [\realobserv-\predObserv] \\
- &= [S^{-\frac{1}{2}}(\realobserv-\predObserv)]^T [S^{-\frac{1}{2}}(\realobserv-\predObserv)] \\
- &= \mat{Y}^T \mat{Y}
- &= \norm{\mat{Y}}^2
- &= \sum_{k=1}^{\mathcal{n_y}} Y_k^2
+\matr{S}^{\frac{1}{2}} \cdot \matr{S}^{\frac{1}{2}} &= \vect{U} \matr{\Lambda}^{\frac{1}{2}}\vect{U}^T \vect{U} \matr{\Lambda}^{\frac{1}{2}}\vect{U}^T \\
+&= \vect{U} \matr{\Lambda}^{\frac{1}{2}}\matr{I}\matr{\Lambda}^{\frac{1}{2}}\vect{U}^T \\
+&= \vect{U}\matr{\Lambda}\vect{U}^T \\
+&= \matr{S}
 \end{align}
 
-From the transformation $ \mat{Y} = \mat{S}^{\frac{1}{2}(\realobserv-\predObserv)} \sim \mathcal{N}(\vec{0},\Sigma)$, it turns out that the covariance matrix $\Sigma_Y$ of the new variable $Y$ is the identify matrix $I$.
+Since $\matr{S}^{-1}$ is symmetric, its square root can be found based on \Cref{eq:matrixsquareroot2} to be a symmetric matrix as well. , the statistical distance $D$ can be written as
+
+\begin{align}
+D &= [\realobserv-\predObserv]^T \matr{S}^{-1} [\realobserv-\predObserv] \\
+ &= [\realobserv-\predObserv]^T \matr{S}^{-\frac{1}{2}} \matr{S}^{-\frac{1}{2}} [\realobserv-\predObserv] \\
+ &= [\matr{S}^{-\frac{1}{2}}(\realobserv-\predObserv)]^T [\matr{S}^{-\frac{1}{2}}(\realobserv-\predObserv)] \\
+ &= \vect{Y}^T \vect{Y} \\
+ &= \norm{\vect{Y}}^2 \\
+ &= \sum_{k=1}^{n_y} \vect{Y}_k^2
+\end{align}
+
+From the \emph{whitening transformation} $ \vect{Y} = \matr{S}^{-\frac{1}{2}}(\realobserv-\predObserv) \sim \mathcal{N}(\vect{0},\matr{\Sigma)}_y$, it turns out that the covariance matrix $\matr{\Sigma}_y$ of the new variable $\vect{Y}$ is the identify matrix $\matr{I}$.
 
 
-$$ Y \sim \mathcal{N}(0,\Sigma_y) \sim \mathcal{N}(\vec{0},\mat{I}) $$
+$$ \vect{Y} \sim \mathcal{N}(0,\matr{\Sigma}_y) \sim \mathcal{N}(\vect{0},\matr{I}) $$
 
-Hence the elements $Y_k$ in the random vector $\vec{Y}$ are random variables, and are drawn from independent normal distributions $Y_k \sim \mathcal{N}(0,1)$, which justifies that $D$ is chi-squared distributed with $n_y$ degrees of freedom.
+Hence the elements $\vect{Y}_k$ in the random vector $\vect{Y}$ are random variables, and are drawn from independent normal distributions $\vect{Y}_k \sim \mathcal{N}(0,1)$, which justifies that $D$ is chi-squared distributed with $n_y$ degrees of freedom.
 
 \begin{equation}\label{key}
 D \sim \chi^2(n_y)
@@ -182,16 +193,16 @@ D \sim \chi^2(n_y)
 \end{figure}
 
 
-In order to obtain the probability of accepting the correct observation withing the gate $P_G$, 
+In order to obtain probability $P_G$ of accepting the correct observation withing the gate , 
 
 \begin{equation}\label{eq:gatingprobability}
-P_G = \int_{0}^{\gateThreshold} \chi^2(\gamma, n_y)d\gamma
+P_G(\gateThreshold) = \int_{0}^{\gateThreshold} \chi^2(\gamma, n_y)d\gamma
 \end{equation}
 
 hence, one can use the cumulative distribution function $F_{n_{\realobserv}}(\gateThreshold)=P(X \leq \gateThreshold)$ of $\mathcal{V}$ and since as already mentioned, $\mathcal{V}$ is a chi-squared distributed variable, the calculation of $\gateThreshold$ is the solution to \Cref{eq:gammasol}
 
 \begin{equation}\label{eq:gammasol}
-P(X \leq \gateThreshold) = P_g  \end{equation}
+\gateThreshold = F_{n_{\realobserv}}^{-1}(P_G) \end{equation}
 
 
 Unfortunately no closed-form solution exists for \Cref{eq:gammasol} , since the function is highly non-linear, nevertheless look-up tables are available after its point-wise evaluation as in \Cref{fig:chisquaredtable}.
@@ -226,7 +237,7 @@ $$\gateThreshold \approx 9.21$$
 The square root $g = \sqrt{\gateThreshold}$ is also referred to as \emph{
 "number of sigmas"} or standard deviations of the gate.
 
-The \emph{validation region} thus, consists of points whose  \emph{statistical distance} to the predicted observation is below a threshold $\gateThreshold$.  This is equivalent to the \emph{normalized innovation} $$[\realobserv-\predObserv(k+1|k)]^T S(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] < \gateThreshold^2 $$ being below this threshold.
+The \emph{validation region} thus, consists of points whose  \emph{statistical distance} to the predicted observation is below a threshold $\gateThreshold$.  This is equivalent to the \emph{normalized innovation} $$[\realobserv-\predObserv(k+1|k)]^T \matr{S}(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] < \gateThreshold^2 $$ being below this threshold.
 
 Measurements \emph{outside the validation region} can be ignored, as they are too far and very unlikely(at least with probability $1-P_g$) to have originated from the target of interest. This argument holds, as long as the predicted observations can be modeled by Gaussians and their first two moments.
 \section{Probabilistic Data Association Filter (PDAF)}
@@ -333,7 +344,7 @@ A basic step in the PDAF algorithm is to filter out highly unlikely observations
 From the Gaussian assumption(\Cref{eq:gaussAssumption}) a \emph{validation region}(gate) is defined by the ellipsoid
 
 \begin{equation}\label{eq:validationGate}
-\mathcal{V}(k+1, \gateThreshold) = \{\realobserv: [\realobserv-\predObserv(k+1|k)]^T S(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] \leq \gateThreshold \}
+\mathcal{V}(k+1, \gateThreshold) = \{\realobserv: [\realobserv-\predObserv(k+1|k)]^T \matr{S}(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] \leq \gateThreshold \}
 \end{equation}
 
 
@@ -358,7 +369,7 @@ $$
 
 The validation region volume $V$ is
 
-$$V(k+1) = c_{n_{\realobserv}}|\gateThreshold S(k+1)|^\frac{1}{2}$$
+$$V(k+1) = c_{n_{\realobserv}}|\gateThreshold \matr{S}(k+1)|^\frac{1}{2}$$
 
 where $c_{n_\realobserv}$ is the volume of the $n_z$ dimensional unit hyper-sphere, and
 
@@ -443,7 +454,7 @@ P(k+1|k) = F(k)P(k|k)F(k)^T + Q(k)
 The innovation covariance is as in the standard KF/EKF
 
 \begin{equation}
-S(k+1) = H(k+1)P(k+1|k)H(k+1)^T + R(k+1)
+\matr{S}(k+1) = H(k+1)P(k+1|k)H(k+1)^T + R(k+1)
 \end{equation}
 
 
@@ -467,7 +478,7 @@ where $\beta_0$ in \Cref{eq:betas} corresponds to the \emph{probability that non
 The likelihood $e_i$ is
 
 $$
-e_i \overset{\Delta}{=}  e^{-\frac{1}{2} \nu_i(k+1)^T S(k+1)^{-1} \nu_i(k+1)}
+e_i \overset{\Delta}{=}  e^{-\frac{1}{2} \nu_i(k+1)^T \matr{S}(k+1)^{-1} \nu_i(k+1)}
 $$
 and 
 $$
@@ -499,7 +510,7 @@ where the Kalman gain $K(k+1)$ follows the standard EKF/KF calculation.
 The \emph{state covariance} $P(k+1|k+1)$ following the measurement update is \cite{Kirubarajan2004}
 
 $$
-P(k+1|k+1) = P(k+1|k) -  [ (1-\beta_0(k+1)) ] K(k+1)S(k+1)W(k+1)^T + \tilde{P}(k+1)
+P(k+1|k+1) = P(k+1|k) -  [ (1-\beta_0(k+1)) ] K(k+1)\matr{S}(k+1)W(k+1)^T + \tilde{P}(k+1)
 $$
 
 where $\tilde{P}(k+1)$ as given in \Cref{eq:spread} is responsible for spreading the updated estimate variance(increase uncertainty) in case of no validated observations($m(k)=0$).
@@ -514,7 +525,7 @@ where $\tilde{P}(k+1)$ as given in \Cref{eq:spread} is responsible for spreading
 
 \begin{itemize}
 	\item $\tilde{P}(k+1)$ is \emph{positive definite}, increases the covariance of the updated state, and is modeling the effect of origin uncertainty.
-	\item The estimation accuracy is \emph{data dependent} since the covariance matrix update in \Cref{eq:spread} depends on the innovations $v_i$ in contrast to the classic KF approach where the updated state covariance matrix depends only on the covariance matrix of the predicted observations $S(k+1)$ and the latest state estimate covariance matrix $P(k+1)$.
+	\item The estimation accuracy is \emph{data dependent} since the covariance matrix update in \Cref{eq:spread} depends on the innovations $v_i$ in contrast to the classic KF approach where the updated state covariance matrix depends only on the covariance matrix of the predicted observations $\matr{S}(k+1)$ and the latest state estimate covariance matrix $P(k+1)$.
 	\item The probability of an association event $\beta_i$ is:
 	\begin{itemize}
 		\item the ratio of the "height" on the predicted observation's Gaussian pdf of its innovation and
