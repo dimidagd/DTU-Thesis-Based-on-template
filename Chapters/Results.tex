@@ -50,7 +50,7 @@ RMSE(\hat{x}_k)  = \text{var} \hat{x}_k + b_t^2
 
 Nevertheless, \emph{RMSE} requires a history of estimates and ground truth data, and as such is not a on-line performance index. What is more,  ground truth is not always available hence additional performance metrics had to be devised. 
 
-\subsection{Normalized Estimation Error squared (NEES)}
+\subsection{Normalized Estimation Error Ssquared (NEES)}
 \label{ssec:NEES}
 A performance metric that is able to assess an estimate's quality on a per-sample basis, is the \emph{Normalized Estimation Error Squared} test. It belongs to the family of \emph{statistical tests}, since it incorporates the use of the covariance matrix $P_k$ in the calculations. Additionally, it is a on-line performance metric, and it can evaluate the consistency only at time sample $k$.
 
@@ -76,8 +76,20 @@ According to \cite{TargetTracking} the scalar index $NEES(\hat{x}_k)$ can charac
 	\item[$ \approx n_x $] The ground truth values are falling within the \emph{reasonable} confidence interval of $P_k$, hence the estimated covariance matches the observations.
 	\item[$> n_x$] The estimate is too optimistic, \ie, the ground truth value $x_k$ lies outside the confidence intervals, hence the estimate is worse than indicated from $P_k$.
 \end{description}
+
+An example of tracking an inconsistently tuned Kalman Filter can be seen in \Cref{fig:KFinconsistent}.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{EKF_NEES.pdf}
+	\caption{\emph{Normalized Estimation Error Squared} (NEES) consistency test. Ground truth $x_k$ is available as the data is obtained from a simulation.}
+	\label{fig:ekfnees}
+\end{figure}
+
+
+
 \subsection{Normalized Innovation Squared test (NIS)}\label{ssec:NIS}
 Unfortunately, definite ground truth data $x_t$ is usually unavailable when recording real data, and as such an alternative test to NEES is defined. Instead of evaluating the consistency of the state estimate $\hat{x}_k$, one can evaluate the consistency of the \emph{predicted observation} $\predObserv_k$. The \emph{consistency of the observation estimate is highly correlated with the consistency of the state estimate} and thus it is a good index of abnormal estimator behavior \cite{Ivanov2014}. The \emph{Normalized Innovation error Squared} (NIS) defined in \Cref{eq:NIS} is an alternative to NEES that does not require ground truth information of the state.
+
 
 
 \begin{framed}
@@ -121,6 +133,32 @@ In a similar fashion to Observation Gating, the NIS tests follows a chi-squared 
 \end{table}
 
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{EKF_NIS.pdf}
+	\caption{\emph{Normalized Innovation Error Squared} consistency test. $y^i_k$ are a simulated radar observations.}
+	\label{fig:ekfNIS}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{subfigure}[b]{1.0\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{propagation}
+		\caption{Close up view of the inconsistent segment.}
+		\label{fig:KFinconsistent1}
+	\end{subfigure}\hfill
+	\begin{subfigure}[b]{1.0\textwidth}
+		\includegraphics[width=1.0\linewidth]{fusionCTRV}
+		\caption{Overall trajectory of the simulation.}
+		\label{fig:KFinconsistent2}
+	\end{subfigure}
+	\caption{Illustration of a Kalman Filter's inconsistency according to the Normalized Estimation Error Squared (NEES) test. Top view of a simulated moving target. Ground truth trajectory $x_{1:T|}$can be seen in blue,  whereas the red trajectory corresponds to the estimated state history $\hat{x}_{1:T}$. Green crosses correspond to noisy radar observations. Red ellipses correspond to $3\sigma$ confidence intervals $P_k$ on time updates, where as the green ellipses correspond to measurement updates. In many cases it can be seen that the ground truth lies quite far from the estimators uncertainty ellipse, which implies that the estimator is being overconfident.}
+	\label{fig:KFinconsistent}
+\end{figure}
+
+\subsection{Fudging}
+Should one or more of the consistency checks fail, then the designer of the estimator should suspect a modeling error. A step back to an earlier design stage has to be taken in order to identify the fault. The source of the problem is not a trivial process to locate. An inaccurate motion model, wrong process $\proccCov$ or observation $\measCov$ covariance sizing, higher order errors due to Taylor approximations (see \Cref{ssec:limitations} only to name a few. A heuristic method proposed by \cite{BarShalom1980} is to increase the modeled process noise $\proccCov$
+
 \subsection{Covariance matrix determinant}
 
 
@@ -128,12 +166,45 @@ Since the matrix $P_k$ encapsulating a target's state uncertainty is a covarianc
 
 What the author found interesting is the relative fluctuations in $\det{P_k}$ over time samples $k$, as it indicates how the state uncertainty increases after a time update, or decreases after a sensor update step. This effect can be seen in 
 
-In \Cref{fig:detp} one can see the effect of fusing asynchronous sensor observations on the determinant of the state covariance matrix $P_k$.
+In \Cref{fig:detp} one can see the effect of fusing asynchronous sensor observations on the determinant of the state covariance matrix $P_k$, whereas in \Cref{fig:dettracepk} one can see the difference between using the determinant or the trace of the state covariance matrix as an uncertainty metric.
+
+
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.8\linewidth]{detP.png}
-	\caption{Determinant of the state covariance matrix $P_k$. Fusion of different measurement updates in an Extended Kalman Filter. One can observe that a simulated camera sensor provides new observations approximately every 10 samples($f_{\text{cam}} = \SI{1}{\Hz}$), whereas a simulated AIS sensors provides observations every 100 samples ($f_{\text{AIS}} = \SI{0.1}{\Hz}$). Each sensor reduces the uncertainty at a different level.}
+	\caption{Determinant of the state covariance matrix $P_k$. Fusion of different measurement updates in an \emph{Extended Kalman Filter}. One can observe that a simulated camera sensor provides new observations approximately every 10 samples($f_{\text{cam}} = \SI{1}{\Hz}$), whereas a simulated AIS sensors provides observations every 100 samples ($f_{\text{AIS}} = \SI{0.1}{\Hz}$). Each sensor reduces the uncertainty at a different level.}
 	\label{fig:detp}
 \end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{det_trace_Pk.pdf}
+	\caption{State covariance matrix determinant and trace as scalar uncertainty metrics. Of specific interest is the temporal behavior of the timeseries, instead of their absolute values.}
+	\label{fig:dettracepk}
+\end{figure}
+
+
+\subsection{Simulated runs}
+
+
+
+
+\subsection{Recorded data}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{zoomViewPF.pdf}
+	\caption{Zoom in, of a single tracked target using a \textbf{Particle Filter}. $P_k$ is calculated from the weighted sample set. Illustrated in cyan and amber color are the post-radar and post-AIS measurement update 95\% confidence intervals respectively. }
+	\label{fig:zoomviewpf}
+\end{figure}
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{zoomViewEKF.pdf}
+	\caption{Zoom in, of a single tracked target using an \emph{Extended Kalman Filter}. Illustrated in cyan and amber color are the post-radar and post-AIS measurement update 95\% confidence intervals respectively. }
+	\label{fig:zoomviewpf}
+\end{figure}
+
+
 
