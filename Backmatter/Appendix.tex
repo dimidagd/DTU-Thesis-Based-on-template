@@ -1,1 +1,75 @@
-\chapter{Title}
+\chapter{Appendix}
+\section{Filtering}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/EKFClass.m}
+
+\subsection{Filter parent class}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/filterClass.m}
+
+
+\subsection{Extended Kalman Filter subclass}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/EKFClass.m}
+
+\subsection{Particle Filter subclass}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/PF.m}
+
+
+\section{Modeling}
+\subsection{Motion model parent class}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/motion_model.m}
+\subsection{Constant Velocity models}
+\subsubsection{Polar \boatspeed vector}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/CV_cartesian.m}
+\subsubsection{Cartesian \boatspeed vector}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/CV_polar.m}
+\subsection{Constant Velocity and Turn Rate model}
+\subsubsection{Polar \boatspeed vector}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/CT_polar_velocity.m}
+\subsection{Sensor model parent class}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/sensor.m}
+\subsection{Radar model}
+\subsubsection{Polar \boatspeed state vector}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/radar_polar_from_polar.m}
+\subsubsection{Cartesian \boatspeed state vector}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/radar_polar_from_cartesian.m}
+\subsection{AIS model}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/AIS_augmented.m}
+\subsection{Camera model}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/camera_pixels_from_polar_transformable.m}
+
+
+
+
+\section{Probabilistic Data Association class}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/PDA.m}
+\section{Environment class}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/environment.m}
+\subsection{Moving simulated object class}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/moving_object.m}
+\subsection{Own-ship class}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/ownship.m}
+\subsection{Boat plotting class}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/plot_boat.m}
+\section{Tracked Target class}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/tracked_object.m}
+
+\section{Jacobian calculations}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/jacobian.m}
+\section{Transformations}
+\subsection{Geodetic to ECEF}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/geo2ECEF.m}
+\subsection{ECEF to tangential}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/ECEF2Tangent.m}
+
+\section{Recorded Data handling}
+\subsection{Convert recordings to tangential}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/real_data.m}
+\subsection{Data synchronization}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/data/SYNC_CLUSTERS_WITH_SELF.m}
+\subsection{AIS decoder}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/python/aisReader.py}
+\subsection{Convert pickled numpies to matlab structures}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/python/parse2matlab.m}
+
+\section{Main scenario functions}
+\subsection{Replay and filter recorded data}
+\lstinputlisting{/Users/dimhackntosh/matlab_thesis/KF/replay_environmentTest3.m}
