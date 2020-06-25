@@ -69,7 +69,7 @@ For all its powerful characteristics, such as optimality and robustness, the \em
 	\item It is a single target \& unimodal method
 \end{itemize}
 
-The above problems usually lead to filter divergence, that is the Mean Squared Error grows unbounded over time.
+The above problems usually lead to filter divergence, that is the \emph{Mean Squared Error} grows unbounded over time.
 
 \section{Extending the Kalman Filter}
 
@@ -141,8 +141,7 @@ H_k =
 \end{bmatrix}
 \end{equation}
 
-\subsection{Limitations}
-\label(ssec:limitations)
+\subsection{Limitations}\label{ssec:EKFlimitations}
 The quality of approximating the state transitions and measurements using Taylor expansions depends on two main factors. 
 
 
@@ -349,7 +348,7 @@ One can easily verify that $$1 < N_{\text{eff}} < N$$ , the degeneracy criterion
 \end{aligned}
 \end{equation}
 
-\subsection{Resampling algorithms}
+\subsection{Resampling algorithms}\label{ssec:resamplingPF}
 
 
 Whenever filter degeneracy is detected(i.e $N_{\text{eff}}$ falling below a threshold value), re-sampling is performed.
@@ -434,5 +433,13 @@ The PF algorithm genetics are illustrated in \Cref{fig:PF_genetics} and summariz
 	\includegraphics[width=0.8\textwidth]{particle_filter_genetics.png}
 	\caption{General particle filtering algorithm genetics \cite{Chatzi2002}.}
 	\label{fig:PF_genetics}
+\end{figure}
+\subsection{Particle Filter from simulation}
+\Cref{fig:PFsim} illustrates what a Particle Filter looks like in a single target tracking simulation setup.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\linewidth]{good_one.png}
+	\caption{Tracking a single using a Particle Filter with $N=300$ samples.  Illustrated is the latest estimation of the target alongside with the Filters history. The height and size of a particle is proportional to its weight, \ie bigger particles are more likely to represent the actual target's location.}
+	\label{fig:PFsim}
 \end{figure}
 

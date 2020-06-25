@@ -240,7 +240,7 @@ The square root $g = \sqrt{\gateThreshold}$ is also referred to as \emph{
 The \emph{validation region} thus, consists of points whose  \emph{statistical distance} to the predicted observation is below a threshold $\gateThreshold$.  This is equivalent to the \emph{normalized innovation} $$[\realobserv-\predObserv(k+1|k)]^T \matr{S}(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] < \gateThreshold^2 $$ being below this threshold.
 
 Measurements \emph{outside the validation region} can be ignored, as they are too far and very unlikely(at least with probability $1-P_g$) to have originated from the target of interest. This argument holds, as long as the predicted observations can be modeled by Gaussians and their first two moments.
-\section{Probabilistic Data Association Filter (PDAF)}
+\section{Probabilistic Data Association Filter (PDAF)} \label{sec:PDAF}
 
 This filter is based on the KF/EKF algorithm, it keeps the same time and measurement update scheme but is probabilistically fusing
 observations within the target's validating region into a single fused innovation update step, by weighting individual validated measurements according to their likelihood.
@@ -341,7 +341,7 @@ A basic step in the PDAF algorithm is to filter out highly unlikely observations
 
 
 
-From the Gaussian assumption(\Cref{eq:gaussAssumption}) a \emph{validation region}(gate) is defined by the ellipsoid
+From the Gaussian assumption (\eqref{eq:gaussAssumption}) a \emph{validation region}(gate) is defined by the ellipsoid
 
 \begin{equation}\label{eq:validationGate}
 \mathcal{V}(k+1, \gateThreshold) = \{\realobserv: [\realobserv-\predObserv(k+1|k)]^T \matr{S}(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] \leq \gateThreshold \}

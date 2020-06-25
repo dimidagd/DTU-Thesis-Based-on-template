@@ -4,19 +4,21 @@ This chapter presents the results of implementing the algorithms outlined in the
 \section{Simulations}
 Simulations provide a flexible and controllable environment to conduct preliminary assessment of an algorithm. In the context of tracking, the developed simulator allows one to control 
 \begin{enumerate}[label=(\alph*)] 
-	\item The number of targets around the own-ship
+	\item The number of targets around the own-ship.
 	\item Different motion models for each simulated target with arbitrary process noise (\Cref{sec:MotionModels}).
 	\item Different sensor models for each target (\Cref{sec:ObservationModels}).
-	\item Tun-able noise intensities for each sensor
-	\item Different refresh rates for each simulated sensors
+	\item Tunable noise intensities for each sensor.
+	\item Different refresh rates for each simulated sensor.
 	\item Artificial outliers/clutter observations generation.
 	\item Type of filter used, \ie Kalman Filter, Extended Kalman Filter, Particle Filter, and with or without Probabilistic Data Association extension.
 \end{enumerate}
 
-\section{Performance}
+\section{Performance} \label{sec:performance}
 
 
-An important step in designing a Kalman Filter or any of its variants is that of \emph{tuning}. For a given application and a system design problem, the observation and process noise covariance matrices $R,Q$ must be chosen, so as to give an acceptable level of performance. What is more, it is important to be able to evaluate the \emph{constistency} of an estimator, \ie to be able to check to check during on-line for its possible divergence. Performance can be post-measured in terms of \emph{Mean Squared Error} (see \Cref{ssec:RMSE}) while consistency can be assessed real-time in terms of statistical \emph{NEES} (\Cref{ssec:NEES}) or \emph{NIS} (\Cref{ssec:NIS}) testing. The overall idea behind the consistency check is to explore different combinations of filter parameters that yield consistent estimations, \ie estimates that are neither too confident, nor too optimistic. At the same time a consistency check can act as an estimator's divergence criterion.
+An important step in designing a Kalman Filter or any of its variants is that of \emph{tuning}. For a given application and a system design problem, the observation and process noise covariance matrices $R,Q$ must be chosen, so as to give an acceptable level of performance. What is more, it is important being able to evaluate the \emph{constistency} of an estimator, \ie, being able to perform on-line checks for its possible performance degradation. 
+
+Performance can be post-measured in terms of \emph{Mean Squared Error} (see \Cref{ssec:RMSE}) while consistency can be assessed real-time in terms of statistical \emph{NEES} (\Cref{ssec:NEES}) or \emph{NIS} (\Cref{ssec:NIS}) consistency checks. The overall idea behind such checks, is to explore different combinations of filter parameters that yield consistent estimations, that is, estimates that are neither too confident, nor too optimistic. At the same time a consistency check can act as an estimator's divergence criterion.
 
 %The overall idea behind tuning is to evaluate different combinations of filter parameters that yield the optimal performance. If one has access to ground truth data, as derived either from an additional measurement system or from simulations, performance can be post-calculated based on \emph{MSE} (see \Cref{ssec:RMSE}) while \emph{consistency} can be assessed in a on-line statistical fashion based on the \emph{NEES} (see \cref{eq:NEES}). If ground truth data is not available additional methods exist such as the \emph{NIS} test (see \Cref{ssec:NIS}).
 
@@ -48,11 +50,11 @@ The RMSE combines the variance and bias of the estimate,
 RMSE(\hat{x}_k)  = \text{var} \hat{x}_k + b_t^2
 \end{equation}
 
-Nevertheless, \emph{RMSE} requires a history of estimates and ground truth data, and as such is not a on-line performance index. What is more,  ground truth is not always available hence additional performance metrics had to be devised. 
+Nevertheless, \emph{RMSE} requires a history of estimates and ground truth data, and as such is not an on-line performance index. What is more,  ground truth is not always available hence additional performance metrics had to be devised. 
 
 \subsection{Normalized Estimation Error Ssquared (NEES)}
 \label{ssec:NEES}
-A performance metric that is able to assess an estimate's quality on a per-sample basis, is the \emph{Normalized Estimation Error Squared} test. It belongs to the family of \emph{statistical tests}, since it incorporates the use of the covariance matrix $P_k$ in the calculations. Additionally, it is a on-line performance metric, and it can evaluate the consistency only at time sample $k$.
+A performance metric that is able to assess an estimate's quality on a per-sample basis, is the \emph{Normalized Estimation Error Squared} test. It belongs to the family of \emph{statistical tests}, since it incorporates the use of the covariance matrix $P_k$ in the calculations. Additionally, it is an on-line performance metric, and it can evaluate the consistency only at time sample $k$.
 
 \begin{framed}
 Given an estimate and its covariance matrix at time sample $k$, ($\hat{x}_k, P_k$) along with its matching ground truth $x_k$, then
@@ -72,16 +74,16 @@ NEES(\hat{x}_k) \sim \chi^2(n_x), \quad \hat{x}_k \in \realnumbers^{n_x}
 According to \cite{TargetTracking} the scalar index $NEES(\hat{x}_k)$ can characterize the filtering quality as,
 
 \begin{description}
-	\item[$< n_x$] The estimate is conservative, \ie, the ground truth value is close to the estimated value, but the confidence interval of $P_k$ are disproportionately large, thus the estimate is better than indicated from $P_k$.
+	\item[$< n_x$] The estimate is conservative, \ie, the ground truth value is close to the estimated value, but the confidence interval of $P_k$ is disproportionately large, thus the estimate is better than indicated from $P_k$.
 	\item[$ \approx n_x $] The ground truth values are falling within the \emph{reasonable} confidence interval of $P_k$, hence the estimated covariance matches the observations.
 	\item[$> n_x$] The estimate is too optimistic, \ie, the ground truth value $x_k$ lies outside the confidence intervals, hence the estimate is worse than indicated from $P_k$.
 \end{description}
 
-An example of tracking an inconsistently tuned Kalman Filter can be seen in \Cref{fig:KFinconsistent}.
+An example of tracking an \emph{inconsistently tuned} Kalman Filter can be seen in \Cref{fig:ekfnees,fig:KFinconsistent}.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{EKF_NEES.pdf}
-	\caption{\emph{Normalized Estimation Error Squared} (NEES) consistency test. Ground truth $x_k$ is available as the data is obtained from a simulation.}
+	\caption{\emph{Normalized Estimation Error Squared} (NEES) consistency test. Ground truth $x_k$ is available as the data are obtained from a simulation. This is an inconsistently tuned filter, as for sample times $60<k<1400$, one can observe that $NEES>> \alpha_{NEES}$. The inconsistency can be verified on the 2-D plots in \Cref{fig:KFinconsistent1,fig:KFinconsistent2}.}
 	\label{fig:ekfnees}
 \end{figure}
 
@@ -136,43 +138,45 @@ In a similar fashion to Observation Gating, the NIS tests follows a chi-squared 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{EKF_NIS.pdf}
-	\caption{\emph{Normalized Innovation Error Squared} consistency test. $y^i_k$ are a simulated radar observations.}
+	\caption{\emph{Normalized Innovation Error Squared} consistency test. $y^i_k$ are a simulated radar observations. The filter remains fairly consistent as for most of the simulation $NIS < \alpha_{NIS}$.}
 	\label{fig:ekfNIS}
 \end{figure}
 
 \begin{figure}[H]
-	\begin{subfigure}[b]{1.0\textwidth}
+	\begin{subfigure}[b]{.8\textwidth}
 		\centering
 		\includegraphics[width=1.0\linewidth]{propagation}
 		\caption{Close up view of the inconsistent segment.}
 		\label{fig:KFinconsistent1}
 	\end{subfigure}\hfill
-	\begin{subfigure}[b]{1.0\textwidth}
-		\includegraphics[width=1.0\linewidth]{fusionCTRV}
+	\begin{subfigure}[b]{.8\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{fusionCTRV.png}
 		\caption{Overall trajectory of the simulation.}
 		\label{fig:KFinconsistent2}
 	\end{subfigure}
-	\caption{Illustration of a Kalman Filter's inconsistency according to the Normalized Estimation Error Squared (NEES) test. Top view of a simulated moving target. Ground truth trajectory $x_{1:T|}$can be seen in blue,  whereas the red trajectory corresponds to the estimated state history $\hat{x}_{1:T}$. Green crosses correspond to noisy radar observations. Red ellipses correspond to $3\sigma$ confidence intervals $P_k$ on time updates, where as the green ellipses correspond to measurement updates. In many cases it can be seen that the ground truth lies quite far from the estimators uncertainty ellipse, which implies that the estimator is being overconfident.}
+	\caption{Illustration of a Kalman Filter's inconsistency according to the Normalized Estimation Error Squared (NEES) test. Top view of a simulated moving target. Ground truth trajectory $x_{1:T}$ can be seen in blue,  whereas the red trajectory corresponds to the estimated state history $\hat{x}_{1:T}$. Green crosses correspond to noisy radar observations. Red ellipses correspond to $3\sigma$ confidence intervals $P_k$ on time updates, where as the green ellipses correspond to measurement updates. In the close-up segment of \cref{fig:KFinconsistent1}, it can be seen that the ground truth lies quite far from the estimators uncertainty ellipse, which implies that the estimator is being inconsistent and overconfident. The inconsistency is verified in the history plot of the Normalized Estimation Error Squared (NEES) in \Cref{fig:ekfnees}.}
 	\label{fig:KFinconsistent}
 \end{figure}
 
-\subsection{Fudging}
-Should one or more of the consistency checks fail, then the designer of the estimator should suspect a modeling error. A step back to an earlier design stage has to be taken in order to identify the fault. The source of the problem is not a trivial process to locate. An inaccurate motion model, wrong process $\proccCov$ or observation $\measCov$ covariance sizing, higher order errors due to Taylor approximations (see \Cref{ssec:limitations} only to name a few. A heuristic method proposed by \cite{BarShalom1980} is to increase the modeled process noise $\proccCov$
+\subsection{Filter tuning methods}
+\subsubsection{Heuristic methods}
+Should one or more of the consistency checks fail, then the designer of the estimator should suspect a modeling error. A step back to an earlier design stage has to be taken in order to identify the fault. The source of the problem is not a trivial process to locate. An inaccurate motion model, wrong process $\proccCov$ or observation $\measCov$ covariance sizing, higher order errors due to Taylor approximations (see \Cref{ssec:EKFlimitations}). A heuristic method proposed by \cite{BarShalom1980} is to increase the modeled process noise covariance $\proccCov$. The basic disadvantage of amplifying the process noise, is that despite the fact that the filter will appear to be compliant to the consistency checks, the actual estimates will be less informative \ie, the \emph{quality} of the estimation will deteriorates.
 
-\subsection{Covariance matrix determinant}
+\subsubsection{Adaptive analytical methods}
+There exist additional methods for tuning such filter hyper-parameters. For instance, \cite{Zhou1989,Ljung1979,} demonstrated an extension to the nominal  \emph{Kalman Filter} filter that can estimate filtering hyper-parameters such as the covariance matrices $R_k$ and $Q_k$. 
+\subsection{Covariance matrix determinant}\label{ssec:CovMatDet}
 
 
-Since the matrix $P_k$ encapsulating a target's state uncertainty is a covariance matrix, it is and remains by definition positive semi-definite. Hence one can calculate the determinant $$\det{P_k} = \prod_{i=1}^{n_x} \lambda_i$$ , where $\lambda_i$ are the eigenvalues of $P_k$ and $n_x$ is the dimensionality of the state $x$. Since the eigenvalues of the covariance matrix are proportional to the volume of an uncertainty ellipsoid, then their product represents a metric of the uncertainty volume, and can be used as a scalar index for the overall \textit{"amount of uncertainty"} in an estimate $\hat{x}$. It is important to mention that the eigenvalues are not scale invariant, hence the actual magnitude of $\det{P_k}$ depends on the relative scaling of the units in $P_k$. Having that in mind, the absolute value of $\det{P_k}$ is insignificant in the context of uncertainty monitoring. 
+Since the matrix $P_k$ encapsulating a target's state uncertainty is a covariance matrix, it is and remains by definition positive semi-definite. Hence one can calculate the determinant $$\det{P_k} = \prod_{i=1}^{n_x} \lambda_i$$ , where $\lambda_i$ are the eigenvalues of $P_k$ and $n_x$ is the dimensionality of the state $x$. Since the eigenvalues of the covariance matrix are proportional to the size of the uncertainty ellipsoid across the directions of maximum variation, then their product represents a metric of the uncertainty volume, and can be used as a scalar index for the overall \textit{"amount of uncertainty"} in an estimate $\hat{x}$. It is important to mention that the eigenvalues are not scale invariant, hence the actual magnitude of $\det{P_k}$ depends on the relative scaling of the units in $P_k$. Having that in mind, the absolute value of $\det{P_k}$ is insignificant in the context of uncertainty monitoring. 
 
-What the author found interesting is the relative fluctuations in $\det{P_k}$ over time samples $k$, as it indicates how the state uncertainty increases after a time update, or decreases after a sensor update step. This effect can be seen in 
-
-In \Cref{fig:detp} one can see the effect of fusing asynchronous sensor observations on the determinant of the state covariance matrix $P_k$, whereas in \Cref{fig:dettracepk} one can see the difference between using the determinant or the trace of the state covariance matrix as an uncertainty metric.
+What the author found of interest is monitoring fluctuations in $\det{P_k}$ or over time samples $k$, as an indication of how the state uncertainty increases after a time update, or decreases after a sensor update step. In \Cref{fig:detp} one can verify the effect of fusing asynchronous sensor observations on the determinant of the state covariance matrix $P_k$, whereas in \Cref{fig:dettracepk} one can observe the difference between using the \emph{determinant} or the \emph{trace} of the state covariance matrix as an uncertainty metric.
 
 
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.8\linewidth]{detP.png}
+	\includegraphics[width=1.0\linewidth]{detP.png}
 	\caption{Determinant of the state covariance matrix $P_k$. Fusion of different measurement updates in an \emph{Extended Kalman Filter}. One can observe that a simulated camera sensor provides new observations approximately every 10 samples($f_{\text{cam}} = \SI{1}{\Hz}$), whereas a simulated AIS sensors provides observations every 100 samples ($f_{\text{AIS}} = \SI{0.1}{\Hz}$). Each sensor reduces the uncertainty at a different level.}
 	\label{fig:detp}
 \end{figure}
@@ -180,31 +184,203 @@ In \Cref{fig:detp} one can see the effect of fusing asynchronous sensor observat
 \begin{figure}
 	\centering
 	\includegraphics[width=0.8\linewidth]{det_trace_Pk.pdf}
-	\caption{State covariance matrix determinant and trace as scalar uncertainty metrics. Of specific interest is the temporal behavior of the timeseries, instead of their absolute values.}
+	\caption{State covariance matrix determinant and trace as scalar uncertainty metrics. Of specific interest is the temporal behavior of the time-series, instead of their absolute values. Both the trace and the determinant behave in a similar fashion.}
 	\label{fig:dettracepk}
 \end{figure}
 
 
 \subsection{Simulated runs}
+Several simulation scenarios have been devised in order to make a preliminary assessment of the tracking framework. 
 
+The simulation scheme is as follows and a single target tracking illustration can be seen in \Cref{fig:simulatorsingle}:
+
+\begin{enumerate}
+	\item Initialize an EKF at each simulated target's initial position.
+	\item Initialize a PF at each simulated target's initial position.
+	\item Simulate target motion
+	\item Obtain noisy observations from the targets depending on the simulated sensor sample rates.
+	\item Update the estimate of each filter with the given observations, if any, by using Probabilistic Data Association (see \Cref{sec:PDAF}).
+	\item Plot the weighted particle filter distributions, where the height of each particle depends on its likelihood.
+	\item Plot x-y uncertainty ellipsoids from the EKF state covariance matrix.
+	\item Repeat from step Number 3.
+\end{enumerate}
+\subsection{A single-target simulation}
+\Cref{fig:fusionCTRVescape} illustrates the effect of fusing different simulated sensor observations originating from a \emph{single maneuvering target}.
+%
+\subsubsection{Remarks on \Cref{fig:fusionCTRVescape}}
+
+\begin{itemize}[nosep]%[topsep=0pt,parsep=0pt,itemsep=0pt,partopsep=0pt]
+	\item The reference frame is a sea-following tangential coordinate system with the own-ship at the origin, but the own-ship's motion is not simulated.
+	\item  The sensors used in the simulation are 
+	\begin{enumerate}[nosep]
+		\item A camera sensor with limited \emph{Field of View} (FoV) providing noisy artificial pixel location information (see \Cref{fig:camera_pinhole}).
+		\item A radar sensor providing noisy bearing and range observations to the target (see \Cref{fig:radar_observation_model}).
+	\end{enumerate}
+	\item  An \textbf{Extended Kalman Filter} manages to robustly and accurately track the single target, even in the case where the target escapes the camera's field of view and the camera observations become unavailable. Losing the camera information temporarily deteriorates tracking performance as observed in \Cref{fig:fusionCTRVescape} and indicated by the determinant of $P_k$ in \Cref{fig:lossofcamera}.
+	\item The estimation deterioration becomes evident by the \emph{Normalized Estimation Error Squared} test in \Cref{fig:ekfnees} around sample time $k=1000$.
+	\item As the target is moving further, the converted radar measurement noise scales with distance to the own-ship. Nevertheless the filter at all instances manages to reliably converge to the target's ground truth trajectory.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\linewidth]{fusionCTRV.pdf}
+	\caption{Single simulated target tracking using an \textbf{Extended Kalman Filter}. The effect of losing a sensor modality is apparent. As the target escapes the camera's Field of View (FoV) the estimates have to rely solely on radar observations which are noisier the further the target is from the own-ship, hence the estimated trajectory deviation from ground truth increases. The estimated trajectory is getting closer to the ground truth as soon as the target re-enters the camera's FoV.}
+	\label{fig:fusionCTRVescape}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1.0\linewidth]{lossofsensor.pdf}
+	\caption{Tracking performance deterioration as indicated by $\det{\P_k}$. Camera observations are becoming unavailable around sample time $k=1500$ as the target escapes the camera's field of view (see also \Cref{fig:fusionCTRVescape}).}
+	\label{fig:lossofcamera}
+\end{figure}
+
+
+
+\subsection{Multiple-target simulation}
+In order to test multiple-target tracking performance, and namely the Probabilistic Data Association extensions to the EKF and PF, a multiple target scenario is created and visualized in \Cref{fig:multiTrack}. The scenario simulates three vessels that are performing coordinated turning and cross each other at close proximity. The Probabilistic Data Association Filter (see \Cref{sec:PDAF}) is able to handle radar observation origin uncertainty at the moment of crossing, and maintains the correct target tracks both for the EKF and the PF. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\linewidth]{tracking_single_target_framework_explanation.png}
+	\caption{Single simulated target visualization.}
+	\label{fig:simulatorsingle}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{subfigure}[b]{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{3plecross_firstview.pdf}
+		\caption{Initial setup.}
+		\label{fig:multiTrack1}
+	\end{subfigure}\hfill
+	\begin{subfigure}[b]{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{3plecross_firstview2.pdf}
+		\caption{First simultaneous crossing.}
+		\label{fig:multiTrack2}
+	\end{subfigure}\hfill
+	\begin{subfigure}[b]{1.0\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{3plecross_firstview3.pdf}
+		\caption{Second simultaneous crossing.}
+		\label{fig:multiTrack3}
+	\end{subfigure}\hfill
+	\caption{A simulated scenario including multiple maneuvering ships in close proximity crossing. The green ship is moving in a straight line where as the blue and the orange ships are performing constant turn rate maneuvering. There are two instants illustrated in \Cref{fig:multiTrack2,fig:multiTrack3} that the ships are moving in close proximity and the filter needs to handle radar observation origin uncertainty, \ie, to associate the measurements to the correct targets. Probabilistic Data Association is successfully enabling the EKF and PF algorithms to maintain the correct tracks during the crossings.}
+	\label{fig:multiTrack}
+\end{figure}
+
+
+\begin{figure}[H]
+	\begin{subfigure}[b]{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{3plecross_sideview}
+		\caption{First crossing, bird's-eye view.}
+		\label{fig:multiTrack1view2}
+	\end{subfigure}\hfill
+	\begin{subfigure}[b]{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{3plecross_sideview2}
+		\caption{Second crossing, bird's-eye view.}
+		\label{fig:multiTrack2view2}
+	\end{subfigure}\hfill
+	\begin{subfigure}[b]{1.0\textwidth}
+		\centering
+		\includegraphics[width=0.8\linewidth]{3plecross_topview}
+		\caption{First crossing, top-view.}
+		\label{fig:multiTrack3view2}
+	\end{subfigure}\hfill
+	\caption{Different view point of the scenario in \Cref{fig:multiTrack}. Blue crosses correspond to the radar observations. It is evident in \cref{fig:multiTrack3view2} how even the human eye can not easily distinguish the origin of a measurement. Nevertheless, the Probabilistic Data Association Filter (PDAF) successfully manages to associate the observations and maintain the correct target tracks.}
+	\label{fig:multiTrackview2}
+\end{figure}
+
+
+\subsection{Moving reference frame}\label{ssec:movingreferenceframe}
+During the first simulation trials, it was decided that the targets be tracked with respect to the moving tangential reference frame of the own-ship. The motivation behind this initial decision, was that such a reference does not require knowledge of the own-ships state, \ie, the GPS and compass information, and would lead to a more robust and simple solution. 
+
+Upon further investigation, it was realized that tracking the remote targets with respect to the moving reference frame of the own-ship is not a suitable approach, since it violates the motion-model assumptions about the targets (see \Cref{sec:MotionModels}). To further exemplify, the position of a  non-moving target assumed to follow a constant velocity motion model should not change over time. This does not hold when tracking is performed with respect to  the \emph{own-ship's reference frame}, since motion of the own-ship appears as motion of the target. When the own-ship's translational speed is relatively low, this mismatch can be accommodated by the process noise in the motion model. Unforunately, the model mismatch becomes quite adverse when the own-ship is rotating, and otherwise not moving targets appear to move in circular trajectories with velocities that scale linearly with their distance to the own-ship. This effect is illustrated in \Cref{fig:movingFrame} 
+
+A relatively low change in heading angle for the own-ship of $\dot{\heading}=\SI{3}{\deg\per\second}$ would mean that a non moving target at distance from the own-ship $\rho = \SI{500}{\meter}$ will appear to be moving with an apparent speed over ground $\boatspeed_{SOG} = \dot{\heading}\times \rho = \SI{50}{\knot}$. The moment the own-ship stops turning, the target's velocity will jump to zero. Designing a filter that can handle such abrupt variations is not trivial and upon further investigation, it was discovered that adopting a \emph{fixed reference frame} along with utilizing the own-ship's \emph{GPS and Compass} information, is a more robust solution.
+
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[b]{.9\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{tracking_moving_Frame}
+		\caption{Tracking targets with respect to the own-ship.}
+		\label{fig:movingFrame1}
+	\end{subfigure}\hfill
+	\begin{subfigure}[b]{.9\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{tracking_moving_Frame2}
+		\caption{Top-view.}
+		\label{fig:movingFrame2}
+	\end{subfigure}
+	\caption{The effect of tracking with respect to the own-ships rotating reference frame. Non-moving targets appear to move in circular trajectories and their speed scales linearly with distance to the own-ship which is always located at the origin (0,0). The filter fails to keep track of the outer target in \cref{fig:movingFrame2}. Blue crosses correspond to radar observations, filled lines correspond to multiple target trajectory estimates. Rotational motion of the own-ship appears as relative circular motion of the tracked targets.}
+	\label{fig:movingFrame}
+\end{figure}
 
 
 
 \subsection{Recorded data}
+Tracking for the recorded data is performed with respect to a fixed \emph{North-East-Down} coordinate system with its origin defined at the own-ships first available geodetic location. In other words, the own-ship's position starts at the origin of the tracking coordinate system and is being updated as new GPS  measurements about the own-ship are becoming available.
+
 \begin{figure}
 	\centering
-	\includegraphics[width=0.8\linewidth]{zoomViewPF.pdf}
-	\caption{Zoom in, of a single tracked target using a \textbf{Particle Filter}. $P_k$ is calculated from the weighted sample set. Illustrated in cyan and amber color are the post-radar and post-AIS measurement update 95\% confidence intervals respectively. }
+	\includegraphics[width=1.0\linewidth]{multitrackleftEDIT}
+	\caption{Tracking multiple targets (snapshot from an \href{https://dimidagd.github.io/thesis/3dView_real_dataEKFandPF.gif}{animation}) using a \emph{Particle Filter} (PF) and an \emph{Extended Kalman Filter} (EKF). Number of particles for each target $N=100$. The Particle Filter estimates remain fairly close to the ones produced by the EKF. A snapshot of the actual sensor outputs at the given time instant can be seen in \Cref{fig:EKFandPFraw}, and a close-up view of the highlighted maneuvering target in \Cref{fig:zoomviewEKF,fig:zoomviewpf} for the EKF and PF respectively. Tracking is with respect to a fixed North-East-Down coordinate system defined at the own-ships first available geodetic location.}
+	\label{fig:EKFandPF}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1.0\linewidth]{multitrackrightEDIT}
+	\caption{Raw measurements plot (snapshot from an \href{https://dimidagd.github.io/thesis/tracking_to_referenceEKFandPF.gif}{animation}). Red circles correspond to radar and blue crosses to AIS observations. The Western region highlights observations from a maneuvering target, whereas the bounding box in the middle highlight AIS measurements of the own-ship.  Plotting is with respect to a fixed North-East-Down coordinate system defined at the own-ships first available geodetic location.}
+	\label{fig:EKFandPFraw}
+\end{figure}
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.75\linewidth]{zoomViewPF.pdf}
+	\caption{Close up view tracking of the maneuvering target highlighted in \cref{fig:EKFandPF} using a \textbf{Particle Filter}. The covariance matrix $P_k$ is calculated from the filter's weighted particle population. Illustrated in cyan and amber color are the post-radar and post-AIS 95\% confidence intervals respectively. }
 	\label{fig:zoomviewpf}
 \end{figure}
 
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.8\linewidth]{zoomViewEKF.pdf}
-	\caption{Zoom in, of a single tracked target using an \emph{Extended Kalman Filter}. Illustrated in cyan and amber color are the post-radar and post-AIS measurement update 95\% confidence intervals respectively. }
-	\label{fig:zoomviewpf}
+	\includegraphics[width=0.75\linewidth]{zoomViewEKF.pdf}
+	\caption{Zoom in, of a single tracked target using an \textbf{Extended Kalman Filter}. Illustrated in cyan and amber color are the post-radar and post-AIS measurement update 95\% confidence intervals respectively. }
+	\label{fig:zoomviewEKF}
 \end{figure}
 
 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1.0\linewidth]{dashEKF_with_AIS_full.pdf}
+	\caption{Maneuvering tracked target (\cref{fig:zoomviewEKF}) performance dashboard. Using an \textbf{Extended Kalman Filter}. Plotted are the individual state components along with their $3\sigma$ confidence intervals(gray shaded area) as extracted from the diagonal elements of the covariance matrix $P_k$. The EKF corrections to the states $K(\observ_k - \predObserv_k)$ are plotted in orange and cyan colors and their magnitudes can be seen on the secondary y-axes. The covariance matrix determinant $\det{P_k}$ is plotted as a scalar index of overall uncertainty (see \cref{ssec:CovMatDet}). Bottom plot is the $NIS$ consistency check along with the threshold for the radar observations $\alpha_{NIS}$ (see \cref{ssec:NIS}).}
+	\label{fig:dashEKF_with_AIS_full}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1.0\linewidth]{dashPF_with_AIS_full.pdf}
+	\caption{Maneuvering tracked target (\cref{fig:zoomviewpf}) performance dashboard. Using a \textbf{Particle Filter} with $N=100$ particles. Plotted are the weighted mean components of the particle distribution. The covariance matrix determinant of the particle distribution $\det{P_k}$ is plotted as a scalar index of overall uncertainty (see \cref{ssec:CovMatDet}). Bottom plot is the particle depletion re-sampling check $N_{eff}$. Whenever the number of effective particles falls below $N/2$ the particle population is being re-sampled (see \cref{ssec:resamplingPF}).}
+	\label{fig:dashPF_with_AIS_full}
+\end{figure}
+
+\section{Conclusion}
+
+The purpose of this chapter was to demonstrate nominal performance and characteristics of the sensor fusion methods outlined through the previous chapters, in the context of tracking remote ships at sea. 
+
+\begin{itemize}
+	\item It turned out that the performance of the \emph{computationally} more expensive Monte-Carlo \emph{Particle Filter} method is highly comparable to that of the significantly \emph{less} expensive \emph{Extended Kalman Filter}. This implies that the \emph{EKF} is more suitable for real-time applications where time-delays are important.
+	\item A \emph{fixed reference frame} is more suitable for tracking purposes, mainly because of the apparent motion of the targets when using a moving one.
+	\item Real-time assessment  of an estimated target's track can be performed by various performance indexes (see \Cref{sec:performance}). These metrics can provide a measure of how reliable the tracking of a target is, and can be used as additional information in a decision making module, or as direct feedback to the navigator. Additionally, these metrics can provide feedback to the control engineer that is tuning the hyper-parameters of the framework. 
+	\item The framework could handle multiple target tracking, as well as clutter observations by leveraging a Probabilistic Data Association (PDA) technique (see \Cref{sec:PDAF}).
+	\item It has been shown that the tracking quality greatly increases by fusing multiple sensor sources (see e.g. \Cref{fig:dashEKF_with_AIS_full,fig:fusionCTRVescape}).
+\end{itemize}
 

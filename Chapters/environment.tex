@@ -78,7 +78,7 @@ An environment is defined by:
 			\item Variable sensor update frequency $f_s$.
 			\item Variable simulation sample time $T_s$.
 			\item Variable observation noise  $\measnoise_k \sim \mathcal{N}(0, \measCov)$
-			\item Variable number of outliers depending on the probability of false detection $P_{FD}$ (see also \Cref{sec:clutter}).
+			\item Variable number of outliers (or else \emph{clutter}) depending on the probability of false detection $P_{FD}$ (see also \Cref{sec:clutter}).
 			\item Provides measurements to track correspondences, \ie the problem of knowing an observations origin is solved. (see also \Cref{ch:Tracking}).
 		\end{itemize}
 		\item[Real data]
@@ -106,7 +106,7 @@ The general environment structure allows for little to no changes in the test sc
 
 \section{3D visualization}
 
-Usually a picture is worth a thousand words, with that in mind a visualization module based on MATLAB built-in functionalities was developed, trying to illustrate the different tracking scenarios and provide filtering performance graphs. 
+Usually a picture is worth a thousand words, with that in mind a visualization module based on MATLAB built-in functionalities was developed, trying to illustrate the different tracking scenarios and provide filtering performance graphs. Detailed graphs are presented in \Cref{ch:Results} along with performance assessment of the framework.
 
 \begin{figure}[H]
 	\centering
@@ -125,13 +125,13 @@ Usually a picture is worth a thousand words, with that in mind a visualization m
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{3ple_cross.png}
-	\caption{Triple ship tracking in crossing scenario, using probabilistic data association (PDA) to maintain multiple target tracks.	}\label{fig:simulator3}
+	\caption{Triple ship tracking in crossing scenario, using probabilistic data association (PDA) to maintain tracks of multiple targets.}\label{fig:simulator3}
 \end{figure}
 
 
 \section{Summary}
 
-A simulation and verification environment is build based on the MATLAB framework, with emphasis on code re-usability, code modularity in simulating different sensor and motion models, and rapid prototype testing of either continuous or sampled filtering algorithms. A visualization model provides feedback for the effectiveness of the filter algorithms based on performance indexes such as the \emph{Normalized Innovation Squared} (NIS) test, the \emph{Effective Number of Particles}, or the state covariance determinant magnitude. (\Cref{ch:Results}).
+A simulation and verification environment was developed on the \matlab framework, with emphasis on code re-usability, , modularity in simulating \emph{different sensor and motion models}, and rapid prototype testing of either \emph{continuous or sampled filtering algorithms}. A visualization model provides feedback for the effectiveness of the filter algorithms based on performance indexes such as the \emph{Normalized Innovation Squared} (NIS) test, the \emph{Effective Number of Particles}, or the state covariance determinant magnitude. (\Cref{ch:Results}).
 
 
 

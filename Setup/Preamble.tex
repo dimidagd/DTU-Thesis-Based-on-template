@@ -37,7 +37,8 @@
 \usepackage[textwidth=100mm]{todonotes}
 \usepackage{graphicx}
 % Vertical enumerate mylist
-\usepackage[inline]{enumitem} 
+\usepackage[inline]{enumitem}
+%\setlist{nolistsep}
 \newlist{mylist}{enumerate*}{1}
 %\setlist[mylist]{label=(\roman*)}
 \setlist[mylist]{label=(\alph*)}
@@ -86,12 +87,16 @@
 \newcommand{\validObservationSet}{{Y}}
 \newcommand{\ith}[1]{${#1}$-th}
 
-\newcommand{\ie}{\mbox{i.,e.}}
+\newcommand{\ie}{\mbox{i.\,e.}}
 \newcommand{\eg}{\mbo{e.\,g.}}
 
 \DeclareMathOperator*{\ExpVal}{\mathbb{E}} % Expectation value
 \newcommand{\E}[1]{{\ExpVal\langle{#1}\rangle}} % same
 \newcommand{\const}{{\textit{const}}}
+
+% matrices for displayed expressions http://www.cs.utah.edu/~bhaskara/courses/theoryml/notes/template/Commons.sty
+\newcommand{\pa}[1]{\left(#1\right)} % encloses the argument using stretchable parentheses
+\newcommand{\bra}[1]{\left[#1\right]} % encloses the argument using stretchable square brackets
 
 % matrices for displayed expressions
 \newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}} % no delimiters
@@ -99,8 +104,14 @@
 \newcommand{\bmat}[1]{\bra{\mat{#1}}} % square brackets as delimiters
 
 \renewcommand{\det}[1]{{\text{det}\{{#1}\}}}
-
+\renewcommand{\P}{{\mathbf{P}}}
+\renewcommand*{\eg}{e.g.\@\xspace}
+%\renewcommand*{\ie}{i.e.\@\xspace}
 \usepackage{framed}
+\newcommand*{\matlab}{{MATLAB\textsuperscript{\tiny\textregistered}}}
+\newcommand*{\tm}{{\textsuperscript{TM}\@\xspace}}
+\newcommand*{\lataccel}{{a}}
+\newcommand*{\angaccel}{{\alpha}}
 %%
 
 % TODOs
@@ -111,4 +122,4 @@
 %\newcommandx{\todoIMPROVE}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
 %\newcommandx{\todothiswillnotshow}[2][1=]{\todo[disable,#1]{#2}}
 
-%\includeonly{Chapters/modeling}
+%\includeonly{Chapters/Results}

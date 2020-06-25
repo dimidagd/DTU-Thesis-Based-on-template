@@ -53,7 +53,7 @@ Two variants exist, the selection of which is a matter of convention but lead to
 	\item North, East, Down (\textbf{\emph{NED}})
 \end{itemize}
 
-The North-East-Down and East-North-Up coordinate systems, are local geodetic systems fixed to the Earth. They are determined by a tangent plane attached to the geodetic reference ellipsoid at a reference point of interest, which determines the origin of the system. The differentiation between the two systems is the direction that the unit vectors are pointing, which is indicated by their names.
+The North-East-Down and East-North-Up coordinate systems (\Cref{fig:ECEF_ENU}), are \emph{local geodetic systems} fixed to the Earth. They are determined by a tangent plane attached to the \emph{geodetic reference ellipsoid} at a reference point of interest, which determines the \emph{origin} of the system. The differentiation between the two systems is the direction that the unit vectors are pointing, which is indicated by their names.
 
 
 Tangential coordinate systems are convenient in the context of tracking nearby ships because the tracking problem can be reduced to tracking a target on a two-dimensional plane.
@@ -72,7 +72,7 @@ Tangential coordinate systems are convenient in the context of tracking nearby s
 \end{figure}
 
 
-\section{Transformations}
+\section{Transformations}\label{sec:transformations}
 
 There is a need to define transformations between different coordinate systems, since tracking is performed in a common configuration space according to the state-space representation of the dynamical targets. Some of the transformations are non-linear, due to the trigonometric functions involved, a factor that signifies the importance of using a tracking framework that is able to handle these nonlinearities.
 

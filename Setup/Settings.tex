@@ -99,7 +99,7 @@ purple,         fill=purple         \\%
 
 
 % Table of contents (TOC) and numbering of headings
-\setcounter{tocdepth}{1}    % Depth of table of content: sub sections will not be included in table of contents
+\setcounter{tocdepth}{2}    % Depth of table of content: sub sections will not be included in table of contents
 \setcounter{secnumdepth}{2} % Depth of section numbering: sub sub sections are not numbered
 
 \makeatletter % Reset chapter numbering for each part
@@ -160,8 +160,9 @@ tick label style={/pgf/number format/assume math mode}, % To apply main font to 
     linktoc=all,
     plainpages=false,
     unicode=true,
-    colorlinks=false,
-    hidelinks,                        % Do not show boxes or coloured links.
+    colorlinks=true,
+    hidelinks,
+    urlcolor=blue,                        % Do not show boxes or coloured links.
 }
 
 
