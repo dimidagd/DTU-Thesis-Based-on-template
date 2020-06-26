@@ -598,7 +598,7 @@ Quite often, manufacturers provide noise in the form of maximum error on the rea
 		\begin{tabular}[c]{@{}l@{}}Latitude\\ Longitude\\ Altitude\\ Time\end{tabular} &
 		\begin{tabular}[c]{@{}l@{}}Position\\ Heading\\ Velocity\end{tabular} \\ \hline
 		&GPS compass & \begin{tabular}[c]{@{}l@{}}Heading\\3 axis velocity\end{tabular}& \begin{tabular}[c]{@{}l@{}}Own-ship COG\\ Own-ship SOG\end{tabular}  \\ \hline 
-		& W-Band radar      & Bearing and range scans & Clustered objects 2 DoF relative pose (x,y) \\ \hline
+		& X-Band radar      & Bearing and range scans & Clustered objects 2 DoF relative pose (x,y) \\ \hline
 		& Visible light camera & Image pixels            & Target class and relative bearing           \\ \bottomrule
 	\end{tabular}
 \end{table}
@@ -608,8 +608,8 @@ Quite often, manufacturers provide noise in the form of maximum error on the rea
 	\label{tab:sensor_active}
 	\begin{tabular}{llll}
 		\hline
-		& \textbf{Sensor}         & \textbf{Active/Passive} & \textbf{Reference frame} \\ \hline
-		& IMU                     & Passive                 & Proprioceptive                        \\ 
+		& \textbf{Sensor}         & \textbf{Active/Passive} & \textbf{Reference frame} \T \\ \hline
+		& IMU                     & Passive                 & Proprioceptive                       \T \\ 
 		& GNSS(through AIS)       & Passive                 & Proprioceptive \& Exteroceptive \\
 		& Radar (long range)      & Active                  & Exteroceptive                         \\ 
 		& Visible spectrum camera & Passive                 & Exteroceptive                         \\ \hline
@@ -617,7 +617,7 @@ Quite often, manufacturers provide noise in the form of maximum error on the rea
 \end{table}
 
 \subsubsection{Radar}
-The radar sensor used in the scope of this thesis is a \textbf{Navico Broadband}  \textbf{4G\tm W-Band} radar.
+The radar sensor used in the scope of this thesis is a \textbf{Navico Broadband}  \textbf{4G\tm X-Band} radar.
 %TODO DONE Fill specifications table and picture}
 
 
@@ -627,13 +627,13 @@ The radar sensor used in the scope of this thesis is a \textbf{Navico Broadband}
 	\label{tab:radar_specs}
 	\begin{tabular}{ll}
 		\hline
-		\textbf{Sensor} & Radar \\ \hline
-		\textbf{Modeled error standard deviation $\sigma$} &  \\
+		\textbf{Sensor} & Radar \T \\ \hline
+		\textbf{Modeled error standard deviation $\sigma$} & \T \\
 		Range & $\SI{3}{\m}$ \\
 		Bearing & $\SI{0.3}{\degree}$ \\ \hline
-		\textbf{Parameters} &  \\
+		\textbf{Parameters} & \T \\
 		Field of View & $\SI{360}{\degree}$ \\
-		Maximum Distance of View & $\SI{20}{\km}$ \\
+		Maximum Distance of View & $\approx \SI{35}{\nauticalmile}$ \\
 		Field of View scan time & $\approx \SI{2}{\second}$ \\ \hline
 	\end{tabular}
 \end{table}
@@ -645,18 +645,18 @@ The radar sensor used in the scope of this thesis is a \textbf{Navico Broadband}
 	\label{tab:AIS_specs}
 	\begin{tabular}{ll}
 		\hline
-		\textbf{Model} &  Furuno FA-30 receiver\\ \hline
-		Observations&\textbf{Standard deviation of error} $\mathbf{\sigma_e}$   \\
+		\textbf{Model} &  EM-TRAK R100 AIS RECEIVER \T \\ \hline
+		Observations&\textbf{Standard deviation of error} $\mathbf{\sigma_e}$   \T \\
 		${\longi ,\lat}$ & 6m (When converted to a tangential frame) \\
 		${COG}$ & \SI{3}{\deg} \\
-		${SOG}$ & \SI{0.6}{\knot} \\ \hline
-		\textbf{Modeled update time} & 5-60s \\ \hline
+		${SOG}$ & \SI{0.6}{\knot} \T \\ \hline
+		\textbf{Modeled update time} & 5-60s \T \\ \hline
 	\end{tabular}
 \end{table}
 
 \subsubsection{Cameras}
 
-An array of cameras is available on-board the sensor rig, to ensure overlapping field of views. For the shake of completeness, the whole stack of sensors used throughout the whole autonomy project is described in \Cref{tab:stack} and can be seen in \Cref{fig:stack}
+An array of cameras is available on-board the sensor rig, to ensure overlapping field of views. For the shake of completeness, the whole stack of sensors used throughout the whole autonomy project is described in \Cref{tab:stack} and can be seen in \Cref{fig:stack}. COVID-19 lock down implications denied the availability of camera images in this Thesis.
 
 
 \begin{figure}[H]
@@ -672,15 +672,15 @@ An array of cameras is available on-board the sensor rig, to ensure overlapping 
 	\resizebox{\textwidth}{!}{%
 	\begin{tabular}{cll}
 	\hline
-	Numbering in \cref{fig:stack} & Sensor                                                 & Used in the context of this thesis \\ \hline
+	Numbering in \cref{fig:stack} & Sensor                                                 & Used in the context of this thesis \T \\ \hline
 	1 & Satellite compass                   & Used     \\
 	2 & FMCW radar (X-band)                 & Used     \\
 	3                                              & Color \& NIR \& IR (Heat sensitive) Industrial cameras & Not used                           \\
 	4 & HikVision 180 degree camera         & Not used \\
 	5 & HikVision Pan-tilt-zoom camera      & Not used \\
 	6 & IP camera                           & Not used \\
-	7 & 79GHz short-range radarer           & Not used \\
-	8 & HikVision IR (heatsensitive) Camera & Not used \\ \hline
+	7 & 79GHz short-range radar           & Not used \\
+	8 & HikVision IR (heat-sensitive) Camera & Not used \\ \hline
 \end{tabular}%
 }
 	\label{tab:stack}

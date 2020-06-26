@@ -7,7 +7,7 @@ Autonomy at sea is a challenging problem that requires a multi-fold merging of d
 %\subsubsection{}
 %\emph{Financially}, autonomy at sea can reduce crew costs, especially over long transport distances, and result in better fuel economy through optimized decisions. While one could argue that the construction cost of an autonomous ship increases due to sophisticated and complex systems onboard, it might also turn out that fully autonomous vessels can be constructed with lower investment cost, due to the lack of need to provision for crew accommodation, crew safety equipment, bridge support, and all the functionalities that maintaining human quality of life onboard. The potential crew cost savings span in a broad spectrum, depending on the type of ship and its function, but in general it is estimated that crew costs account for a substantially large proportional of a ship's operation, whether that be a cargo, passenger, supply or research vessel.
 \subsubsection{Regulations}
-Navigators are assumed to adhere to established regulations for preventing collisions at sea. \emph{International Regulations for Preventing Collisions at Sea(COLREG)} defines a set of rules that regulate navigational behavior for various situations encountered at sea including visual and audio signaling,  as well as expected maneuvering behaviors. Nevertheless, due to the endless number of parameters describing a particular situation, such as different berth depths, confined water-space, possible physical obstructions, different ship maneuverability abilities, weather conditions, only to name a few, even COLREG do not define the absolute right of way. The rules are in many cases open to interpretation and while in ports, there exists an air traffic controller equivalent, namely a \emph{vessel traffic controller} that helps in avoiding collisions, each navigator is \textit{"expected to assume responsibility for traversing the seas in a safe manner"}. According to a report issued by the \emph{European Maritime Safety Agency(EMSA)}, more than 18.000 collision incidents have been reported within a five-year time frame(2011-2016). The human and capital losses reported in \cref{fig:losses,fig:distribution} signify only but a fraction of the potential impact that autonomy at sea can provide.
+Navigators are assumed to adhere to established regulations for preventing collisions at sea. \emph{International Regulations for Preventing Collisions at Sea(COLREG)} defines a set of rules that regulate navigational behavior for various situations encountered at sea, including visual and audio signaling,  as well as expected maneuvering behaviors. Nevertheless, due to the endless number of parameters describing a particular situation, such as different berth depths, confined water-space, possible physical obstructions, different ship maneuverability abilities, weather conditions, only to name a few, even COLREG do not define the absolute right of way. The rules are in many cases open to interpretation and while in ports, there exists an air traffic controller equivalent, namely a \emph{vessel traffic controller} that helps in avoiding collisions, each navigator is \textit{"expected to assume responsibility for traversing the seas in a safe manner"}. According to a report issued by the \emph{European Maritime Safety Agency(EMSA)}, more than 18.000 collision incidents have been reported within a five-year time frame(2011-2016). The human and capital losses reported in \cref{fig:losses,fig:distribution} signify only but a fraction of the potential impact that autonomy at sea can provide.
 
 % An effective holistic autonomous shipping ecosystem, minimizes accidents caused by human errors, while at the same time increasing the capacity of current carriage or transport
 \begin{figure}[H]
@@ -21,7 +21,7 @@ Navigators are assumed to adhere to established regulations for preventing colli
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{Distribution-of-Incidents.jpg}
-	\caption{Geographic distribution of maritime incidents in EU – Credit: EMSA}
+	\caption{Geographic distribution of maritime incidents in EU from 2011 to 2016– Credit: EMSA}
 	\label{fig:distribution}
 \end{figure}
 
@@ -118,5 +118,56 @@ Concerning coordinate systems, most of the equations and transformations found i
 
 \subsubsection{Probabilistic framework and modeling}
 \emph{Sebastian Thrun} in \cite{Thrun2005} has provided seminal knowledge and paved the way during 2005 in what is considered today a domain of expertise in robotics, namely \emph{Probabilistic Robotics}. The author of this reading is heavily influenced by Sebastian's contributions on using calculus and probability theory to represent ambiguity and degree of belief in an analytical and mathematically sound way. 
+
+\subsection{Project limitations due to COVID19 lock down}
+The \emph{DTU ShippingLab} team had planned to support this MSc project with data from W-band radar (77-81 GHz) and with camera-detected objects. Due to the lock down following the COVID-19 pandemic crisis in 2020, these sea tests could not be conducted until mid-June 2020. Homographies that should translate camera detected objects from pixel frame to estimate of geographical positions were in need of these data as well. 
+
+
+\begin{figure}[h!]
+	\centering
+	\captionsetup{width=0.45\textwidth}
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\includegraphics[width=0.95\textwidth]{Pictures/cover2}
+		\caption{TUCO test vessel.}\label{fig:cover2}
+	\end{minipage}
+	\begin{minipage}{0.49\textwidth}
+		\centering
+		\includegraphics[width=0.95\textwidth]{Pictures/cover3}
+		\caption{Front mast.}\label{fig:cover3}
+	\end{minipage}
+	%\caption{Photographs taken during June 2020 sea trials.}\label{fig:coverA}
+\end{figure}
+
+
+There are hence some limitations in the data that could be made available for this project, but the following sea data have been included: X-band radar, AIS, GNNS compass information: heading, course over ground and speed over ground as well as position of own ship.
+
+The scope of the thesis is multi-modal sensor fusion although the Corona situation has prevented the use of some real data. 
+The picture in \Cref{fig:stack} shows the ShippingLab test vessel from TUCO equipped with the full set of sensors. The foremost mast is dedicated to ShippingLab Autonomy sensors. The sea test took place in mid June 2020, with a three-months delay.
+
+
+
+
+
+%
+%\begin{figure}[h!]
+%	\centering
+%	%\captionsetup{width=0.45\textwidth}
+%	\begin{minipage}{0.8\textwidth}
+%		\centering
+%		\includegraphics[width=0.95\textwidth]{Pictures/cover4}
+%		\caption{}
+%		%\captionof{figure}{captionfig1}\label{fig:cover4}
+%	\end{minipage}
+%	\hfill
+%	\begin{minipage}{0.8\textwidth}
+%		\centering
+%		\includegraphics[width=0.95\textwidth]{Pictures/cover5}
+%		\caption{}
+%		%\captionof{figure}{captionfig2}\label{fig:cover5}
+%	\end{minipage}
+%	\caption{Sea trials, June 2020}\label{fig:coverB}
+%\end{figure}
+%
 
 
