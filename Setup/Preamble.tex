@@ -35,6 +35,7 @@
 \usepackage{blindtext}
 
 %my stuff DD
+\usepackage{xifthen}
 \usepackage{slashbox}
 \newcommand\T{\rule{0pt}{2.6ex}} % Top strut
 \newcommand\B{\rule[-1.2ex]{0pt}{0pt}} % Bottom strut
@@ -84,7 +85,7 @@
 \newcommand{\lat}{{\phi}}
 \newcommand{\longi}{{\lambda}}
 
-\newcommand{\variance}{{\sigma^2}}
+\newcommand{\variance}[1]{\ifthenelse{\isempty{#1}{}}{{\sigma^2}}{{\sigma_{#1}^2}}}
 \newcommand{\gateThreshold}{{\gamma_G}}
 
 \newcommand{\realobserv}{{y}}
@@ -114,11 +115,11 @@
 \renewcommand*{\eg}{e.g.\@\xspace}
 %\renewcommand*{\ie}{i.e.\@\xspace}
 \usepackage{framed}
-\newcommand*{\matlab}{{MATLAB\textsuperscript{\tiny\textregistered}}}
+\newcommand*{\matlab}{{MATLAB\textsuperscript{\tiny\textregistered}\@\xspace}}
 \newcommand*{\tm}{{\textsuperscript{TM}\@\xspace}}
 \newcommand*{\lataccel}{{a}}
 \newcommand*{\angaccel}{{\alpha}}
-
+\newcommand{\quotes}[1]{`#1'}
 
 %%
 

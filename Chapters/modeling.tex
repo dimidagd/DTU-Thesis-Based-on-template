@@ -33,8 +33,8 @@ where
 
 \begin{description}
 	\item $(x,y)$ : the displacement relative to the local tracking coordinate system
-	\item $\boatspeed$ : is the target's linear velocity magnitude.
-	\item $\heading$ : is the target's velocity vector heading angle w.r.t the tracking system's x-axis.
+	\item $\boatspeed$ : is the target's linear velocity magnitude relative to the tracking system. If the tracking system is fixed to the earth, then $\boatspeed = \text{SOG (Speed Over Ground)}$
+	\item $\heading$ : is the target's velocity vector heading angle w.r.t the tracking system's x-axis. If the tracking system is an ENU system then simply $\heading_{COG} = \heading - \frac{\pi}{2}$.
 	\item $\omega$ : the target's turn rate in the horizontal plane.
 \end{description}
 
@@ -52,7 +52,7 @@ As discussed in a previous section, when choosing a coordinate system for the ta
 In order to improve the quality the stability and the accuracy of the estimations, the ships are assumed to comply with dynamic motion models. The tracking problem therefore is that of estimating the model's parameters for a target, taking into consideration all available observations from various sensors.
 
 
-The physical constraints and dynamics of the problem of tracking floating targets at sea, justify the use of a 2-D kinematic model. Such a model can capture with sufficient accuracy the configuration space of a remote vessel's maneuvering behavior. In the context of tracking, targets are assumed to be point objects with negligible dimensions corresponding to the mean vessel position. Maneuvering ships exhibit very characteristic trajectories and as such their  motion can be sufficiently expressed for the purpose of tracking by second-order dynamical models.
+The physical constraints and dynamics of the problem of tracking floating targets at sea, justify the use of a 2-D kinematic model. Such a model can capture with sufficient accuracy the kinematic behavior of a remote maneuvering vessel. In the context of tracking, targets are assumed to be point objects with negligible dimensions corresponding to the mean vessel position. Maneuvering ships exhibit very characteristic trajectories and as such their  motion can be sufficiently expressed for the purpose of tracking by second-order dynamical models.
 
 While the motion models proposed in literature are numerous, most of them are maintaining a relatively low level of complexity. \emph{Linear motion} models assume a constant linear velocity(CV) or constant linear acceleration (CA) \cite{Schubert2008}. These models have the advantage that the state transition equations are linear, and thus Gaussian probability densities can be efficiently and optimally propagated as matrix multiplications. Unfortunately linear models are restricted to straight-line motions and are thus unable to model rotations, especially the yaw rate, into account. In general, a vessel follows slow parabolic-type maneuvers. If one introduces the angular speed of the target around its z-axis as well, the resulting models are referred to as \emph{curvilinear} models. These models can be further distinguished by the selected state variables which are assumed to be constant.
 
@@ -66,18 +66,18 @@ Starting with a time continuous model:
 \end{equation}
 
 
-then assuming that the linear velocity $\boatspeed$ and the turn rate $\omega$ remain constant  --- which is a fair assumption for a moving vessel --- then the non-linear differential equations describing the motion are according to \cite{Schubert2008}
+then assuming that the linear velocity $\boatspeed$ and the turn rate $\omega$ remain constant  --- which is a fair assumption for a moving vessel within a short time period--- then the non-linear differential equations describing the motion are according to \cite{Schubert2008}
 
 \begin{equation}\label{eq:CTRV_continuous}
-f =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\boatspeed} \\ \dot{\heading} \\ \dot{\omega}  \end{bmatrix}=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ 0 \\ \omega \\ 0  \end{bmatrix}
+f(\vect{x}) =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\boatspeed} \\ \dot{\heading} \\ \dot{\omega}  \end{bmatrix}=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ 0 \\ \omega \\ 0  \end{bmatrix}
 \end{equation}
 
-which is describing a \emph{constant turn rate and velocity} (\textbf{CTRV}) model since the linear and angular velocities accelerations are zero.
+where the time dependency was omitted for clarity reasons. \Cref{eq:CTRV_continuous} is describing a \emph{constant turn rate and velocity} (\textbf{CTRV}) model since the linear and angular velocities accelerations are zero.
 
-If the system is assumed to be driven by linear and rotational acceleration inputs $a \bra{\si{\meter\per\second^2}}$ and $\alpha \bra{\si{\radian\per\second^2}}$ respectively, then the coupled differential equations systems in \eqref{eq:CTRV_continuous} becomes
+If the system is assumed to be driven by linear and rotational acceleration inputs $a \bra{\si{\meter\per\second^2}}$ and $\alpha \bra{\si{\radian\per\second^2}}$ respectively, then the coupled differential equations system in \eqref{eq:CTRV_continuous} becomes the \emph{nearly} constant turn rate and velocity model of \Cref{eq:CTRV_driven}.
 
 \begin{equation}\label{eq:CTRV_driven}
-f =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\boatspeed} \\ \dot{\heading} \\ \dot{\omega}  \end{bmatrix}=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ \lataccel \\ \omega \\ \angaccel  \end{bmatrix}
+f(\vect{x}) =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\boatspeed} \\ \dot{\heading} \\ \dot{\omega}  \end{bmatrix}=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ \lataccel \\ \omega \\ \angaccel  \end{bmatrix}
 \end{equation}
 %\todo{Fig speed from upsilon to V in figure?}
 \begin{figure}[H]
@@ -89,12 +89,12 @@ f =\begin{bmatrix}\dot{x} \\ \dot{y} \\ \dot{\boatspeed} \\ \dot{\heading} \\ \d
 
 \subsection{Discretization of the CTRV motion model}
 
-Since the system is simulated in discrete time, one can integrate the motion model differential equations in \cref{eq:CTRV_continuous} within a sample time $T$ and obtain the state transition function vector
+Since the system is simulated in discrete time, one can integrate the motion model differential equations of \Cref{eq:CTRV_continuous} within a sample time $T$ and obtain the discrete state-dependent transition function $g(\cdot)$ as well as the acceleration input matrix $G(\cdot)$.
 
-
+By integrating on a sample time $T$,
 \begin{equation}\label{eq:motionintegral}
 \begin{aligned}
-\vect{x}(t+T) = \vect{x}(t) + \int_{t}^{t+T}(f(\vect{x}(\tau))d\tau &&\text{and}&& f(\vect{x(\tau)})=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ \lataccel \\ \omega \\ \angaccel  \end{bmatrix}
+\vect{x}(t+T) = \vect{x}(t) + \int_{t}^{t+T}f(\vect{x}(\tau)d\tau &&\text{and}&& f(\vect{x(\tau)})=  \begin{bmatrix}\boatspeed cos(\heading) \\ \boatspeed sin(\heading) \\ \lataccel \\ \omega \\ \angaccel  \end{bmatrix}
 \end{aligned}
 \end{equation}
 
@@ -106,7 +106,7 @@ where
 
 is the state-space vector. 
 
-The solution to the state transition vector function of \cref{eq:motionintegral} comprises of two functions of the current state $g(\cdot), G(\cdot)$ as in \eqref{eq:solutionintegral}
+The solution to the state transition of \cref{eq:motionintegral} comprises of two functions of the current state $g(\cdot), G(\cdot)$ as in \eqref{eq:solutionintegral}
 
 
 
@@ -119,7 +119,7 @@ The solution to the state transition vector function of \cref{eq:motionintegral}
 
 where the indices $k$ denote sample time instants and  $\procnoise = \bmat{\lataccel, \angaccel}^T$ comprises the process acceleration input.
 
-where $g(\cdot)$ by direct integration, for $\vect{x}(t) =\left[x,y,\boatspeed, \heading,\omega\right]^{T} $ and $\lataccel=\angaccel=0$ is
+where $g(\cdot)$ by direct integration, for $\vect{x}(t) =\left[x,y,\boatspeed, \heading,\omega\right]^{T} $ and $\lataccel=\angaccel=0$ is the \emph{state-dependent transition function}
 
 \begin{equation}
 g(\vect{x}(t)) = \vect{x}(t) +  \begin{bmatrix}
@@ -144,7 +144,7 @@ g(\vect{x}(t)) = \vect{x}(t) +  \begin{bmatrix}
 \end{bmatrix} ,  \omega = 0
 \end{equation}
 
-Likewise, the state depending input matrix $G(\cdot)$ can be found in \eqref{eq:inputMatrixState}, after solving the integral in \eqref{eq:motionintegral}, under the assumption that the input acceleration vector $\procnoise =\bmat{\lataccel, \angaccel}^T$ is constant within a sample time $T$, also known as zero-order-hold discretization \cite{6916122}.
+Likewise, the state depending acceleration input matrix $G(\cdot)$ can be found in \eqref{eq:inputMatrixState}, after solving the integral in \eqref{eq:motionintegral}, under the assumption that the input acceleration vector $\procnoise =\bmat{\lataccel, \angaccel}^T$ is constant within a sample time $T$, also known as zero-order-hold discretization \cite{6916122}.
 
 \begin{equation}\label{eq:inputMatrixState}
 G(\vect{x}) = \bmat{\frac{T^2}{2}\cos \heading &0\\ \frac{T^2}{2}\sin\heading &0 \\T &0\\0 &\frac{T^2}{2} \\0 &T}
@@ -179,15 +179,15 @@ The output of the radar observation model is assumed to be the relative range an
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.3\textwidth]{radar.png}
-	\caption{Radar observation model, \{e\} (ENU) and \{t\} (tracking) coordinate systems.}
+	\caption{The radar observation model, and the \{e\} (ENU) and \{t\} (tracking) coordinate systems.}
 	\label{fig:radar_observation_model}
 \end{figure}
 
 
-If the radar's coordinate system, is for simplicity  chosen to coincide with a \emph{tracking coordinate system},  attached to the own-ships sea-following system. Then the tracking is with respect to the own-ship and the own-ships heading angle $\heading$ is not needed. It was later through the writing of this thesis, that such a system is appropriate for tracking remote targets under the given motion model assumptions. \Cref{ssec:movingreferenceframe} is devoted to further exemplify upon this issue.
+If the radar's coordinate system, is for simplicity  chosen to coincide with the \emph{tracking coordinate system},  attached to the own-ships sea-following system. Then the tracking is with respect to the own-ship and the own-ships heading angle $\heading$ is not needed. It was later through the writing of this thesis, that such a system is appropriate for tracking remote targets under the given motion model assumptions. \Cref{ssec:movingreferenceframe} is devoted to further elaborate upon this issue.
 
 %TODO DONEwrite about rotating reference frame
-
+The observation model is thus,
 \begin{equation}
 \observ_{radar}(\vect{x}) = \begin{bmatrix}
 \rho \\
@@ -199,15 +199,15 @@ arctan(\frac{y}{x})
 \end{equation}
 
 
-where the observation noise $\measnoise$ is assumed to be white, zero-mean Gaussian with covariance $\measCov_{radar} = \text{diag}\left[\variance_{\rho}, \variance_{\theta}\right] $
+where the observation noise $\measnoise$ is assumed to be white, zero-mean Gaussian with covariance $\measCov_{radar} = \text{diag}\left[\variance{\rho}, \variance{\theta}\right] $ .
 
 
 
 A reasonable sizing of the noise variances for simulation purposes can be
 %\todo{write part on actual values selection}
 \begin{description}
-	\item $3\sigma_\rho = \SI{10}{\meter}$
-	\item $3\sigma_\theta = \SI[parse-numbers=false]{3\frac{\pi}{180}}{\radian}  $
+	\item $\sigma_\rho = \SI{3}{\meter}$
+	\item $\sigma_\theta = \SI[parse-numbers=false]{1\frac{\pi}{180}}{\radian}  $
 \end{description}
 
 These noise intensities are a tuning parameter in a simulated test. Exaggerating on the simulated white noise intensities is a common approach when developing filtering algorithms, in order to assure robustness under non-linearity and non-Gaussianity effects when testing on real data.
@@ -232,15 +232,15 @@ Then the observation model is,
 \observ_{GPS}(\vect{x},\begin{bmatrix}\lat_{0}, \longi_{0}, \heading_{\textit{0}} \end{bmatrix}^{T}) = \begin{bmatrix}
 x \\
 y
-\end{bmatrix}_{GPS} = \begin{bmatrix}
+\end{bmatrix}_{GPS} = \underbrace{\begin{bmatrix}
 x \\
 y
-\end{bmatrix} + \measnoise_{GPS}
+\end{bmatrix}}_{\text{pre-converted to geodetic}} + \measnoise_{GPS}
 \end{equation}
 
 The fact that the geodetic coordinates origin and the heading angle of the own-ship is not included in the state-space representation leads to a \emph{linear observation model}.
 
-The observations are pre-converted to \emph{tracking coordinates}, and the noise is added on the the post-converted observations.
+The observations are pre-converted to \emph{tracking coordinates}, and the noise is added on the post-converted observations\eqref{eq:GPSobsvmode}.
 
 The AIS observations $[\lat, \longi]^{T}$ can be transformed into tracking coordinates $[x,y]^{T}$ by using the transformations from \Cref{sec:transformations}.
 
@@ -263,11 +263,7 @@ Where
 	\item $F_2\left(\begin{bmatrix}
 	\lat \\
 	\longi
-	\end{bmatrix}\right)$ is the transformation from geodetic to ECEF coordinates
-	\item $F_2\left(\begin{bmatrix}
-	\lat \\
-	\longi
-	\end{bmatrix}\right)$ is the transformation from geodetic to ECEF coordinates
+	\end{bmatrix}\right)$ is the transformation from geodetic to ECEF coordinates (see \Cref{ssec:geodetic-to-ecef}).
 	\item $F_1\left( \begin{bmatrix}
 	X \\
 	Y \\
@@ -278,8 +274,8 @@ Where
 	\end{bmatrix}\right)$ is the transformation from ECEF to ENU, given the geodetic coordinates of the own-ship $\begin{bmatrix}
 	\lat_0,
 	\longi_0
-	\end{bmatrix}^T$ as a reference point.
-	\item $R_z(\theta)$ is the transformation from ENU to \emph{sea-following/tracking }coordinate system.
+	\end{bmatrix}^T$ as a reference point (see \Cref{ssec:ecef-to-enu}).
+	\item $R_z(\theta)$ is the transformation from ENU to \emph{sea-following/tracking }coordinate system (see \Cref{ssec:transformation-from-enu-to-own-ship-tracking-coordinates}).
 \end{itemize}
 
 \subsection{AIS observation model}
@@ -345,7 +341,7 @@ given the own-ship's \emph{heading from true-north} $\heading_{\textit{0}}$, the
 
 
 \begin{equation}
-R_{\textit{sea-following}}^{\textit{ENU}} = R_{z}(\frac{\pi}{2}-\heading_{\textit{0}})
+\matr{R}_{\textit{sea-following}}^{\textit{ENU}} = \matr{R}_{z}(\frac{\pi}{2}-\heading_{\textit{0}})
 \end{equation}
 
 
@@ -453,7 +449,7 @@ Assuming a camera sensor mounted on a mast with the camera z-axis aligned with t
 \end{figure}
 
 
-Then the observation model for the predicted pixel location of a target obtained from a deep neural-network classifier and localizer is found by projecting the position of a remote ship in the sea-following coordinate system $\vect{x}_{\text{wrt}_{\text{sea following}}}=\begin{bmatrix}x, y, 0, 1\end{bmatrix}^T$ to the finite camera frame (\Cref{eq:projection_model}).
+Then the observation model for the predicted pixel location of a target obtained from a deep neural-network classifier and localizer is found by projecting the position of a remote ship in the sea-following coordinate system $\vect{x}_{\text{wrt}_{\text{sea following}}}=\begin{bmatrix}x, y, 0, 1\end{bmatrix}^T$ to the finite camera frame\eqref{eq:projection_model}.
 
 \begin{equation}\label{eq:projection_model}
 \vec{\observ}_{cam} = P \cdot \vect{x}_{\text{wrt}_{\text{sea following}}}
@@ -503,13 +499,13 @@ $$\matr{K} = \begin{bmatrix}f m_x &0 &p_x \\
 0 &f m_y &p_y \\
 0 &0 &z
 \end{bmatrix} $$
-
+sh s
 where
 
 \begin{description}
-	\item[$f$] is the \emph{focal length} usually in mm, an intrinsic camera calibration parameter
+	\item[$f$] is the \emph{focal length} usually in mm, an intrinsic camera calibration parameter.
 	\item[$m_x, m_y$] are the camera's sensor pixel density in $\frac{\text{number of pixels}}{mm}$ across the two different directions of the image plane.
-	\item[$p_x,p_y$] correspond to the position of the principal point of the image in \emph{pixel coordinates}
+	\item[$p_x,p_y$] correspond to the position of the principal point of the image in \emph{pixel coordinates} (see \cref{fig:camera_pinhole}).
 	\item[$\measnoise_{\textit{camera}}$] is white Gaussian zero mean noise with variance related to the classifier accuracy, or any calibration errors in the extrinsic and intrinsic camera matrices.
 	
 \end{description}
@@ -525,10 +521,10 @@ is the  \emph{extrinsic origin of the camera coordinate system} w.r.t. the \emph
 Is the transformation matrix that corresponds to the \emph{roll-pitch} rotation of the \emph{own-ship's body coordinate system} w.r.t the \emph{tracking} coordinate system.. Please note that \emph{the order of the rotations matters}.
 
 \begin{equation}
-R_{\textit{tracking}}^{\textit{own-ship}}=\left( R_{\textit{pitch}} R_{\textit{roll}}\right)^T
+R_{\textit{tracking}}^{\textit{own-ship}}=\left( R_{\textit{pitch}} R_{\textit{roll}}R_{\textit{yaw}}\right)^T
 \end{equation}
 
-Where $$R_{\textit{pitch}},R_{\textit{roll},}$$ are the \textbf{standard rotation matrices} \cite{LaVallea}for the Euler's angles $z_{\textit{gyro}}=(\roll,\pitch,\yaw)^T = (\textit{roll},\textit{pitch},\textit{yaw})^T$.
+Where $$R_{\textit{pitch}},R_{\textit{roll},R_{\textit{yaw}}}$$ are the \textbf{standard rotation matrices} \cite{LaVallea}for the Euler's angles $z_{\textit{gyro}}=(\roll,\pitch,\yaw)^T = (\textit{roll},\textit{pitch},\textit{yaw})^T$.
 
 
 \begin{equation}
@@ -554,7 +550,7 @@ R_{\textit{pitch}}= R_y(\pitch) =
 \end{equation}
 and
 \begin{equation}\label{eq:rot_yaw}
-R_{\textit{yaw}}= \bmat{\cos\yaw &-\sin\yaw&0\\\sin\yaw &\cos \yaw&0\\0&0&1}
+R_{\textit{yaw}}= R_{z}(\yaw) =   \bmat{\cos\yaw &-\sin\yaw&0\\\sin\yaw &\cos \yaw&0\\0&0&1}
 \end{equation}
 
 A basic assumption at this point, is that the own-ship is able to measure the angles $(\roll,\pitch,\yaw)$ of the \emph{own-ship body coordinate system} w.r.t the \emph{tracking coordinate system}. These angles are usually available on a ship by using one or multiple \emph{gyro sensors}.
@@ -563,7 +559,7 @@ A basic assumption at this point, is that the own-ship is able to measure the an
 
 %given measured information $z_{gyro}$ about the rotational angle of the \emph{own-ship body coordinate system}, w.r.t the \emph{tracking coordinate system}.
 %TODO DONEMake correctiosn to camera: done
- Using \emph{Artifical Neural Networks} for ship detection using camera data, has been demonstrated in \cite{Blanke2020} and it is considered one of the \emph{State-of-the-Art} methods in image processing at the time of writing of this reading.
+ Using \emph{Artifical Neural Networks} for ship detection using camera images (see \cref{fig:multipleobjectdetections}), has been demonstrated in \cite{Blanke2020} and it is considered one of the \emph{State-of-the-Art} methods in image processing at the time of writing of this reading.
 
 \subsection{Real sensors \& modeling}
 
@@ -579,13 +575,14 @@ The sensor types fused in this project are summarized in \cref{tab:sensor_invent
 \end{itemize}
  
 
-When modeling the sensors, specific assumptions were made on the Gaussian white noise intensities of the radar observation model. These parameters are subject to final tuning in order to match the ones from the real data. It is a common approach to start with rational assumptions for these values when still in the \emph{simulation design phase} and  experiment with different values by \emph{"tuning the knobs"} when designing the system that should work on the real data. 
+When modeling the sensors, specific assumptions were made on the Gaussian white noise covariance matrixes $\measCov$. These parameters are subject to final tuning in order to match the ones from the real data. It is a common approach to start with rational assumptions for these values when still in the \emph{simulation design phase} and  experiment with different values by \emph{\quotes{tuning the knobs}} when designing the system that should work on the real data. 
 
-Quite often, manufacturers provide noise in the form of maximum error on the real values without specifying whiteness or Gaussianity. The approach in this thesis when modeling real sensor noise, is to fit the maximum error value $e_{\text{max}}$ found in a sensors specification data-sheets, to a Gaussian distribution $\mathcal{N}(0,\variance)$ by assuming that there is no bias error unless specified, and that $e_{\text{max}} = 3 \sigma$ where $\variance$ is the \emph{variance} of the fitted distribution $\mathcal{N}$.
+Quite often, manufacturers provide noise in the form of maximum error on the real values without specifying whiteness or Gaussianity. The approach in this thesis when modeling real sensor noise, is to fit the maximum error value $e_{\text{max}}$ found in a sensors specification data-sheets, to a Gaussian distribution $\mathcal{N}(0,\variance{})$ by assuming that there is no bias error unless specified, and that $e_{\text{max}} = 3 \sigma$ where $\variance{}$ is the \emph{variance} of the fitted distribution $\mathcal{N}$.
 \begin{table}[H]
 		\centering
 	\caption{Sensor inventory and observation types. DoF stands for \emph{Degrees of Freedom}}
 	\label{tab:sensor_inventory}
+	\resizebox{\textwidth}{!}{%
 	\begin{tabular}{llll}
 		\toprule
 		& \textbf{Sensor}         & \textbf{Raw Data}       & \textbf{Extracted Feature}                  \\ \hline
@@ -597,10 +594,11 @@ Quite often, manufacturers provide noise in the form of maximum error on the rea
 		GNSS(through AIS) &
 		\begin{tabular}[c]{@{}l@{}}Latitude\\ Longitude\\ Altitude\\ Time\end{tabular} &
 		\begin{tabular}[c]{@{}l@{}}Position\\ Heading\\ Velocity\end{tabular} \\ \hline
-		&GPS compass & \begin{tabular}[c]{@{}l@{}}Heading\\3 axis velocity\end{tabular}& \begin{tabular}[c]{@{}l@{}}Own-ship COG\\ Own-ship SOG\end{tabular}  \\ \hline 
-		& X-Band radar      & Bearing and range scans & Clustered objects 2 DoF relative pose (x,y) \\ \hline
-		& Visible light camera & Image pixels            & Target class and relative bearing           \\ \bottomrule
-	\end{tabular}
+		&GPS compass & \begin{tabular}[c]{@{}l@{}}Heading\\3 axis velocity\end{tabular}& \begin{tabular}[c]{@{}l@{}}Own-ship COG (Course Over Ground)\\ Own-ship SOG (Speed Over Ground)\end{tabular}  \\ \hline 
+		& X-Band radar      & Bearing and range scans & Clustered objects 2 DoF relative pose (x,y) \T \\ \hline
+		& Visible light camera & Image pixels            & Target class and relative bearing          \T \\ \bottomrule
+	\end{tabular}%
+}
 \end{table}
 \begin{table}[H]
 		\centering
@@ -611,7 +609,7 @@ Quite often, manufacturers provide noise in the form of maximum error on the rea
 		& \textbf{Sensor}         & \textbf{Active/Passive} & \textbf{Reference frame} \T \\ \hline
 		& IMU                     & Passive                 & Proprioceptive                       \T \\ 
 		& GNSS(through AIS)       & Passive                 & Proprioceptive \& Exteroceptive \\
-		& Radar (long range)      & Active                  & Exteroceptive                         \\ 
+		& X-Band Radar      & Active                  & Exteroceptive                         \\ 
 		& Visible spectrum camera & Passive                 & Exteroceptive                         \\ \hline
 	\end{tabular}
 \end{table}
@@ -646,7 +644,7 @@ The radar sensor used in the scope of this thesis is a \textbf{Navico Broadband}
 	\begin{tabular}{ll}
 		\hline
 		\textbf{Model} &  EM-TRAK R100 AIS RECEIVER \T \\ \hline
-		Observations&\textbf{Standard deviation of error} $\mathbf{\sigma_e}$   \T \\
+		Observations&\textbf{Standard deviation of error} $\mathbf{\sigma_e}$   \T \\ \hline
 		${\longi ,\lat}$ & 6m (When converted to a tangential frame) \\
 		${COG}$ & \SI{3}{\deg} \\
 		${SOG}$ & \SI{0.6}{\knot} \T \\ \hline
@@ -656,7 +654,7 @@ The radar sensor used in the scope of this thesis is a \textbf{Navico Broadband}
 
 \subsubsection{Cameras}
 
-An array of cameras is available on-board the sensor rig, to ensure overlapping field of views. For the shake of completeness, the whole stack of sensors used throughout the whole autonomy project is described in \Cref{tab:stack} and can be seen in \Cref{fig:stack}. COVID-19 lock down implications denied the availability of camera images in this Thesis.
+An array of cameras is available on-board the sensor rig, to ensure overlapping field of views. For the shake of completeness, the whole stack of sensors used throughout the whole autonomy project is described in \Cref{tab:stack} and can be seen in \Cref{fig:stack}. COVID-19 lock down implications denied the availability of actual camera images in this Thesis, but simulated target detections were included.
 
 
 \begin{figure}[H]

@@ -6,11 +6,13 @@ All sensors are noisy to some extend depending on the actual sensor, the data pr
 \section{Approach}
 To obtain kinematic components of a moving target such as position, velocity and acceleration, the predominant method in target tracking is using stochastic estimation approaches. A moving target is described by a state-space dynamic model driven by white process noise, and mean-square estimates are calculated using noisy measurements. Models of this kind constitute the basis of Kalman Filters, which are the basic algorithms in target tracking, either as single filters or used as modules of a more complex algorithm. Many algorithms have also been developed trying to tackle nonlinearities, multiple target tracking or observation association \cite{Ekstrand2012}.
 
-For the case of a linear system with a known state transition matrix and additive white Gaussian process noise, the classic Kalman Filter provides an optimal estimate in terms of minimum mean square error (\emph{MMSE}). However, for non-linear systems, state-estimation remains a challenging problem attracting intense research interest. Optimal nonlinear filters are often infinite dimensional and thus difficult to implement and computationally intractable. In a deterministic framework, optimal nonlinear observers are available when the systems exhibit a special structure \cite{Krener1985} , however in general nonlinear filtering cases, approximate and computationally tractable solutions are used in practice \cite{Daum2005}.
+For the case of a linear system with a known state transition matrix and additive white Gaussian process noise, the classic Kalman Filter provides an optimal estimate in terms of minimum mean square error (\emph{MMSE}). However, for non-linear systems, state-estimation remains a challenging problem attracting intense research interest. Optimal nonlinear filters are often infinite dimensional and thus difficult to implement and computationally intractable. In a deterministic framework, optimal nonlinear observers are available when the systems exhibit a special structure \cite{Krener1985}, however, in nonlinear filtering cases, approximate and computationally tractable solutions are preferred in practice \cite{Daum2005}.
 
-Approximate nonlinear filters can be subdivided into two classes depending on the representation form of the probability distributions. Filters in the first class are based on analytically or numerically linearizing the motion and observation models. The standard Kalman filter is then applied to the linearized state and measurement equations evaluated at an operating point. The operating point is chosen as the best current estimate based on the linearized system with the expectancy of being close to the true state \cite{Shalom2001}. The Extended Kalman Filter (EKF) belongs to this class of filters, and is a computationally effective algorithm finding applications in many areas such as motor control \cite{Terzic2001}, power system analysis \cite{Khazraj2016}, weather forecasting \cite{Rosnay2012}, and target tracking which is the main focus of this writing \cite{Shalom1995}. The alternative class of nonlinear filters use Monte Carlo Sampling to approximate the actual state's probability distribution.  A particle filter (PF) is propagating the sampled distribution through the nonlinear motion model and then re-samples the distribution based on the likelihood of measurement models. 
+Approximate nonlinear filters can be subdivided into two classes depending on the \emph{representation form of the probability distributions}. Filters in the first class are based on analytically or numerically \emph{linearizing} the motion and observation models. The standard Kalman filter is then applied to the linearized state and measurement equations evaluated at an operating point. The operating point is chosen as the best current estimate based on the linearized system with the expectancy of being close to the true state \cite{Shalom2001}. The Extended Kalman Filter (EKF) belongs to this class of filters, and is a computationally effective algorithm finding applications in many areas such as motor control \cite{Terzic2001}, power system analysis \cite{Khazraj2016}, weather forecasting \cite{Rosnay2012}, and target tracking \cite{Shalom1995}, which is the main scope of this thesis.
 
-Both approaches do not tackle directly a fundamental issue in target tracking, that of data-association. In most tracking situations, sensors provide measurements both for the target of interest as well as for different targets/noise present in the environment. Filtering frameworks need to be able to handle this additional lack of information. Probabilistic Data Association \cite{Ristic2004} variants of the EKF and PF effectively tackle this problem by leveraging systematic knowledge of a \emph{clutter-model} and making intelligent decisions between the uncertainty levels of the estimated states and the observations inherent noise models.
+The alternative class of nonlinear filters use Monte Carlo Sampling to approximate the actual state's probability distribution.  A particle filter (PF) is propagating the sampled distribution through the nonlinear motion model and then re-samples the distribution based on the likelihood of measurement models. 
+
+Both approaches do not tackle directly a fundamental issue in target tracking, that of \emph{Data-Association}. In most tracking situations, sensors provide measurements both for the target of interest as well as for different targets/noise present in the environment. Filtering frameworks need to be able to handle this additional lack of information. Probabilistic Data Association \cite{Ristic2004} variants of the EKF and PF effectively tackle this problem by leveraging systematic knowledge of a \emph{clutter-model} and making intelligent decisions between the uncertainty levels of the estimated states and the observations inherent noise models.
 
 This section is thus devoted to:
 
@@ -30,21 +32,21 @@ This section is thus devoted to:
 \section{Kalman Filters} \label{sec:KalmanFilters}
 A Kalman Filter is based on the following assumptions
 \begin{itemize}
-	\item System's state evolution $\mathbf{x}_{k+1} = f(\mathbf{x}_k,u_k) + w_{\textit{x}}$ is linear and driven by
+	\item System's state evolution $\mathbf{x}_{k+1} = f(\mathbf{x}_k,u_k) + w_k$ is linear and driven by
 	\begin{itemize}
 		\item Known input $u_k$
-		\item Additive process noise $w_{\textit{x}}$ which is assumed to be a zero-mean, white and uncorrelated with known covariance matrix $Q(k)$
+		\item Additive process noise $w_k$ which is assumed to be a zero-mean, white and uncorrelated with known covariance matrix $Q(k)$
 	\end{itemize}
-	\item The observations $ \observ_k = h(\mathbf{x}_k,u_k) + \measnoise $  are linear functions of the state vector and the input vector with $\measnoise$ being additive zero-mean white Gaussian noise with known covariance matrix $\measCov(k)$
+	\item The observations $ \observ_k = h(\mathbf{x}_k,u_k) + \measnoise_k $  are linear functions of the state vector and the input vector with $\measnoise$ being additive zero-mean white Gaussian noise with known covariance matrix $\measCov(k)$
 	
-	\item The \emph{initial state} vector is a random variable with known mean $\mathbf{x}_0$ and covariance $P_0$ (initial uncertainty)
+	\item The \emph{initial state} vector is a random variable with known mean $\mathbf{x}_0$ and covariance $P_0$ (initial uncertainty).
 \end{itemize}
 
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{KF2.png}
-	\caption{Block diagram of a discrete Kalman filtering algorithm}.
+	\caption{Block diagram of the discrete Kalman filtering algorithm.}
 	\label{fig:state_vector}
 \end{figure}
 
@@ -65,15 +67,15 @@ For all its powerful characteristics, such as optimality and robustness, the \em
 			\item Nonlinear motion models
 			\item Nonlinear observation models
 		\end{itemize}
-	\item It is unable to capture mode transitions(target maneuvering after being stationary)
-	\item It is a single target \& unimodal method
+	\item It is unable to capture mode transitions(target maneuvering after being stationary).
+	\item It is a single target and unimodal method.
 \end{itemize}
 
 The above problems usually lead to filter divergence, that is the \emph{Mean Squared Error} grows unbounded over time.
 
 \section{Extending the Kalman Filter}
 
-When either the system dynamics, or the observation dynamics is non-linear, the probability density functions that provide the MMSE are no longer Gaussian. An optimal non-linear filter propagates the density functions and evaluates their statistical properties, a process which is usually not analytically or even computationally tractable. The \emph{Extended Kalman Filter}(EKF) is a sub-optimal state estimation algorithm for nonlinear systems. It is the \emph{nonlinear version} of the \emph{Kalman Filter}, and while it is implementing a Kalman Filter under the hood, the distinctive difference is that it does so on the system dynamics that result from the re-linearization of the original non-linear system around the latest state estimate.
+When either the system dynamics, or the observation dynamics are non-linear, the probability density functions that describe the state distribution are no longer Gaussian. An optimal non-linear filter propagates the density functions and evaluates their statistical properties, a process which is usually not analytically or even computationally tractable. The \emph{Extended Kalman Filter}(EKF) is a sub-optimal state estimation algorithm for nonlinear systems. It is the \emph{nonlinear version} of the \emph{Kalman Filter}, and while it is implementing a Kalman Filter under the hood, the distinctive difference is that it does so on the system dynamics that result from the re-linearization of the original non-linear system around the latest state estimate.
 \subsection{EKF Modeling assumptions}
 
 \begin{itemize}
@@ -108,8 +110,8 @@ and for the \emph{CTRV} motion model in specific, this leads to \Cref{eq:lineari
 \begin{equation}
 \label{eq:linearization_mot_model}
 F_{{CTRV}_{k-1}} =
-\begin{bmatrix}1 &0 &\frac{sin(\heading+T\omega) - \sinh}{\omega} & \boatspeed \frac{cos(\heading+T\omega)-cosh}{\omega} & \boatspeed\frac{sinh -sin(\heading+T\omega) + T\omega cos(\heading+T\omega)}{\omega^{2}}\\\\
-0 &1 &-\frac{cos(\heading+T\omega) - cos(\omega)}{\omega} &\boatspeed \frac{sin(\heading+T\omega)-sinh}{\omega} & \boatspeed\frac{cos(h + T\omega) -cosh + T\omega sin(\heading+T\omega)}{\omega^{2}}\\\\
+\begin{bmatrix}1 &0 &\frac{sin(\heading+T\omega) - \sin \heading}{\omega} & \boatspeed \frac{cos(\heading+T\omega)-\cos\heading}{\omega} & \boatspeed\frac{\ -sin(\heading+T\omega) + T\omega cos(\heading+T\omega)}{\omega^{2}}\\\\
+0 &1 &-\frac{cos(\heading+T\omega) - cos(\omega)}{\omega} &\boatspeed \frac{sin(\heading+T\omega)-\sin\heading}{\omega} & \boatspeed\frac{\sin (\heading + T\omega) -\cos\heading + T\omega sin(\heading+T\omega)}{\omega^{2}}\\\\
 0 &0 &1 &0 &0 \\\\
 0 &0 &0 &0 &1\end{bmatrix}
 \end{equation}
@@ -162,7 +164,7 @@ The accuracy of the approximation at a second level depends on the compactness o
 	\centering
 	\includegraphics[width=0.8\textwidth]{gaussian_error.png}
 	
-	\caption{Propagation error  of the Gaussian mean due to non-linearity. For a given non-linear function $h()$ the propagation error $e=\mathbf{E}[h(\mathbf{x})]-h(\mathbf{E}[\mathbf{x}])$ is large for Gaussians with larger variance \textit{(thick line, left)} and unnoticeable for narrow Gaussians\textit{(thin line, right)} \cite{Sola2011}.}
+	\caption{Propagation error  of the Gaussian mean due to non-linearity. For a given non-linear function $h(\cdot)$ the propagation error $e=\mathbf{E}[h(\mathbf{x})]-h(\mathbf{E}[\mathbf{x}])$ is large for Gaussians with larger variance \textit{(thick line, left)} and unnoticeable for narrow Gaussians\textit{(thin line, right)} \cite{Sola2011}.}
 	% 4852500738594
 	
 	\label{fig:taylor_approximation2}
@@ -224,7 +226,7 @@ I = \int \mathbf{f}(\mathbf{x})\pi(\mathbf{x}) d\mathbf{x} = I_N \approx \frac{1
 Given that the samples $\mathbf{x}^i$ are independent, then $I_N$ is an unbiased estimator, and according to the law of large numbers it will almost surely converge to $I$.
 
 
-Under the assumption that the variance $\variance$ of $\mathbf{f}(\mathbf{x})$,  is finite
+Under the assumption that the variance $\variance{}$ of $\mathbf{f}(\mathbf{x})$,  is finite
 
 \[ \variance = \int (\mathbf{f}(\mathbf{x})- I)^2 \pi(\mathbf{x}) \]
 
@@ -259,7 +261,7 @@ I = \int \mathbf{f}(\mathbf{x}) d\mathbf{x} = \int f(\mathbf{x}) \frac{\pi(\math
 \end{equation}
 
 
-Applying the \emph{Monte Carlo Sample Mean} to \Cref{eq:MCIntegral} leads to  \Cref{eq:MCSM}, where the \emph{particle importance weights} represent a \emph{Probability Mass Function}(PMF), and thus need to be normalized according to \Cref{eq:weight_normalize}.
+Applying the \emph{Monte Carlo Sample Mean} to \Cref{eq:MCIntegral} leads to  \Cref{eq:MCSM}, where the \emph{particle importance weights} represent a \emph{Probability Mass Function} (PMF), and thus need to be normalized according to \Cref{eq:weight_normalize}.
 
 
 
@@ -296,10 +298,10 @@ Intuitively, a recursive Bayesian nonlinear filter is a very suitable domain for
 	\item Survival of the fittest
 \end{itemize}
 
-The key idea again, is to represent the \emph{posterior density} function by a limited set of samples and their importance weights, based on which estimates can be calculated. As the number of samples increases, the sampled distribution becomes an equivalent representation to the functional description of the posterior probability distribution function, and the \textbf{SIS} filter approaches the optimal Bayesian filtering estimator \cite{Ristic2004}.
+The key idea again, is to represent the \emph{posterior density} function by a limited set of samples and their importance weights, based on which estimates can be calculated. As the number of samples increases, the sampled distribution becomes an equivalent representation to the functional description of the posterior probability distribution function, and the \emph{Sequential Importance Sampling} (SIS) filter approaches the \emph{optimal Bayesian filtering estimato}r \cite{Ristic2004}.
 
 
-The recursive nature of the \emph{SIS} algorithm, implies that the new weights describing the posterior distribution $p(\mathbf{x}_k | \mathbf{\observ}_k)$ are being updated based on their previous values, and the likelihood of a new measurement $$p(\mathbf{\observ}_k | \mathbf{x}_k^i)$$, i.e.
+The recursive nature of the \emph{SIS} algorithm, implies that the new weights describing the posterior distribution $p(\mathbf{x}_k | \mathbf{\observ}_k)$ are being updated based on their previous values, and the likelihood of a new measurement $p(\mathbf{\observ}_k | \mathbf{x}_k^i)$, i.e.
 
 \begin{equation}\label{eq:SIS}
 w_k^i \sim w_{k-1}^i \frac{p(\mathbf{\observ}_k | \mathbf{x}_k^i)p(\mathbf{x}_k^i | \mathbf{x}_{k-1}^i)}{q(\mathbf{x}_k^i | \mathbf{x}_{k-1}^i , \mathbf{\observ}_k)}
@@ -317,13 +319,13 @@ The recursiveness of the SIS algorithm is evident from the fact that the importa
 
 \subsection{Selecting the Importance Density}
 
-A popular and convenient selection of the importance density is the transitional prior, i.e. the motion model \cite{Ristic2004}:
+A popular and convenient selection of the importance density is the transitional prior, \ie, the motion model \cite{Ristic2004}:
 
 \begin{equation}\label{eq:SISmotmodel}
 q(\mathbf{x}_k | \mathbf{x}_{k-1}^i , \mathbf{\observ}_k) = p(\mathbf{x}_k | \mathbf{x}_{k-1}^i)
 \end{equation}
 
-substituting \Cref{eq:SISmotmodel} in the **SIS** algorithm(\Cref{eq:SIS}) yields \Cref{eq:SIS2}
+substituting \Cref{eq:SISmotmodel} in the SIS algorithm(\Cref{eq:SIS}) yields \Cref{eq:SIS2}
 
 \begin{equation}\label{eq:SIS2}
  w_k^i \sim w_{k-1}^i p(\mathbf{\observ}_k | \mathbf{x}_k^i)
@@ -332,7 +334,7 @@ substituting \Cref{eq:SISmotmodel} in the **SIS** algorithm(\Cref{eq:SIS}) yield
 
 \subsection{Degeneracy problem}
 
-A general problem of a SIS particle filter is that the particle distribution becomes extremely peaked through the subsequent measurement updates. That is, the variance of the importance weights can only increase over time. This effect overtime leads to poor accuracy of the estimates and leads to a common problem of the SIS particle filter, that of \emph{degeneracy}. An effective countermeasure is monitoring the level of degeneracy of the filter and re-sample when appropriate. An example of a performance index is the effective sample size $N_{\text{eff}}$ as introduced by \cite{Kong1994}
+A general problem of a SIS particle filter is that the particle distribution becomes extremely peaked through the subsequent measurement updates. That is, the variance of the importance weights can only increase over time. This effect overtime leads to poor accuracy of the estimates and leads to a common problem of the SIS particle filter, that of \emph{degeneracy}. An effective countermeasure is monitoring the \emph{level of degeneracy} of the filter and re-sample when appropriate. An example of a degeneracy index is the effective sample size $N_{\text{eff}}$ as introduced by \cite{Kong1994}
 
 
 \begin{equation}
@@ -351,7 +353,7 @@ One can easily verify that $$1 < N_{\text{eff}} < N$$ , the degeneracy criterion
 \subsection{Resampling algorithms}\label{ssec:resamplingPF}
 
 
-Whenever filter degeneracy is detected(i.e $N_{\text{eff}}$ falling below a threshold value), re-sampling is performed.
+Whenever filter degeneracy is detected, \ie, $N_{\text{eff}}$ falling below a threshold value, re-sampling is performed.
 
 
 Re-sampling follows the strategy of \emph{survival of the fittest}, by eliminating particles in the set with low weight values and replacing them with copies of the more probable ones.
@@ -377,7 +379,7 @@ The re-sampling algorithm is thus \cite{Ristic2004}:
 
 
 The above strategy leads to a weight selection \emph{survival chance} equal to the \emph{weight's value}
-$$P(\hat{x}_k^i = x_k^j) = w_k^j$$ This results in useful samples having a higher likelihood of being selected for the new set(\Cref{fig:CSW}). The new weights of the samples are re-initialized to a uniform distribution
+$$P(\hat{x}_k^i = x_k^j) = w_k^j$$ This results in useful samples having a higher likelihood of being selected for the new set (see \Cref{fig:CSW}). The new weights of the samples are re-initialized to a uniform distribution
 
 \begin{equation}\label{eq:normalize2CSW}
 	\{\hat{x}_k^i , 1/N\}
@@ -385,7 +387,7 @@ $$P(\hat{x}_k^i = x_k^j) = w_k^j$$ This results in useful samples having a highe
 
 
 
-The use of re-sampling technique might lead to different issues though. \emph{Diversity} among particles is depleted as highly probable particles are through subsequent re-sampling steps \emph{genetically dominating} the distribution. Moreover, if the process noise is too low then the distribution will not \emph{diversify} enough in between measurement updates and will eventually become a uniformly weighted cloned collection of a few particles. This phenomenon is also known as \emph{sample impoverishment} or \emph{particle depletion} \Cref{fig:impoverishment} \cite{Chatzi2002}.
+The use of re-sampling technique might lead to additional issues though. \emph{Diversity} among particles is depleted as highly probable particles are through subsequent re-sampling steps \emph{genetically dominating} the distribution. Moreover, if the process noise is too low then the distribution will not \emph{diversify} enough in between measurement updates and will eventually become a uniformly weighted cloned collection of a few particles. This phenomenon is also known as \emph{sample impoverishment} or \emph{particle depletion} \cite{Chatzi2002} and is illustrated in \Cref{fig:impoverishment}.
 
 % TODO: \usepackage{graphicx} required
 \begin{figure}[H]
@@ -399,7 +401,7 @@ The use of re-sampling technique might lead to different issues though. \emph{Di
 \subsection{PF Algorithm outline}
 
 
-The PF algorithm genetics are illustrated in \Cref{fig:PF_genetics} and summarized as follows
+The PF algorithm genetics are illustrated in \Cref{fig:PF_genetics} and summarized as follows:
 
 \begin{enumerate}
 	\item Initialize the filter by drawing particles according to an initial belief $p(\mathbf{x}_0)$.\\
@@ -439,7 +441,7 @@ The PF algorithm genetics are illustrated in \Cref{fig:PF_genetics} and summariz
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{good_one.png}
-	\caption{Tracking a single using a Particle Filter with $N=300$ samples.  Illustrated is the latest estimation of the target alongside with the Filters history. The height and size of a particle is proportional to its weight, \ie bigger particles are more likely to represent the actual target's location.}
+	\caption{Tracking a single using a Particle Filter with $N=300$ samples.  Illustrated is the latest estimation of the target alongside with the Filter's history. The height and size of a particle is proportional to its weight, \ie, bigger particles are more likely to represent the actual target's location.}
 	\label{fig:PFsim}
 \end{figure}
 

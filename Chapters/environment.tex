@@ -49,7 +49,7 @@ An environment is defined by:
 	\begin{itemize}
 		\item Initial estimated target state $\hat{x}_0$
 		\item Initial state covariance $P_0$
-		\item A filter which can be based on
+		\item A filter which can be based on:
 			\begin{description}
 				\item[Continuous methods]:
 					\begin{itemize}
@@ -79,13 +79,13 @@ An environment is defined by:
 			\item Variable simulation sample time $T_s$.
 			\item Variable observation noise  $\measnoise_k \sim \mathcal{N}(0, \measCov)$
 			\item Variable number of outliers (or else \emph{clutter}) depending on the probability of false detection $P_{FD}$ (see also \Cref{sec:clutter}).
-			\item Provides measurements to track correspondences, \ie the problem of knowing an observations origin is solved. (see also \Cref{ch:Tracking}).
+			\item Provides measurements to track correspondences, \ie the problem of knowing an observations origin is solved (see also \Cref{ch:Tracking}).
 		\end{itemize}
 		\item[Real data]
 				\begin{itemize}
 					\item[]
 					\item Data recordings are being aggregated and sampled into an indexing data-structure based on their timestamps and the environment sample time $T_s$.
-					\item Observations are being \textit{"fetched"} by the sensor module depending on a sensors update frequency $f_s$ and the elapsed simulation time-steps.
+					\item Observations are being \textit{\quotes{fetched}} by the sensor module depending on a sensors update frequency $f_s$ and the elapsed simulation time-steps.
 				\end{itemize}
 		
 	\end{description}
@@ -106,7 +106,7 @@ The general environment structure allows for little to no changes in the test sc
 
 \section{3D visualization}
 
-Usually a picture is worth a thousand words, with that in mind a visualization module based on MATLAB built-in functionalities was developed, trying to illustrate the different tracking scenarios and provide filtering performance graphs. Detailed graphs are presented in \Cref{ch:Results} along with performance assessment of the framework.
+Usually a picture is worth a thousand words; with that in mind a visualization module based on \matlab built-in functionalities was developed, trying to illustrate the different tracking scenarios and provide filtering performance graphs. Detailed graphs are presented in \Cref{ch:Results} along with performance assessment of the framework.
 
 \begin{figure}[H]
 	\centering
@@ -117,8 +117,8 @@ Usually a picture is worth a thousand words, with that in mind a visualization m
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\linewidth]{good_one.png}
-		\caption{Particle Filter focused representation. A ship's position estimates along with its estimation history, emphasis on visualizing the Particle Filter as  point-clouds}	\label{fig:simulator2}
+	\includegraphics[width=0.95\linewidth]{good_one.png}
+		\caption{Particle Filter focused representation. A ship's position estimates along with its estimation history; emphasis on visualizing the Particle Filter distribution as point-clouds}	\label{fig:simulator2}
 \end{figure}
 
 
@@ -131,7 +131,7 @@ Usually a picture is worth a thousand words, with that in mind a visualization m
 
 \section{Summary}
 
-A simulation and verification environment was developed on the \matlab framework, with emphasis on code re-usability, , modularity in simulating \emph{different sensor and motion models}, and rapid prototype testing of either \emph{continuous or sampled filtering algorithms}. A visualization model provides feedback for the effectiveness of the filter algorithms based on performance indexes such as the \emph{Normalized Innovation Squared} (NIS) test, the \emph{Effective Number of Particles}, or the state covariance determinant magnitude. (\Cref{ch:Results}).
+A simulation and verification environment was developed on the \matlab framework, with emphasis on code re-usability, modularity in simulating \emph{different sensor and motion models}, and rapid prototype testing of either \emph{continuous or sampled filtering algorithms}. A visualization model provides feedback for the effectiveness of the filter algorithms based on performance indexes such as the \emph{Normalized Innovation Squared} (NIS) test, the \emph{Effective Number of Particles}, or the state covariance determinant magnitude. These ideas are further expanded in \Cref{ch:Results}.
 
 
 

@@ -2,18 +2,18 @@
 
 \section{Problem formulation}
 
-Tracking is the problem of performing \emph{state estimation} of a \emph{single or multiple targets} using observations of \emph{uncertain origin}.
+Tracking is the problem of performing \emph{state estimation} of a \emph{single or multiple targets} using \emph{observations} of uncertain origin.
 
 \section{Definitions}
 
 \begin{itemize}
-	\item A tracked target's state at sample time $k$ is, $\\right _k=(x,y,V,h,\omega)^T$ with respect to the own-ship tangential frame.
-	\item It is assumed that a target's track is already \emph{initialized} \ie the sub-problem under consideration is that of \emph{\textbf{track maintenance}} .
+	\item A tracked target's state at sample time $k$ is, $\vect{x}_k=(x,y,V,h,\omega)^T$ with respect to the tracking frame of choice $\{t\}$.
+	\item It is assumed that a target's track is already \emph{initialized} \ie the sub-problem under consideration is that of \emph{{track maintenance}} .
 	\item An observation ${\realobserv^i}_k = h^i(x_k) + {w^i}_k$ is derived at sample time $k$ from the $i$-th sensor with the respective $h^i(\cdot)$ observation model and observation noise ${w^i}_k$.
-	\item $w^i \sim \mathcal{N}(0, \matr{R}^i)$ is Gaussian white band limited noise and its covariance matrix $\matr{R}^i$ depends on the sensor properties.
-	\item Detection probability $P_D$ less than unity, \ie. there exists the possibility of the sensor not returning an observation that belongs to the target, due to various reasons.
-	\item Non zero false detection probability $P_{FD}$, \ie. the sensor can provide  \emph{false positive} observations that do not originate from the tracked target, usually due to clutter or the observation originating from a different target.
-	\item Possibility for \emph{multiple observations} originating from a single target, such an example could that hypothetical scenario of observing a large ship with a radar sensor, while having a close range obstruction that "shadows" the mid section of the remote ship. In such a case the clustering algorithm would produce two separate clusters, one for the bow and one for the stern of the remote ship.
+	\item $w^i \sim \mathcal{N}(0, \matr{R}^i)$ is Gaussian white band limited noise and its covariance matrix $\matr{R}^i$ depends on the \ith{i} sensor properties.
+	\item Detection probability $P_D$ is less than unity, \ie, there exists the possibility of the sensor not returning an observation that belongs to the target, due to various reasons, \eg temporary sensor failure, target occlusion by obstructions.
+	\item Non zero false detection probability $P_{FD}$, \ie, the sensor can provide  \emph{false positive} observations that do not originate from the tracked target, usually due to clutter or the observation originating from a different target.
+	\item Possibility for \emph{multiple observations} originating from a single target, such an example could that hypothetical scenario of observing a large ship with a radar sensor, while having a close range obstruction that \quotes{shadows} the mid section of the remote ship. In such a case the clustering algorithm would produce two separate clusters, one for the bow and one for the stern of the remote ship.
 \end{itemize}
 
 \section{Clutter model}\label{sec:clutter}
@@ -22,12 +22,12 @@ A sensor observation can originate from various object's sources such as real ta
 
 Most of the sensors are finite in their perception resolution, that is they have $N$  \emph{resolution cells}. A detection is declared in a cell if  the output of the signal for the specific cell exceeds a threshold. If the sensor points to a region which is not occupied by a target, then false detections can still occur  due to sensor noise or background noise. Usually filtering is performed with \emph{observations} instead of detections, that is with the output of the raw-data pre-processor.\\
 
-In radar tracking for example, the pre-processor might be running clustering algorithms on raw-detections and provide the mean of each cluster as a different observation. The preprocessing of the raw data should remove what was defined as clutter, nevertheless it can still induce false positive observations. It is a common practice hence, to assume that the \textbf{Observations} have a similar clutter model to raw detections.
+In radar tracking for example, the pre-processor might be running clustering algorithms on raw-detections and provide the mean of each cluster as a different observation. The pre-processing of the raw data should remove what was defined as clutter, nevertheless it can still induce false positive observations. It is a common practice hence, to assume that the \emph{observations} have a similar clutter model to raw detections.
 
 \subsection{Assumptions}
 
 \begin{itemize}
-	\item The probability of a \emph{false detection} inside the sensors grid cell is $P_{FD} = p$ in each cell
+	\item The probability of a \emph{false detection} inside the sensors grid cell is $P_{FD} = p$ in each cell.
 	\item The events of observations in each cell are independent of each other.
 	\item 
 	Under the above assumptions, the \emph{probability mass function} (pmf) of the number of false alarms in these $N$ cells, follows a \emph{binomial}(Bernoulli) distribution.
@@ -102,11 +102,11 @@ When tracking single or multiple objects, one needs to associate sensor observat
 The first step towards identifying an observation's origin is \emph{validating or gating} , that is to filter out unrealistic observations which most likely constitute outliers. This can be done in a probabilistic way by defining a \emph{validation region}(gate), or else a \emph{probabilistic hypervolume} in the observation space of a sensor. \\
 
 
-An observation within the \emph{validation region}  does not necessarily originate from the target the gate pertains to, but it is a \emph{valid association candidate} . As soon as multiple observations belong to the same gate, then there is an observation \emph{association uncertainty}.
+An observation within the \emph{validation region}  does not necessarily originate from the target the gate pertains to, but it is a \emph{valid association candidate}. As soon as multiple observations belong to the same gate, then there is an observation \emph{association uncertainty}.
 
 \subsection{Validation region(gate)}\label{ssec:validationregion}
 
-If one considers a tracked target, \ie the filter has already been initialized, then one is is possible to calculate the \emph{predicted observation} mean $\predObserv(k+1|k)$ and its associated covariance $S(k+1)$ through the sensor's observation model and the filter's estimate of the state.
+If one considers a tracked target, \ie, the filter has already been initialized, then one is is possible to calculate the \emph{predicted observation} mean $\predObserv(k+1|k)$ and its associated covariance $S(k+1)$ through the sensor's observation model and the filter's estimate of the state.
 
 
 A fair assumption at this point, is that the \emph{true observation} probability distribution function $$ \realobserv(k+1| \validObservationSet^k)$$, conditioned on the past, is \emph{normally distributed} with its PDF given by the standard Gaussian
@@ -143,15 +143,13 @@ The Eigendecomposition of a symmetric matrix such as $\matr{S}$ is
 \matr{S} = \matr{U} \matr{\Lambda} \matr{U}^T
 \end{equation}
 
-where 
-
 And hence the square root of a matrix such that $\matr{S}^{\frac{1}{2}}\cdot \matr{S}^{\frac{1}{2}} = \matr{S}$, can be defined as
 
 \begin{equation}\label{eq:matrixsquareroot2}
 	\matr{S}^{\frac{1}{2}} =  \matr{U} \matr{\Lambda}^{\frac{1}{2}} \matr{U}^T
 \end{equation}
 
-since
+because
 
 \begin{align}
 \matr{S}^{\frac{1}{2}} \cdot \matr{S}^{\frac{1}{2}} &= \vect{U} \matr{\Lambda}^{\frac{1}{2}}\vect{U}^T \vect{U} \matr{\Lambda}^{\frac{1}{2}}\vect{U}^T \\
@@ -160,7 +158,7 @@ since
 &= \matr{S}
 \end{align}
 
-Since $\matr{S}^{-1}$ is symmetric, its square root can be found based on \Cref{eq:matrixsquareroot2} to be a symmetric matrix as well. , the statistical distance $D$ can be written as
+Since $\matr{S}^{-1}$ is symmetric, its square root can be found based on \Cref{eq:matrixsquareroot2} to be a symmetric matrix as well. Then the statistical distance $D$ can be written as
 
 \begin{align}
 D &= [\realobserv-\predObserv]^T \matr{S}^{-1} [\realobserv-\predObserv] \\
@@ -235,11 +233,11 @@ $$\gateThreshold \approx 9.21$$
 
 
 The square root $g = \sqrt{\gateThreshold}$ is also referred to as \emph{
-"number of sigmas"} or standard deviations of the gate.
+\quotes{number of sigmas}} or standard deviations of the gate.
 
 The \emph{validation region} thus, consists of points whose  \emph{statistical distance} to the predicted observation is below a threshold $\gateThreshold$.  This is equivalent to the \emph{normalized innovation} $$[\realobserv-\predObserv(k+1|k)]^T \matr{S}(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] < \gateThreshold^2 $$ being below this threshold.
 
-Measurements \emph{outside the validation region} can be ignored, as they are too far and very unlikely(at least with probability $1-P_g$) to have originated from the target of interest. This argument holds, as long as the predicted observations can be modeled by Gaussians and their first two moments.
+Measurements \emph{outside the validation region} can be ignored, as they are too far and very unlikely (at least with probability $=1-P_g$) to have originated from the target of interest. This argument holds, as long as the predicted observations can be modeled by Gaussians and their first two moments.
 \section{Probabilistic Data Association Filter (PDAF)} \label{sec:PDAF}
 
 This filter is based on the KF/EKF algorithm, it keeps the same time and measurement update scheme but is probabilistically fusing
@@ -272,7 +270,7 @@ observations within the target's validating region into a single fused innovatio
 	
 	
 	
-	with argument $x(k)$,mean $\hat{x(k|k-1)}$ and covariance matrix $P(k|k-1)$.
+	with argument $x(k)$,mean $\hat{x}(k|k-1)$ and covariance matrix $P(k|k-1)$.
 	\item The observation pdf originating from the target is Gaussian with mean $\predObserv(k|k-1)$ and \emph{innovation covariance}  $\innCov(k)$.
 \end{itemize}
 The above assumptions enable a state estimation scheme which is almost as simple as the standard \emph{Kalman Filter}(KF) but much more effective in clutter.
@@ -341,7 +339,7 @@ A basic step in the PDAF algorithm is to filter out highly unlikely observations
 
 
 
-From the Gaussian assumption (\eqref{eq:gaussAssumption}) a \emph{validation region}(gate) is defined by the ellipsoid
+From the Gaussian assumption \eqref{eq:gaussAssumption} a \emph{validation region}(gate) is defined by the ellipsoid
 
 \begin{equation}\label{eq:validationGate}
 \mathcal{V}(k+1, \gateThreshold) = \{\realobserv: [\realobserv-\predObserv(k+1|k)]^T \matr{S}(k+1)^{-1} [\realobserv-\predObserv(k+1|k)] \leq \gateThreshold \}
@@ -386,7 +384,7 @@ c_i =
 
 
 \subsection{Association events}
-Having in mind the assumptions mentioned, the association events list in \Cref{eq:associationevents} is mutually exclusive and exhaustive for $m(k)\geq1$
+Having in mind the assumptions mentioned, the association events list in \Cref{eq:associationevents} is mutually exclusive and exhaustive for $m(k)\geq1$, \ie,
 
 \begin{equation}\label{eq:associationevents}
 \epsilon_i(k)  = \left\{
@@ -408,7 +406,7 @@ Using the total probability theorem with respect to the above events, the condit
 \end{equation}
  
 \begin{description}
-	\item[$ \hat{x}_i(k|k) $ ] is the updated state conditioned on the association event that the $i$-th observation is correct
+	\item[$ \hat{x}_i(k|k) $ ] is the updated state conditioned on the association event that the $i$-th observation is correct.
 	
 	\begin{equation}\label{eq:PDAupdate}
 	\begin{array}{ll}
@@ -416,13 +414,13 @@ Using the total probability theorem with respect to the above events, the condit
 	\end{array}
 	\end{equation}
 	
-	\item[$ \beta_i(k) $] Is the conditional association probability as presented in the following paragraphs
+	\item[$ \beta_i(k) $] is the conditional association probability as presented in the following paragraphs.
 	
 	\begin{equation}\label{eq:associationprobability}
 	\beta_i(k) 	\overset{\Delta}{=} P\{\epsilon_i(k)|\validObservationSet^k\}
 	\end{equation}
 	
-	\item[$K(k)$] is the Kalman gain calculated as in the standard KF
+	\item[$K(k)$] is the Kalman gain calculated as in the standard KF.
 	
 	
 \end{description}
@@ -430,7 +428,7 @@ Using the total probability theorem with respect to the above events, the condit
 
 \subsubsection{Prediction}
 
-The prediction of the state and observation to $k+1$ is done as in the standard KF filter, \ie.,
+The prediction of the state and observation to $k+1$ is done as in the standard KF filter, \ie,
 
 
 \begin{equation}
@@ -513,7 +511,7 @@ $$
 P(k+1|k+1) = P(k+1|k) -  [ (1-\beta_0(k+1)) ] K(k+1)\matr{S}(k+1)W(k+1)^T + \tilde{P}(k+1)
 $$
 
-where $\tilde{P}(k+1)$ as given in \Cref{eq:spread} is responsible for spreading the updated estimate variance(increase uncertainty) in case of no validated observations($m(k)=0$).
+where $\tilde{P}(k+1)$ as given in \Cref{eq:spread} is responsible for spreading the updated estimate variance (increase uncertainty) in case of no validated observations ($m(k)=0$).
 
 
 \begin{equation}
@@ -528,7 +526,7 @@ where $\tilde{P}(k+1)$ as given in \Cref{eq:spread} is responsible for spreading
 	\item The estimation accuracy is \emph{data dependent} since the covariance matrix update in \Cref{eq:spread} depends on the innovations $v_i$ in contrast to the classic KF approach where the updated state covariance matrix depends only on the covariance matrix of the predicted observations $\matr{S}(k+1)$ and the latest state estimate covariance matrix $P(k+1)$.
 	\item The probability of an association event $\beta_i$ is:
 	\begin{itemize}
-		\item the ratio of the "height" on the predicted observation's Gaussian pdf of its innovation and
+		\item the ratio of the \quotes{height} on the predicted observation's Gaussian pdf of its innovation and
 		\item the sum of such terms for all the validated observations (denominator in \Cref{eq:betas}) plus a constant $b$ which accounts for the possibility of having zero validated observations.
 	\end{itemize}
 	\item The state estimate is updated with all the \emph{validated observations}(combined innovation $v(k)$ in \Cref{eq:weighted_innovation}), weighted by their likelihood $\beta_i$ of having originated from the target.

@@ -10,7 +10,7 @@ Simulations provide a flexible and controllable environment to conduct prelimina
 	\item Tunable noise intensities for each sensor.
 	\item Different refresh rates for each simulated sensor.
 	\item Artificial outliers/clutter observations generation.
-	\item Type of filter used, \ie Kalman Filter, Extended Kalman Filter, Particle Filter, and with or without Probabilistic Data Association extension.
+	\item Type of filter used, \ie, Kalman Filter, Extended Kalman Filter, Particle Filter, and with or without Probabilistic Data Association extension.
 \end{enumerate}
 
 \section{Performance} \label{sec:performance}
@@ -74,9 +74,9 @@ NEES(\hat{x}_k) \sim \chi^2(n_x), \quad \hat{x}_k \in \realnumbers^{n_x}
 According to \cite{TargetTracking} the scalar index $NEES(\hat{x}_k)$ can characterize the filtering quality as,
 
 \begin{description}
-	\item[$< n_x$] The estimate is conservative, \ie, the ground truth value is close to the estimated value, but the confidence interval of $P_k$ is disproportionately large, thus the estimate is better than indicated from $P_k$.
-	\item[$ \approx n_x $] The ground truth values are falling within the \emph{reasonable} confidence interval of $P_k$, hence the estimated covariance matches the observations.
-	\item[$> n_x$] The estimate is too optimistic, \ie, the ground truth value $x_k$ lies outside the confidence intervals, hence the estimate is worse than indicated from $P_k$.
+	\item[$NEES(\hat{x}_k)< n_x$] The estimate is conservative, \ie, the ground truth value is close to the estimated value, but the confidence interval of $P_k$ is disproportionately large, thus the estimate is better than indicated from $P_k$.
+	\item[$NEES(\hat{x}_k) \approx n_x $] The ground truth values are falling within the \emph{reasonable} confidence interval of $P_k$, hence the estimated covariance matches the observations.
+	\item[$NEES(\hat{x}_k) > n_x$] The estimate is too optimistic, \ie, the ground truth value $x_k$ lies outside the confidence intervals, hence the estimate is worse than indicated from $P_k$.
 \end{description}
 
 An example of tracking an \emph{inconsistently tuned} Kalman Filter can be seen in \Cref{fig:ekfnees,fig:KFinconsistent}.
@@ -90,7 +90,12 @@ An example of tracking an \emph{inconsistently tuned} Kalman Filter can be seen 
 
 
 \subsection{Normalized Innovation Squared test (NIS)}\label{ssec:NIS}
-Unfortunately, definite ground truth data $x_t$ is usually unavailable when recording real data, and as such an alternative test to NEES is defined. Instead of evaluating the consistency of the state estimate $\hat{x}_k$, one can evaluate the consistency of the \emph{predicted observation} $\predObserv_k$. The \emph{consistency of the observation estimate is highly correlated with the consistency of the state estimate} and thus it is a good index of abnormal estimator behavior \cite{Ivanov2014}. The \emph{Normalized Innovation error Squared} (NIS) defined in \Cref{eq:NIS} is an alternative to NEES that does not require ground truth information of the state.
+Unfortunately, definite ground truth data $x_t$ is usually unavailable when recording real data, and as such an alternative test to NEES is defined.
+
+
+Instead of evaluating the consistency of the state estimate $\hat{x}_k$, one can evaluate the consistency of the \emph{predicted observation} $\predObserv_k$. The \emph{consistency of the observation estimate is highly correlated with the consistency of the state estimate} and thus it is a good index of abnormal estimator behavior \cite{Ivanov2014}.
+
+The \emph{Normalized Innovation error Squared} (NIS) defined in \Cref{eq:NIS} is an alternative to NEES that \textbf{does not require ground truth} information of the state.
 
 
 
@@ -112,11 +117,11 @@ where
 
 As in the NEES test, the consistency check is based on the scalar value of $NIS(\observ^j_k, \hat{x}_k)$ :
 \begin{description}
-	\item[$< \alpha_{NIS}$] The estimator is overconfident, hence the process and/or measurement noise should be increased to accommodate for motion and sensor noise modeling errors.
-	\item[$ \approx \alpha_{NIS} $] The observations are consistent, hence if the observation noise levels match the actual sensor noise levels, then the estimates are consistent as well.
-	\item[$> \alpha_{NIS}$] The estimate is too optimistic, \ie, the ground truth value $x_k$ lies outside the confidence intervals, hence the estimate is worse than indicated from $P_k$.
+	\item[$NIS(\observ^j_k, \hat{x}_k) < \alpha_{NIS}$] The estimator is overconfident, hence the process and/or measurement noise should be increased to accommodate for motion and sensor noise modeling errors.
+	\item[$NIS(\observ^j_k, \hat{x}_k) \approx \alpha_{NIS} $] The observations are consistent, hence if the observation noise levels match the actual sensor noise levels, then the estimates are consistent as well.
+	\item[$NIS(\observ^j_k, \hat{x}_k) > \alpha_{NIS}$] The estimate is too optimistic, \ie, the ground truth value $x_k$ lies outside the confidence intervals, hence the estimate is worse than indicated from $P_k$.
 \end{description}
-In a similar fashion to Observation Gating, the NIS tests follows a chi-squared distribution and the value of $\alpha_{NIS}$ depends on the dimensonality of the observation vector $\observ \in \realnumbers^{n_y}$, and can be found by calculating the inverse of the chi-squared CDF with $n_y$ degrees of freedom (\Cref{eq:gammasol}), or by looking up at \Cref{fig:chisquaredtable} in \Cref{ssec:validationregion}.  A summary of different values for $\alpha_{NIS}$ is found in \Cref{tab:alphaNIS}.
+In a similar fashion to Observation Gating, the NIS tests follows a chi-squared distribution and the value of $\alpha_{NIS}$ depends on the dimensonality of the observation vector $\observ \in \realnumbers^{n_y}$, and can be found by calculating the inverse of the chi-squared CDF with $n_y$ degrees of freedom (\Cref{eq:gammasol}), or by looking up at \Cref{fig:chisquaredtable} in \Cref{ssec:validationregion}.  A summary of different values for $\alpha_{NIS}$ depending on the sensor used is found in \Cref{tab:alphaNIS}.
 
 
 \begin{table}[H]
@@ -126,7 +131,7 @@ In a similar fashion to Observation Gating, the NIS tests follows a chi-squared 
 	\begin{tabular}{llll}
 		\hline
 		Sensor                       & Observations               & $n_y$ & $\alpha_{NIS}$ \\ \hline
-		W-band radar                 & bearing, range             & $ 2 $  & $9.2$              \\
+		X-band radar                 & bearing, range             & $ 2 $  & $9.2$              \\
 		Camera                       & bearing                    & $ 1 $     & $6.6$              \\
 		AIS (only geodetic location) & $\longi, \lat$                    & $ 2     $ & $ 9.2 $              \\
 		AIS (with speed)             & $\longi, \lat, \boatspeed_{SOG},\heading_{COG}$                  & $ 4  $    & $ 13.2 $       \\
@@ -155,16 +160,17 @@ In a similar fashion to Observation Gating, the NIS tests follows a chi-squared 
 		\caption{Overall trajectory of the simulation.}
 		\label{fig:KFinconsistent2}
 	\end{subfigure}
+	\captionsetup{font=small}
 	\caption{Illustration of a Kalman Filter's inconsistency according to the Normalized Estimation Error Squared (NEES) test. Top view of a simulated moving target. Ground truth trajectory $x_{1:T}$ can be seen in blue,  whereas the red trajectory corresponds to the estimated state history $\hat{x}_{1:T}$. Green crosses correspond to noisy radar observations. Red ellipses correspond to $3\sigma$ confidence intervals $P_k$ on time updates, where as the green ellipses correspond to measurement updates. In the close-up segment of \cref{fig:KFinconsistent1}, it can be seen that the ground truth lies quite far from the estimators uncertainty ellipse, which implies that the estimator is being inconsistent and overconfident. The inconsistency is verified in the history plot of the Normalized Estimation Error Squared (NEES) in \Cref{fig:ekfnees}.}
 	\label{fig:KFinconsistent}
 \end{figure}
 
 \subsection{Filter tuning methods}
 \subsubsection{Heuristic methods}
-Should one or more of the consistency checks fail, then the designer of the estimator should suspect a modeling error. A step back to an earlier design stage has to be taken in order to identify the fault. The source of the problem is not a trivial process to locate. An inaccurate motion model, wrong process $\proccCov$ or observation $\measCov$ covariance sizing, higher order errors due to Taylor approximations (see \Cref{ssec:EKFlimitations}). A heuristic method proposed by \cite{BarShalom1980} is to increase the modeled process noise covariance $\proccCov$. The basic disadvantage of amplifying the process noise, is that despite the fact that the filter will appear to be compliant to the consistency checks, the actual estimates will be less informative \ie, the \emph{quality} of the estimation will deteriorates.
+Should one or more of the consistency checks fail, then the designer of the estimator should suspect a modeling error. A step back to an earlier design stage has to be taken in order to identify the fault. The source of the problem is not a trivial process to locate. An inaccurate motion model, wrong process $\proccCov$ or observation $\measCov$ covariance sizing, higher order errors due to Taylor approximations (see \Cref{ssec:EKFlimitations}) only to name a few. A heuristic method proposed by \cite{BarShalom1980} is to increase the modeled process noise covariance $\proccCov$. The basic disadvantage of amplifying the process noise, is that despite the fact that the filter will appear to be compliant to the consistency checks, the actual estimates will be less informative \ie, the \emph{quality} of the estimation will deteriorates.
 
 \subsubsection{Adaptive analytical methods}
-There exist additional methods for tuning such filter hyper-parameters. For instance, \cite{Zhou1989,Ljung1979,} demonstrated an extension to the nominal  \emph{Kalman Filter} filter that can estimate filtering hyper-parameters such as the covariance matrices $R_k$ and $Q_k$. 
+There exist additional methods beyond the scope of this thesis, for tuning such filter hyper-parameters. For instance, \cite{Zhou1989,Ljung1979,} demonstrated an extension to the nominal  \emph{Kalman Filter} filter that can estimate filtering hyper-parameters such as the covariance matrices $R_k$ and $Q_k$. 
 \subsection{Covariance matrix determinant}\label{ssec:CovMatDet}
 
 
@@ -174,14 +180,14 @@ What the author found of interest is monitoring fluctuations in $\det{P_k}$ or o
 
 
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{detP.png}
-	\caption{Determinant of the state covariance matrix $P_k$. Fusion of different measurement updates in an \emph{Extended Kalman Filter}. One can observe that a simulated camera sensor provides new observations approximately every 10 samples($f_{\text{cam}} = \SI{1}{\Hz}$), whereas a simulated AIS sensors provides observations every 100 samples ($f_{\text{AIS}} = \SI{0.1}{\Hz}$). Each sensor reduces the uncertainty at a different level.}
+	\caption{Determinant of the state covariance matrix $P_k$. Fusion of different measurement updates in an \emph{Extended Kalman Filter}. One can observe that a simulated camera sensor provides new observations approximately every 10 samples($f_{\text{cam}} = \SI{1}{\Hz}$), whereas a simulated AIS sensors provides observations every 100 samples ($f_{\text{AIS}} = \SI{0.1}{\Hz}$). Each sensor reduces the uncertainty at a different level, but the case is that camera observations are less reliable than AIS observations, and hence reduce the uncertainty less.}
 	\label{fig:detp}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\linewidth]{det_trace_Pk.pdf}
 	\caption{State covariance matrix determinant and trace as scalar uncertainty metrics. Of specific interest is the temporal behavior of the time-series, instead of their absolute values. Both the trace and the determinant behave in a similar fashion.}
@@ -332,27 +338,27 @@ Tracking for the recorded data is performed with respect to a fixed \emph{North-
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\linewidth]{geomapEDIT.png}
-	\caption{Geographic view of the actual tracking scene with land overlay.\\Location: \emph{Faaborg Fjord} $55^\circ 04' \text{N}  \, 10^\circ15' \text{E}$}
+	\caption{Geographic view of the actual tracking scene with land overlay. Location: \emph{Faaborg Fjord} $55^\circ 04' \text{N}  \, 10^\circ15' \text{E}$}
 	\label{fig:overlay}
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{multitrackleftEDIT}
-	\caption{Tracking multiple targets (snapshot from an \href{https://dimidagd.github.io/thesis/3dView_real_dataEKFandPF.gif}{animation}) using a \emph{Particle Filter} (PF) and an \emph{Extended Kalman Filter} (EKF). Number of particles for each target $N=100$. The Particle Filter estimates remain fairly close to the ones produced by the EKF. A snapshot of the actual sensor outputs at the given time instant can be seen in \Cref{fig:EKFandPFraw}, and a close-up view of the highlighted maneuvering target in \Cref{fig:zoomviewEKF,fig:zoomviewpf} for the EKF and PF respectively. Tracking is with respect to a fixed North-East-Down coordinate system defined at the own-ships first available geodetic location.}
+	\caption{Tracking multiple targets (animation \href{https://dimidagd.github.io/thesis/3dView_real_dataEKFandPF.gif}{\underline{link}}) using a \emph{Particle Filter} (PF) and an \emph{Extended Kalman Filter} (EKF). Number of particles for each target $N=100$. The Particle Filter estimates remain fairly close to the ones produced by the EKF. A snapshot of the actual sensor outputs at the given time instant can be seen in \Cref{fig:EKFandPFraw}, and a close-up view of the highlighted maneuvering target in \Cref{fig:zoomviewEKF,fig:zoomviewpf} for the EKF and PF respectively. Tracking is with respect to a \emph{fixed} North-East-Down coordinate system defined at the own-ships first available geodetic location. The magenta line on the East highlighted area corresponds the the \emph{EKF} trajectory estimate, and the red dashed line corresponds to the \emph{PF} estimate (almost identical).}
 	\label{fig:EKFandPF}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{multitrackrightEDIT}
-	\caption{Raw measurements plot (snapshot from an \href{https://dimidagd.github.io/thesis/tracking_to_referenceEKFandPF.gif}{animation}). Red circles correspond to radar and blue crosses to AIS observations. The Western region highlights observations from a maneuvering target, whereas the bounding box in the middle highlight AIS measurements of the own-ship.  Plotting is with respect to a fixed North-East-Down coordinate system defined at the own-ships first available geodetic location.}
+	\caption{Raw measurements plot (animation \href{https://dimidagd.github.io/thesis/tracking_to_referenceEKFandPF.gif}{\underline{link}}). Red circles correspond to radar and blue crosses to AIS observations. The Western region highlights observations originating from a maneuvering target, whereas the bounding box in the middle highlight AIS measurements of the own-ship.  Plotting is with respect to a \emph{fixed} North-East-Down coordinate system defined at the own-ships first available geodetic location.}
 	\label{fig:EKFandPFraw}
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.75\linewidth]{zoomViewPF.pdf}
 	\caption{Close up view tracking of the maneuvering target highlighted in \cref{fig:EKFandPF} using a \textbf{Particle Filter}. The covariance matrix $P_k$ is calculated from the filter's weighted particle population. Illustrated in cyan and amber color are the post-radar and post-AIS 95\% confidence intervals respectively. }
@@ -360,7 +366,7 @@ Tracking for the recorded data is performed with respect to a fixed \emph{North-
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.75\linewidth]{zoomViewEKF.pdf}
 	\caption{Zoom in, of a single tracked target using an \textbf{Extended Kalman Filter}. Illustrated in cyan and amber color are the post-radar and post-AIS measurement update 95\% confidence intervals respectively. }
@@ -369,14 +375,14 @@ Tracking for the recorded data is performed with respect to a fixed \emph{North-
 
 
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{dashEKF_with_AIS_full.pdf}
 	\caption{Maneuvering tracked target (\cref{fig:zoomviewEKF}) performance dashboard. Using an \textbf{Extended Kalman Filter}. Plotted are the individual state components along with their $3\sigma$ confidence intervals(gray shaded area) as extracted from the diagonal elements of the covariance matrix $P_k$. The EKF corrections to the states $K(\observ_k - \predObserv_k)$ are plotted in orange and cyan colors and their magnitudes can be seen on the secondary y-axes. The covariance matrix determinant $\det{P_k}$ is plotted as a scalar index of overall uncertainty (see \cref{ssec:CovMatDet}). Bottom plot is the $NIS$ consistency check along with the threshold for the radar observations $\alpha_{NIS}$ (see \cref{ssec:NIS}).}
 	\label{fig:dashEKF_with_AIS_full}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\linewidth]{dashPF_with_AIS_full.pdf}
 	\caption{Maneuvering tracked target (\cref{fig:zoomviewpf}) performance dashboard. Using a \textbf{Particle Filter} with $N=100$ particles. Plotted are the weighted mean components of the particle distribution. The covariance matrix determinant of the particle distribution $\det{P_k}$ is plotted as a scalar index of overall uncertainty (see \cref{ssec:CovMatDet}). Bottom plot is the particle depletion re-sampling check $N_{eff}$. Whenever the number of effective particles falls below $N/2$ the particle population is being re-sampled (see \cref{ssec:resamplingPF}).}

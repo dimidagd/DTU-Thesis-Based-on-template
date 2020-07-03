@@ -8,14 +8,15 @@ When defining the configuration space, four coordinate systems are usually invol
 \begin{itemize}
 	\item Geodetic
 	\item Local-tangential East-North-Up (ENU)
+	\item Local-tangential North-East-Down (NED)
 	\item Earth-Centered Earth-fixed (ECEF)
 \end{itemize}
 
-The transformations between the systems exist and are non-linear.
+The transformations between the systems exist and are non-linear and will be presented in \Cref{sec:transformations}.
 
 \subsection{Geodetic coordinates}
 
-The earth's surface is approximated by an ellipsoid of revolution of known parameters. The parameters values depend on the datum of choice. In the scope of this chapter, the selected datum is the \textbf{WGS 84} \cite{Malys2015} with parameters
+The earth's surface is approximated by an ellipsoid of revolution of known parameters. The parameterization depends on the datum of choice. In the scope of this chapter, the selected datum is the \textbf{WGS 84} \cite{Malys2015} with parameters given in \Cref{tab:wgs84params}.
 
 \begin{table}[H]
 	\centering
@@ -53,7 +54,7 @@ Two variants exist, the selection of which is a matter of convention but lead to
 	\item North, East, Down (\textbf{\emph{NED}})
 \end{itemize}
 
-The North-East-Down and East-North-Up coordinate systems (\Cref{fig:ECEF_ENU}), are \emph{local geodetic systems} fixed to the Earth. They are determined by a tangent plane attached to the \emph{geodetic reference ellipsoid} at a reference point of interest, which determines the \emph{origin} of the system. The differentiation between the two systems is the direction that the unit vectors are pointing, which is indicated by their names.
+The North-East-Down and East-North-Up coordinate systems (\Cref{fig:ECEF_ENU}), are \emph{local geodetic systems} fixed to the Earth. They are determined by a tangent plane attached to the \emph{geodetic reference ellipsoid} at a reference point of interest, which determines the \emph{origin} of the system. The differentiation between the two systems is the direction that the unit vectors are pointing at, which is indicated by their names.
 
 
 Tangential coordinate systems are convenient in the context of tracking nearby ships because the tracking problem can be reduced to tracking a target on a two-dimensional plane.
@@ -61,7 +62,7 @@ Tangential coordinate systems are convenient in the context of tracking nearby s
 
 \subsection{Earth Centered Earth-fixed (ECEF)}
 
-\textbf{ECEF} is a \emph{Cartesian coordinate system} $[X,Y,Z]^T$ with its origin placed at the earth's \emph{center of mass}, hence the naming convention. It is a rotating system as the \emph{z-axis} is pointing through \emph{true north} while the \emph{x-axis} intersects earth's spheroid at the geodetic coordinates $[\phi,\longi]^{T} =  [0,0]^{T}$(\cref{fig:ECEF_ENU}).
+\textbf{ECEF} is a \emph{Cartesian coordinate system} $[X,Y,Z]^T$ with its origin placed at the earth's \emph{center of mass}, hence the naming convention. It is a rotating system as the \emph{z-axis} is pointing through \emph{True north} while the \emph{x-axis} intersects the Earth's spheroid at geodetic coordinates $[\phi,\longi]^{T} =  [0,0]^{T}$ (\Cref{fig:ECEF_ENU}).
 
 
 \begin{figure}[H]
@@ -74,14 +75,14 @@ Tangential coordinate systems are convenient in the context of tracking nearby s
 
 \section{Transformations}\label{sec:transformations}
 
-There is a need to define transformations between different coordinate systems, since tracking is performed in a common configuration space according to the state-space representation of the dynamical targets. Some of the transformations are non-linear, due to the trigonometric functions involved, a factor that signifies the importance of using a tracking framework that is able to handle these nonlinearities.
+Since tracking is performed in a common configuration space according to the state-space representation of the dynamical targets, there is a need to define transformations between the different aforementioned coordinate system. Some of the transformations are non-linear, due to the trigonometric functions involved, a factor that signifies the importance of using a tracking framework that is able to handle these nonlinearities.
 
-\subsection{Geodetic to ECEF}
+\subsection{Geodetic to ECEF}\label{ssec:geodetic-to-ecef}
 
-GNSS measurements usually arrive in  \textbf{geodetic} coordinates, where as tracking at sea is usually performed on a \textbf{local tangential plane}.
+GNSS measurements typically arrive in  \textbf{geodetic} coordinates, where as tracking at sea is usually performed on a \textbf{local tangential plane}.
 
 
-The transformation between these two systems requires an intermediate transformation from \textbf{geodetic} $(\phi,\longi,h)$ to \textbf{ECEF}   $(X,Y,Z)$ coordinates \ref{eq:GEO2ECEF}.
+The transformation between these two systems requires an intermediate transformation from \textbf{geodetic} $(\phi,\longi,h)$ to \textbf{ECEF}   $(X,Y,Z)$ coordinates \eqref{eq:GEO2ECEF}.
 
 \begin{equation} \label{eq:GEO2ECEF}
 	\begin{bmatrix}
@@ -102,15 +103,16 @@ The transformation between these two systems requires an intermediate transforma
 \end{equation}
 
 
-\subsection{ECEF to ENU}
+\subsection{ECEF to ENU}\label{ssec:ecef-to-enu}
 
 
 
-Given a reference point in Geodetic $[\lat_0,\longi_0]$ and the corresponding ECEF $[X_0,Y_0,Z_0]$ coordinates, then any other point's ECEF coordinates $[X,Y,Z]$ can be converted to local tangential plane coordinates $[x,y,z]$ using the transformation in \ref{eq:transformation_ECEF2ENU}
+Given a reference point $p_{ref}$in geodetic $p_{ref}^{geo}=[\lat_0,\longi_0]$ coordinates, and its corresponding point's ECEF $p_{ref}^{ECEF}=[X_0,Y_0,Z_0]$ coordinates, then any other point's ECEF coordinates $p^{ECEF}=[X,Y,Z]$ can be converted to local tangential plane coordinates $p^{\text{tangential}}=[x,y,z]$ using the transformation in \Cref{eq:transformation_ECEF2ENU}
 
 
 
 \begin{equation} \label{eq:transformation_ECEF2ENU}
+p^{\text{tangential}}=
 	\begin{bmatrix}
 		x\\
 		y\\
@@ -127,7 +129,7 @@ Given a reference point in Geodetic $[\lat_0,\longi_0]$ and the corresponding EC
 \end{equation}
 
 
-where $\mathcal{L}(\cdot)$ (\Cref{eq:Lambda}) is the tangential plane projection matrix of the geodetic ellipsoid with the origin being the reference point $[\lat_0,\longi_0,h_0]$ 
+where $\mathcal{L}(\cdot)$ (\Cref{eq:Lambda}) is the tangential plane projection matrix of the geodetic ellipsoid with the origin being the reference point $p_{ref}^{geo} = [\lat_0,\longi_0,h_0]$ 
 
 
 
@@ -166,17 +168,16 @@ To describe the position and orientation of a ship, one can use the following or
 \subsection{Body fixed coordinate system}
 
 
-The \emph{body fixed}, as the name suggests, is fixed to the hull of a vessel. The x-axis is pointing towards the bow, the y-axis points starboard and the z-axis points downwards completing the orthogonal system. The origin of the system in marine applications is usually the origin of the principal axes of inertia, which simplifies the solution of the dynamical equations of motion for the body. This coordinate system is used to express on-board velocity and acceleration measurements and the equations of motion of the vessel as a rigid body are formulated about the origin $o_{b}$.
+The \emph{body fixed}, as the name suggests, is fixed to the hull of a vessel. The x-axis is pointing towards the bow, the y-axis points starboard and the z-axis points downwards completing the orthogonal system. The origin of the system in marine applications is usually the origin of the principal axes of inertia, which simplifies the solution of the dynamical equations of motion for the body. This coordinate system is used to express on-board velocity and acceleration measurements and the equations of motion of the vessel as a rigid body are formulated about the origin $o_{b}$ (see \Cref{fig:ownship_frames}).
 
 \subsection{Sea-following coordinate system}
-
 
 The \emph{sea-following} frame follows the average heading of the vessel. As such, the system is fixed to the ship's \emph{equilibrium} state, which is defined by the ship's average speed and heading. The positive x-axis is pointing ahead, the y-axis is pointing starboard and the z-axis is pointing down. The origin of the system is selected so that the z-axis is pointing through its mean center of buoyancy, and the x-y plane coincides with the \emph{calm water surface}.
 
 \subsection{Own-ship tracking coordinate system}
 
 
-For the shake of simplicity, one can define the tracking coordinates system $\\{t\\}$. The origin of the tracking system coincides with the origin of the sea-following coordinate system of the own-ship. The x-axis is pointing in the heading direction of the own-ship, the y-axis is pointing port, and the z-axis up to complete a dextral orthogonal system. The x-y axes are always coplanar to the East North plane and since this is an \emph{equilibrium coordinate system}, the coordinates of a stationary target observed in this system do not depend on the roll or pitch angles of the own-ship. It is important to note that this is not the case for the yaw angle as well. As the own-ship's heading direction is changing, a stationary target would appear to move in a circle in this system. Thus the configuration space for the tracking problem is reduced in tracking along two dimensions. The reduction to a two-dimensional problem is justifiable if one considers that the own-ship as well as the tracked targets are floating objects that are close enough for geodetic curvature effects to be negligible, and a tangential plane approach to be accurate enough.
+For the shake of simplicity, one can define the tracking coordinates system $\{t\}$. The origin of the tracking system coincides with the origin of the sea-following coordinate system of the own-ship. The x-axis is pointing in the heading direction of the own-ship, the y-axis is pointing port, and the z-axis up to complete a dextral orthogonal system. The x-y axes are always coplanar to the East North plane and since this is an \emph{equilibrium coordinate system}, the coordinates of a stationary target observed in this system do not depend on the roll or pitch angles of the own-ship. It is important to note that this is not the case for the yaw angle as well. As the own-ship's heading direction is changing, a stationary target would appear to move in a circle in this system. By adopting the own-ship tracking coordinate system, the configuration space for the tracking problem is reduced in tracking along two dimensions. The reduction to a two-dimensional problem is justifiable if one considers that the own-ship as well as the tracked targets are floating objects that are close enough for geodetic curvature effects to be negligible, and a tangential plane approach to be accurate enough.
 
 
 
@@ -190,14 +191,14 @@ For the shake of simplicity, one can define the tracking coordinates system $\\{
 
 \subsection{Purpose of using different coordinate systems}
 
-Both the motion and the measurement model equations depend on the coordinate system of choice. Sensor measurements from a radar arrive in the sensor's local spherical system, which is a moving system that moves according to the own-ship's motion, where as GNSS measurements either for the own-ship or for other vessels arrive in the geodetic system. At the same time it is convenient when considering the target's kinematics, to assume that all floating targets move on the same plane, and thus express the tracked target's motion on such a system.
+Both the motion and the measurement model equations depend on the coordinate system of choice. Sensor measurements from a radar arrive in the sensor's local spherical system, which is a moving system that moves according to the own-ship's motion, whereas GNSS measurements either for the own-ship or for other vessels arrive in the geodetic system. At the same time it is convenient when considering the target's kinematics, to assume that all floating targets move on the same plane, and thus express the tracked target's motion on such a system.
 
 Since the local sensors like the radar and the cameras are rigidly attached to the body-frame, it is essential to consider the transformations from the body coordinate system to the own-ship's equilibrium coordinate system. Additional information about the orientation of the body fixed coordinate system with respect to a tangential coordinate system are available through \emph{gyro} and \emph{gps compass} sensors located onboard the own-ship. 
 
-\subsection{Transformation from ENU to own-ship tracking coordinates}
+\subsection{Transformation from ENU to own-ship tracking coordinates}\label{ssec:transformation-from-enu-to-own-ship-tracking-coordinates}
 
 
-If the origin of the ENU system is selected to coincide with the origin of the own-ship's tracking coordinates origin, and $\psi$ is the heading angle of the own-ship from the North direction, then the transformation from ENU, to the own-ship's tracking coordinates is
+If the origin of an ENU system $\{e\}$ is selected to coincide with the origin of the own-ship's tracking coordinates $\{t\}$ origin, and $\psi$ is the heading angle of the own-ship from the North direction, then the transformation $R_z$ from ENU, to the own-ship's tracking coordinates is
 
 
 
